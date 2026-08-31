@@ -1,0 +1,112 @@
+# Technická bezpečnost – validační landing page
+
+Jednostránkový web, který ověřuje zájem o připravovaný odborný portál
+**Technická bezpečnost – odborné odpovědi pro praxi**. Návštěvník odpoví
+ANO/NE na otázku o placeném členství; při ANO se plynule rozbalí registrační
+formulář (jméno, příjmení, profese, e-mail). Odpovědi se ukládají do SQLite
+databáze a o každém novém zájemci odejde e-mailové upozornění klientovi.
+
+## Technologie
+
+- **Frontend:** čisté HTML + CSS + JavaScript, žádný framework, žádný build
+  krok, žádné externí zdroje (fonty, CDN, analytika). Web funguje i s vypnutým
+  JavaScriptem (rozbalování řeší CSS, formuláře klasický POST).
+- **Backend:** PHP 8+ (dva malé endpointy), SQLite přes PDO, `mail()`.
+- **Soukromí:** nulové cookies, žádný localStorage, žádné třetí strany,
+  NE-odpovědi zcela anonymní, IP adresy se neukládají.
+
+## Mapa souborů
+
+```
+├── public/                  ← document root webu
+│   ├── index.html           ← celá stránka
+│   ├── assets/              ← style.css, app.js, og-image.png, apple-touch-icon.png
+│   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
+│   ├── admin/export.php     ← chráněný přehled + export CSV
+│   ├── favicon.svg, robots.txt, .htaccess
+├── app/                     ← MIMO document root
+│   ├── config.php           ← ⚙️ jediný soubor, který upravujete
+│   └── bootstrap.php        ← společný kód endpointů
+├── data/                    ← MIMO document root; SQLite vznikne automaticky
+└── README.md
+```
+
+## Konfigurace (`app/config.php`)
+
+| Konstanta | Význam |
+| --- | --- |
+| `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce. **Testovací `zbysek@digicary.cz` – před ostrým provozem změnit.** |
+| `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
+| `EXPORT_USER` | Přihlašovací jméno k exportu (výchozí `spravce`). |
+| `EXPORT_PASS_HASH` | Bcrypt hash hesla k exportu. **Dokud je prázdný, je export zamčený.** Hash vygenerujete: `php -r "echo password_hash('VaseHeslo', PASSWORD_DEFAULT), PHP_EOL;"` |
+| `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
+
+## Lokální vývoj
+
+```bash
+TB_DEV_MODE=1 php -S localhost:8000 -t public
+```
+
+- `TB_DEV_MODE=1` zapne vývojový režim: e-maily se místo odeslání zapisují do
+  `data/mail-dev.log` a PHP vypisuje chyby.
+- Vestavěný server nečte `.htaccess` – bezpečnostní hlavičky a HTTPS redirect
+  se projeví až na hostingu; ochrana exportu heslem funguje i lokálně (řeší ji
+  PHP). V dev režimu lze heslo exportu dodat i proměnnou `TB_EXPORT_HASH`.
+
+## Nasazení na sdílený hosting (FTP)
+
+1. Nahrajte projekt tak, aby **document root ukazoval na složku `public/`**;
+   složky `app/` a `data/` zůstávají o úroveň výš, mimo web.
+2. V `app/config.php` vyplňte `EXPORT_PASS_HASH` (viz výše), zkontrolujte
+   `NOTIFY_EMAIL` a případně `MAIL_FROM`.
+3. V administraci hostingu zapněte HTTPS (Let's Encrypt). Po ověření, že
+   HTTPS funguje, můžete v `public/.htaccess` odkomentovat hlavičku HSTS.
+4. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
+   práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
+5. V `public/index.html` doplňte v patičce **jméno a kontaktní e-mail
+   provozovatele** (placeholdery `[Jméno Příjmení]`, `[doplňte e-mail]`)
+   a v hlavičce absolutní URL `og:image`.
+
+**Nouzový režim** – hosting neumožňuje umístit soubory nad document root:
+nahrajte složky `app/` i `data/` společně dovnitř webové složky vedle
+`index.html`. Obě obsahují `.htaccess` s `Require all denied`, takže je Apache
+nevydá. Doporučujeme pak v `app/config.php` změnit `DB_PATH` na název
+s náhodným přídavkem, např. `responses-9f3k2x8q.sqlite`.
+
+## Export dat
+
+- `https://vase-domena.cz/admin/export.php` – po přihlášení přehled počtů
+  ANO/NE, tabulka zájemců a tlačítko **Stáhnout CSV pro Excel**.
+- CSV má UTF-8 BOM, středníky a CRLF – český Excel jej otevře na dvojklik.
+- Export nemá veřejnou adresu, neposílejte jej e-mailem a nešiřte dál
+  (obsahuje osobní údaje).
+
+## Testovací checklist po nasazení
+
+1. Odpověď **ANO** + vyplněný formulář → success zpráva, řádek v DB,
+   e-mail dorazil na `NOTIFY_EMAIL`.
+2. Stejný e-mail podruhé → žádný druhý řádek ani druhý e-mail (tichý úspěch).
+3. Odpověď **NE** → anonymní řádek (jen datum a NE).
+4. Prázdná pole / špatný e-mail → české chybové hlášky u polí.
+5. Vypnutý JavaScript → celý průchod funguje přes klasické stránky.
+6. Mobil (úzké okno) → vše čitelné a použitelné.
+7. DevTools → Application: žádné cookies, žádný storage; Network: žádné
+   požadavky na cizí domény.
+8. `https://…/data/responses.sqlite` a `https://…/app/config.php` vrací
+   403/404 (v nouzovém režimu).
+9. `/admin/export.php` bez hesla nepustí dál; CSV se správně otevře v Excelu.
+
+## GDPR – provozní povinnosti
+
+- Doplnit skutečné jméno a e-mail správce do patičky a Zásad (index.html).
+- Schránku správce reálně číst – mohou přijít žádosti o výmaz údajů.
+- Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
+  logy a notifikační e-maily ve schránce.
+- Formulář nemá (záměrně) souhlasový checkbox – právním základem je čl. 6
+  odst. 1 písm. b) GDPR; web nemá cookies, proto není cookie lišta.
+
+## Co tu záměrně není
+
+Žádná analytika, žádná CAPTCHA (spam řeší honeypot + limit počtu odeslání za
+minutu), žádné cookies, žádné externí fonty či skripty. Je to záměr – web je
+rychlý, auditovatelný a bez právních komplikací.

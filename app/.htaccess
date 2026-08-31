@@ -1,0 +1,8 @@
+# Ochrana pro nouzový režim, kdy je app/ uvnitř document rootu.
+# (V doporučeném rozložení je složka mimo web a soubor se neuplatní.)
+<IfModule mod_authz_core.c>
+Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+Deny from all
+</IfModule>

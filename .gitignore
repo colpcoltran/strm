@@ -1,0 +1,9 @@
+# Data vznikají za běhu – do repozitáře nepatří
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+data/*.log
+
+# Systémové soubory
+.DS_Store
+Thumbs.db
