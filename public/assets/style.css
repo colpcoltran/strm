@@ -179,8 +179,24 @@ a:hover { color: var(--c-primary-dark); }
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 0;
+  padding: 0 0 26px;
   margin: 30px 0 0;
+  width: fit-content;
+  max-width: 100%;
+  position: relative;
+}
+
+/* Oddělovač pod štítky: jemná bílá tečkovaná linka v šíři řady štítků */
+.hero-facts::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  bottom: 0;
+  height: 3px;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.75) 1.3px, transparent 1.6px);
+  background-size: 15px 3px;
+  background-repeat: repeat-x;
 }
 
 .hero-facts li {
@@ -196,16 +212,7 @@ a:hover { color: var(--c-primary-dark); }
 .hero-price {
   font-size: 1.1rem;
   color: #e9f0f7;
-  margin: 26px 0 0;
-}
-
-/* Oddělovač mezi štítky a cenou – přerušovaná linka v akcentové barvě */
-.hero-price::before {
-  content: "";
-  display: block;
-  width: 64px;
-  border-top: 2px dashed rgba(242, 189, 107, 0.65);
-  margin-bottom: 22px;
+  margin: 24px 0 0;
 }
 
 .hero-price strong {
@@ -385,8 +392,7 @@ a:hover { color: var(--c-primary-dark); }
 }
 
 .card {
-  background: var(--c-bg);
-  border: 1px solid var(--c-line);
+  background: linear-gradient(160deg, var(--c-primary), var(--c-primary-dark));
   border-radius: var(--radius);
   padding: 22px;
 }
@@ -395,8 +401,8 @@ a:hover { color: var(--c-primary-dark); }
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: rgba(240, 166, 60, 0.16);
-  color: #e08a1e;
+  background: rgba(255, 255, 255, 0.14);
+  color: #f2bd6b;
   display: grid;
   place-items: center;
   margin-bottom: 14px;
@@ -407,12 +413,13 @@ a:hover { color: var(--c-primary-dark); }
 .card h3 {
   font-size: 1.05rem;
   margin-bottom: 0.4em;
+  color: #fff;
 }
 
 .card p {
   margin: 0;
   font-size: 0.98rem;
-  color: var(--c-muted);
+  color: #c9d8e6;
 }
 
 /* --- Dotazník ---------------------------------------------- */
