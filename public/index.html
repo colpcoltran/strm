@@ -45,6 +45,58 @@
         <a class="btn btn-outline-light" href="#dotaznik" data-vyber="NE">Nemám zájem</a>
         <a class="btn btn-ghost" href="#detaily">Zjistit víc <span aria-hidden="true">↓</span></a>
       </div>
+
+      <div class="hero-form">
+        <div id="hero-status" class="form-status"></div>
+        <div class="hero-panel">
+          <div class="hero-panel-inner">
+            <form id="form-ano-hero" class="reg-form hero-reg" action="api/submit.php" method="post">
+              <input type="hidden" name="answer" value="ANO">
+              <div class="hp-field" aria-hidden="true">
+                <label for="kontrola-hero">Toto pole nevyplňujte</label>
+                <input type="text" id="kontrola-hero" name="kontrola" tabindex="-1" autocomplete="off">
+              </div>
+              <div class="field-grid">
+                <div class="field">
+                  <label for="jmeno-h">Jméno</label>
+                  <input type="text" id="jmeno-h" name="jmeno" required maxlength="100" autocomplete="given-name" aria-describedby="err-jmeno-h">
+                  <p class="field-error" id="err-jmeno-h" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="prijmeni-h">Příjmení</label>
+                  <input type="text" id="prijmeni-h" name="prijmeni" required maxlength="100" autocomplete="family-name" aria-describedby="err-prijmeni-h">
+                  <p class="field-error" id="err-prijmeni-h" hidden></p>
+                </div>
+              </div>
+              <div class="field">
+                <label for="profese-h">Profese</label>
+                <input type="text" id="profese-h" name="profese" required maxlength="100" autocomplete="organization-title" aria-describedby="hint-profese-h err-profese-h">
+                <p class="field-hint" id="hint-profese-h">Např. revizní technik, manažer BOZP, facility manažer…</p>
+                <p class="field-error" id="err-profese-h" hidden></p>
+              </div>
+              <div class="field">
+                <label for="email-h">E-mail</label>
+                <input type="email" id="email-h" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="jmeno@firma.cz" aria-describedby="hint-email-h err-email-h">
+                <p class="field-hint" id="hint-email-h">E-mail použijeme jen k&nbsp;informování o&nbsp;tomto projektu.</p>
+                <p class="field-error" id="err-email-h" hidden></p>
+              </div>
+              <div class="form-error" id="form-error-ano-hero" role="alert" hidden></div>
+              <button class="btn btn-accent" type="submit">Odeslat / Mám zájem</button>
+              <p class="gdpr-note">Odesláním formuláře projevujete zájem o&nbsp;připravovanou službu a&nbsp;žádáte o&nbsp;zaslání informace o&nbsp;jejím spuštění. Jméno, příjmení, profesi a&nbsp;e-mail zpracovávám jen pro tento účel a&nbsp;nejpozději do 31.&nbsp;3.&nbsp;2027 je smažu. Podrobnosti: <a href="#zasady-text">Zásady zpracování osobních údajů</a>.</p>
+            </form>
+          </div>
+        </div>
+        <form id="form-ne-hero" class="ne-form-hero" action="api/submit.php" method="post">
+          <input type="hidden" name="answer" value="NE">
+          <div class="hp-field" aria-hidden="true">
+            <label for="kontrola-hero-ne">Toto pole nevyplňujte</label>
+            <input type="text" id="kontrola-hero-ne" name="kontrola" tabindex="-1" autocomplete="off">
+          </div>
+          <div class="form-error" role="alert" hidden></div>
+          <button class="sr-only" type="submit" tabindex="-1">Odeslat odpověď</button>
+        </form>
+      </div>
+
       <p class="hero-note">Pokud bude o&nbsp;tento formát webu zájem, bude spuštěn od ledna 2027 na adrese <a href="https://www.technickabezpecnost.cz">www.technickabezpecnost.cz</a>.</p>
     </div>
   </section>
@@ -134,7 +186,7 @@
                 <label for="kontrola-ano">Toto pole nevyplňujte</label>
                 <input type="text" id="kontrola-ano" name="kontrola" tabindex="-1" autocomplete="off">
               </div>
-              <p class="reg-intro"><strong>Zbývá poslední krok:</strong> vyplňte prosím kontaktní údaje a&nbsp;potvrďte je tlačítkem Odeslat&nbsp;/ Mám zájem&nbsp;– teprve tím se registrace dokončí. Všechna pole jsou povinná.</p>
+              <p class="reg-intro">Skvělé! Nechte nám na sebe kontakt&nbsp;– dáme vám vědět, jakmile bude o&nbsp;spuštění webu rozhodnuto. Všechna pole jsou povinná.</p>
               <div class="field-grid">
                 <div class="field">
                   <label for="jmeno">Jméno</label>

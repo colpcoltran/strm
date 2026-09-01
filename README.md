@@ -3,8 +3,10 @@
 Jednostránkový web, který ověřuje zájem o připravovaný odborný portál
 **Technická bezpečnost – odborné odpovědi pro praxi**. Návštěvník odpoví
 ANO/NE na otázku o placeném členství; při ANO se plynule rozbalí registrační
-formulář (jméno, příjmení, profese, e-mail). Odpovědi se ukládají do SQLite
-databáze a o každém novém zájemci odejde e-mailové upozornění klientovi.
+formulář (jméno, příjmení, profese, e-mail). Formulář je na stránce dvakrát:
+skrytý v hero (rozbalí ho CTA „Mám zájem", „Nemám zájem" odešle odpověď
+rovnou) a plný dotazník dole. Odpovědi se ukládají do SQLite databáze
+a o každém novém zájemci odejde e-mailové upozornění klientovi.
 
 ## Technologie
 

@@ -1,7 +1,10 @@
 /*
  * Technická bezpečnost – progressive enhancement dotazníku.
- * Bez JavaScriptu stránka funguje také: rozbalování řeší CSS (:has)
- * a formuláře se odesílají klasickým POSTem na api/submit.php.
+ * Na stránce jsou dva formuláře: skrytý v hero (rozbalí ho CTA
+ * „Mám zájem", CTA „Nemám zájem" odešle odpověď rovnou) a plný
+ * dotazník dole. Po odpovědi kdekoli se obě místa přepnou na
+ * poděkování. Bez JavaScriptu vedou CTA na dolní dotazník
+ * a formuláře se odesílají klasickým POSTem.
  */
 (function () {
   'use strict';
@@ -29,11 +32,29 @@
   var radioNe = doc.getElementById('ans-ne');
   var panelAno = poll.querySelector('.panel-ano');
   var panelNe = poll.querySelector('.panel-ne');
-  var statusEl = doc.getElementById('form-status');
+  var statusBottom = doc.getElementById('form-status');
 
-  /* --- Přepínání ANO/NE ---------------------------------------
-     Nesmí záviset na fetch a spol. – v prohlížeči bez :has je
-     toto jediný mechanismus, který panely otevírá. ------------- */
+  var heroSection = doc.querySelector('.hero');
+  var heroPanel = doc.querySelector('.hero-panel');
+  var statusHero = doc.getElementById('hero-status');
+  var formNeHero = doc.getElementById('form-ne-hero');
+
+  var reduceMotion = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var OPEN_DELAY = reduceMotion ? 0 : 380;
+
+  /* Po úspěšném odeslání se už nic dalšího neodesílá (obě místa
+     zobrazí poděkování); během requestu je vše zamčené. */
+  var answered = false;
+  var busyGlobal = false;
+
+  function lockAll(locked) {
+    busyGlobal = locked;
+    radioAno.disabled = locked;
+    radioNe.disabled = locked;
+  }
+
+  /* --- Přepínání ANO/NE v dolním dotazníku --------------------- */
 
   function syncPanels() {
     if (!supportsHas) {
@@ -45,59 +66,7 @@
   radioAno.addEventListener('change', syncPanels);
   radioNe.addEventListener('change', syncPanels);
 
-  /* „Nemám zájem" se odesílá rovnou – kliknutím (pointerem) na volbu
-     v dotazníku nebo přes CTA v hero. Klávesnicová volba v radiogroup
-     naopak nic neodesílá (šipky slouží k procházení možností), tam
-     zůstává explicitní tlačítko. Bez JS funguje klasický POST. */
-  function submitNeForm() {
-    var formNe = doc.getElementById('form-ne');
-    if (!formNe || radioNe.disabled || poll.classList.contains('poll-done')) {
-      return;
-    }
-    if (formNe.requestSubmit) {
-      formNe.requestSubmit();
-    } else {
-      var submitEvent;
-      try {
-        submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-      } catch (err) {
-        submitEvent = doc.createEvent('Event');
-        submitEvent.initEvent('submit', true, true);
-      }
-      formNe.dispatchEvent(submitEvent);
-    }
-  }
-
-  var labelNe = doc.querySelector('label[for="ans-ne"]');
-  if (labelNe && window.PointerEvent) {
-    labelNe.addEventListener('pointerup', function () {
-      window.setTimeout(function () {
-        if (radioNe.checked) {
-          submitNeForm();
-        }
-      }, 0);
-    });
-  }
-
-  /* CTA „Mám zájem" / „Nemám zájem" v hero předvyberou odpověď
-     a nechají proběhnout výchozí skok na #dotaznik. Bez JS vedou
-     na dotazník, kde si uživatel volbu klikne sám. */
-  var ctas = doc.querySelectorAll('a[data-vyber]');
-  for (var c = 0; c < ctas.length; c++) {
-    ctas[c].addEventListener('click', function () {
-      var isAno = this.getAttribute('data-vyber') === 'ANO';
-      var radio = isAno ? radioAno : radioNe;
-      if (!radio.disabled && !poll.classList.contains('poll-done')) {
-        radio.checked = true;
-        syncPanels();
-        if (!isAno) {
-          submitNeForm();
-        }
-      }
-    });
-  }
-
-  /* --- Odkazy na zásady otevřou <details> --------------------- */
+  /* --- Odkazy na zásady otevřou <details> ---------------------- */
 
   var zasady = doc.getElementById('zasady');
   if (zasady) {
@@ -112,10 +81,70 @@
     });
   }
 
-  /* --- Fetch odesílání jen s plnou podporou prohlížeče --------
-     Bez ní zůstává klasický POST s nativní validací, který
-     funguje vždy. FormData musí být iterovatelná, jinak by
-     URLSearchParams poslal prázdné tělo. ----------------------- */
+  /* --- Programové odeslání formuláře --------------------------- */
+
+  function requestSubmitForm(form) {
+    if (!form || busyGlobal || answered) {
+      return;
+    }
+    if (form.requestSubmit) {
+      form.requestSubmit();
+    } else {
+      var submitEvent;
+      try {
+        submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+      } catch (err2) {
+        submitEvent = doc.createEvent('Event');
+        submitEvent.initEvent('submit', true, true);
+      }
+      form.dispatchEvent(submitEvent);
+    }
+  }
+
+  /* Pointer klik na volbu „Ne, nemám zájem" dole odešle rovnou.
+     Klávesnicová volba v radiogroup nic neodesílá (šipky slouží
+     k procházení možností) – tam zůstává explicitní tlačítko. */
+  var labelNe = doc.querySelector('label[for="ans-ne"]');
+  if (labelNe && window.PointerEvent) {
+    labelNe.addEventListener('pointerup', function () {
+      window.setTimeout(function () {
+        if (radioNe.checked) {
+          requestSubmitForm(doc.getElementById('form-ne'));
+        }
+      }, 0);
+    });
+  }
+
+  /* --- CTA v hero ----------------------------------------------
+     „Mám zájem" rozbalí formulář přímo v hero, „Nemám zájem"
+     odešle odpověď rovnou. Bez JS vedou odkazy na dolní dotazník. */
+  var ctas = doc.querySelectorAll('a[data-vyber]');
+  for (var c = 0; c < ctas.length; c++) {
+    ctas[c].addEventListener('click', function (event) {
+      event.preventDefault();
+      if (busyGlobal || answered) {
+        return;
+      }
+      if (this.getAttribute('data-vyber') === 'ANO') {
+        if (heroPanel) {
+          heroPanel.classList.add('open');
+          window.setTimeout(function () {
+            var first = doc.getElementById('jmeno-h');
+            if (first) {
+              first.focus();
+            }
+          }, OPEN_DELAY);
+        }
+      } else {
+        if (heroPanel) {
+          heroPanel.classList.remove('open');
+        }
+        requestSubmitForm(formNeHero);
+      }
+    });
+  }
+
+  /* --- Fetch odesílání jen s plnou podporou prohlížeče --------- */
 
   if (!window.fetch || !window.URLSearchParams || !window.FormData
     || !window.FormData.prototype || !window.FormData.prototype.entries) {
@@ -129,23 +158,13 @@
     emailEmpty: 'Zadejte prosím svou e-mailovou adresu.',
     emailInvalid: 'Zkontrolujte prosím formát e-mailové adresy (např. jmeno@firma.cz).',
     tooLong: 'Zadaný text je příliš dlouhý.',
-    network: 'Odeslání se nezdařilo. Zkontrolujte prosím připojení a zkuste to znovu.',
+    network: 'Odeslání se nezdařilo. Zkontrolujte prosím připojení a zkuste to znovu.',
     server: 'Odeslání se nezdařilo. Zkuste to prosím za chvíli znovu.',
-    successAno: 'Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději do konce listopadu 2026.',
-    successNe: 'Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.'
+    successAno: 'Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději do konce listopadu 2026.',
+    successNe: 'Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.'
   };
 
-  /* Globální zámek: během odesílání nejde přepnout volbu
-     ani odeslat druhý formulář (dvojí hlas, skryté chyby). */
-  var busyGlobal = false;
-
-  function lockPoll(locked) {
-    busyGlobal = locked;
-    radioAno.disabled = locked;
-    radioNe.disabled = locked;
-  }
-
-  /* --- Chybové stavy polí ------------------------------------- */
+  /* --- Chybové stavy polí -------------------------------------- */
 
   function errorElFor(input) {
     return doc.getElementById('err-' + input.id);
@@ -202,8 +221,6 @@
         continue;
       }
       var input = form.querySelector('[name="' + name + '"]');
-      // Chybu lze ukázat jen u pole s viditelným místem pro hlášku;
-      // vše ostatní (hidden pole apod.) spadne do obecného banneru.
       var errEl = input ? errorElFor(input) : null;
       if (input && errEl) {
         setFieldError(input, serverErrors[name]);
@@ -224,10 +241,12 @@
     banner.hidden = false;
   }
 
-  /* --- Success ----------------------------------------------- */
+  /* --- Success ------------------------------------------------- */
 
-  function showSuccess(isAno) {
-    poll.classList.add('poll-done');
+  function renderSuccess(container, isAno) {
+    if (!container) {
+      return;
+    }
     var box = doc.createElement('div');
     box.className = 'success-box';
     box.innerHTML = '<svg class="success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"'
@@ -236,26 +255,38 @@
     var text = doc.createElement('p');
     text.textContent = isAno ? MSG.successAno : MSG.successNe;
     box.appendChild(text);
-    statusEl.textContent = '';
-    statusEl.appendChild(box);
-    // Fokus na zprávu ji nechá přečíst čtečkou a nahradí fokus
-    // ze zmizelého tlačítka Odeslat.
-    statusEl.tabIndex = -1;
-    statusEl.focus();
+    container.textContent = '';
+    container.appendChild(box);
   }
 
-  /* --- Odeslání přes fetch ----------------------------------- */
+  function showSuccess(isAno, originStatus) {
+    answered = true;
+    poll.classList.add('poll-done');
+    if (heroSection) {
+      heroSection.classList.add('hero-answered');
+    }
+    renderSuccess(statusBottom, isAno);
+    renderSuccess(statusHero, isAno);
+    var focusTarget = originStatus || statusBottom;
+    focusTarget.tabIndex = -1;
+    focusTarget.focus();
+  }
 
-  function wireForm(form) {
+  /* --- Odeslání přes fetch ------------------------------------- */
+
+  function wireForm(form, originStatus) {
+    if (!form) {
+      return;
+    }
     // S JavaScriptem validujeme sami; nativní bubliny by dublovaly hlášky.
     form.noValidate = true;
     var button = form.querySelector('button[type="submit"]');
     var banner = form.querySelector('.form-error');
-    var isAno = form.id === 'form-ano';
+    var isAno = form.querySelector('[name="answer"]').value === 'ANO';
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-      if (busyGlobal) {
+      if (busyGlobal || answered) {
         return;
       }
       banner.hidden = true;
@@ -272,17 +303,16 @@
         }
       }
 
-      lockPoll(true);
+      lockAll(true);
       button.disabled = true;
       var originalLabel = button.textContent;
       button.textContent = 'Odesílám…';
 
       function done(restoreFocus) {
-        lockPoll(false);
+        lockAll(false);
         button.disabled = false;
         button.textContent = originalLabel;
-        // disabled tlačítko zahodilo fokus na <body> – vrátíme ho,
-        // aby se uživatel klávesnice nemusel protabovat celou stránkou.
+        // disabled tlačítko zahodilo fokus na <body> – vrátíme ho.
         if (restoreFocus && doc.activeElement === doc.body) {
           button.focus();
         }
@@ -305,7 +335,7 @@
       }).then(function (result) {
         if (result.data && result.data.ok) {
           done(false);
-          showSuccess(isAno);
+          showSuccess(isAno, originStatus);
           return;
         }
         done(true);
@@ -321,6 +351,8 @@
     });
   }
 
-  wireForm(doc.getElementById('form-ano'));
-  wireForm(doc.getElementById('form-ne'));
+  wireForm(doc.getElementById('form-ano'), statusBottom);
+  wireForm(doc.getElementById('form-ne'), statusBottom);
+  wireForm(doc.getElementById('form-ano-hero'), statusHero);
+  wireForm(formNeHero, statusHero);
 }());
