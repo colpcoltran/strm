@@ -139,7 +139,7 @@ a:hover { color: var(--c-primary-dark); }
   background-size: cover, cover;
   background-position: center, center 35%;
   color: #e9f0f7;
-  padding: 64px 0 72px;
+  padding: 96px 0 104px;
 }
 
 /* Na úzkém displeji jde text přes celou šířku – překryv musí být plošný */
@@ -157,19 +157,21 @@ a:hover { color: var(--c-primary-dark); }
   letter-spacing: 0.14em;
   font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
 .hero h1 {
   color: #fff;
   text-transform: uppercase;
-  font-size: clamp(1.55rem, 4.2vw, 2.5rem);
+  font-size: clamp(1.5rem, 3.2vw, 2.15rem);
   letter-spacing: 0.02em;
+  margin-bottom: 0.75em;
 }
 
 .hero .lead {
   font-size: 1.15rem;
   max-width: 62ch;
+  margin-bottom: 1.4em;
 }
 
 .hero-facts {
@@ -178,7 +180,7 @@ a:hover { color: var(--c-primary-dark); }
   flex-wrap: wrap;
   gap: 10px;
   padding: 0;
-  margin: 24px 0 0;
+  margin: 30px 0 0;
 }
 
 .hero-facts li {
@@ -194,7 +196,16 @@ a:hover { color: var(--c-primary-dark); }
 .hero-price {
   font-size: 1.1rem;
   color: #e9f0f7;
-  margin: 20px 0 0;
+  margin: 26px 0 0;
+}
+
+/* Oddělovač mezi štítky a cenou – přerušovaná linka v akcentové barvě */
+.hero-price::before {
+  content: "";
+  display: block;
+  width: 64px;
+  border-top: 2px dashed rgba(242, 189, 107, 0.65);
+  margin-bottom: 22px;
 }
 
 .hero-price strong {
@@ -206,7 +217,7 @@ a:hover { color: var(--c-primary-dark); }
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 24px 0 14px;
+  margin: 34px 0 18px;
 }
 
 .hero-note {
@@ -384,8 +395,8 @@ a:hover { color: var(--c-primary-dark); }
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: #e6eef6;
-  color: var(--c-primary);
+  background: rgba(240, 166, 60, 0.16);
+  color: #e08a1e;
   display: grid;
   place-items: center;
   margin-bottom: 14px;
