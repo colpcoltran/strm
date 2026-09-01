@@ -88,6 +88,8 @@
      (záměrně žádné odeslání bez potvrzení – překliknutí nesmí
      kazit výsledky průzkumu). Bez JS vedou odkazy na dolní
      dotazník. */
+  var ctaAno = doc.querySelector('a[data-vyber="ANO"]');
+  var ctaNe = doc.querySelector('a[data-vyber="NE"]');
   var ctas = doc.querySelectorAll('a[data-vyber]');
   for (var c = 0; c < ctas.length; c++) {
     ctas[c].addEventListener('click', function (event) {
@@ -111,6 +113,12 @@
             target.focus();
           }
         }, OPEN_DELAY);
+      }
+      if (ctaAno) {
+        ctaAno.setAttribute('aria-expanded', String(isAno));
+      }
+      if (ctaNe) {
+        ctaNe.setAttribute('aria-expanded', String(!isAno));
       }
     });
   }
@@ -233,6 +241,10 @@
   function showSuccess(isAno, originStatus) {
     answered = true;
     poll.classList.add('poll-done');
+    var dotaznik = doc.getElementById('dotaznik');
+    if (dotaznik) {
+      dotaznik.classList.add('answered');
+    }
     if (heroSection) {
       heroSection.classList.add('hero-answered');
     }

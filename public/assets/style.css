@@ -181,7 +181,7 @@ a:hover { color: var(--c-primary-dark); }
   background-size: cover, cover;
   background-position: center, center 35%;
   color: #e9f0f7;
-  padding: 96px 0 104px;
+  padding: 96px 0;
 }
 
 /* Na úzkém displeji jde text přes celou šířku – překryv musí být plošný */
@@ -199,7 +199,7 @@ a:hover { color: var(--c-primary-dark); }
   letter-spacing: 0.14em;
   font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .hero h1 {
@@ -208,13 +208,13 @@ a:hover { color: var(--c-primary-dark); }
   font-weight: 700;
   font-size: clamp(1.9rem, 4vw, 2.9rem);
   letter-spacing: 0.035em;
-  margin-bottom: 0.6em;
+  margin-bottom: 24px;
 }
 
 .hero .lead {
   font-size: 1.15rem;
   max-width: 62ch;
-  margin-bottom: 1.4em;
+  margin-bottom: 0;
 }
 
 .hero-facts {
@@ -222,8 +222,8 @@ a:hover { color: var(--c-primary-dark); }
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  padding: 0 0 26px;
-  margin: 30px 0 0;
+  padding: 0 0 24px;
+  margin: 32px 0 0;
   width: fit-content;
   max-width: 100%;
   position: relative;
@@ -234,7 +234,7 @@ a:hover { color: var(--c-primary-dark); }
 .hero-facts::after {
   content: "";
   position: absolute;
-  left: 2px;
+  left: 0;
   bottom: 0;
   width: 50%;
   height: 1px;
@@ -267,7 +267,7 @@ a:hover { color: var(--c-primary-dark); }
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 34px 0 18px;
+  margin: 32px 0 16px;
 }
 
 /* --- Formulář přímo v hero ---------------------------------- */
@@ -286,13 +286,28 @@ a:hover { color: var(--c-primary-dark); }
 .hero-panel-inner {
   min-height: 0;
   overflow: hidden;
-  padding: 0 4px;
+  padding: 2px 0 24px;
 }
 
 .hero-panel.open {
   grid-template-rows: 1fr;
   visibility: visible;
   transition: grid-template-rows 0.35s ease, visibility 0s;
+}
+
+/* Rozbalený formulář dostává vlastní tmavou podložku – drží osu
+   stránky a text nikdy neleží na surové fotografii */
+.hero-reg, .hero-ne {
+  background: rgba(9, 30, 52, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.hero-reg .gdpr-note {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .hero-reg .field label { color: #e9f0f7; }
@@ -304,13 +319,26 @@ a:hover { color: var(--c-primary-dark); }
 
 .hero-ne .ne-intro { color: #e9f0f7; }
 
-#hero-status .success-box { margin-top: 20px; }
+#hero-status .success-box { margin: 20px 0 24px; }
+
+/* Rozbalený stav CTA (nastavuje JS přes aria-expanded) */
+a[data-vyber][aria-expanded="true"].btn-accent {
+  background: #d98a1f;
+  color: var(--c-accent-text);
+}
+
+a[data-vyber][aria-expanded="true"].btn-outline-light {
+  background: rgba(255, 255, 255, 0.18);
+}
 
 /* Po odpovědi zmizí CTA volby i formuláře v hero */
 .hero-answered a[data-vyber],
 .hero-answered .hero-panel {
   display: none;
 }
+
+.hero-answered .hero-actions { margin: 24px 0 6px; }
+.hero-answered .btn-ghost { padding-left: 0; }
 
 .hero-note {
   color: #b9c9d9;
@@ -407,6 +435,13 @@ a:hover { color: var(--c-primary-dark); }
   color: #fff;
 }
 
+/* Šipka není součást podtržení */
+.btn-ghost span {
+  display: inline-block;
+  text-decoration: none;
+  margin-left: 2px;
+}
+
 .btn[disabled] {
   opacity: 0.65;
   cursor: wait;
@@ -414,7 +449,7 @@ a:hover { color: var(--c-primary-dark); }
 
 /* --- Sekce ------------------------------------------------- */
 
-.section { padding: 56px 0; }
+.section { padding: 72px 0; }
 
 .section-soft { background: var(--c-bg-soft); }
 
@@ -452,12 +487,12 @@ a:hover { color: var(--c-primary-dark); }
   border-left: 4px solid var(--c-accent);
   background: var(--c-bg-soft);
   border-radius: 0 var(--radius) var(--radius) 0;
-  padding: 18px 22px;
-  margin-top: 26px;
+  padding: 20px;
+  margin-top: 24px;
 }
 
 .callout h3 {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   margin-bottom: 0.4em;
 }
 
@@ -473,26 +508,26 @@ a:hover { color: var(--c-primary-dark); }
 
 .cards-outro {
   max-width: 72ch;
-  margin: 26px 0 0;
+  margin: 24px 0 0;
 }
 
 /* Karty: hlavička ikonka+nadpis vedle sebe, popisek přes celou šířku –
    žádné prázdné rohy ani těsné lámání textu. */
 .card {
   display: grid;
-  grid-template-columns: 32px 1fr;
+  grid-template-columns: 28px 1fr;
   column-gap: 14px;
   align-items: center;
   align-content: start;
-  background: linear-gradient(150deg, #1a4a80, #0f2f55);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, #163f6c, #0f2f55);
+  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: var(--radius);
-  padding: 22px;
+  padding: 20px;
 }
 
 .card-icon {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   color: #fff;
 }
 
@@ -502,7 +537,7 @@ a:hover { color: var(--c-primary-dark); }
 }
 
 .card h3 {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   margin: 0;
   color: #fff;
 }
@@ -522,17 +557,21 @@ a:hover { color: var(--c-primary-dark); }
   scroll-margin-top: 20px;
 }
 
+.poll-section h2 { margin-bottom: 12px; }
+
 .poll-lead {
   color: var(--c-muted);
-  margin: -0.4em 0 1.2em;
+  margin: 0 0 24px;
 }
+
+#dotaznik.answered .poll-lead { display: none; }
 
 .poll {
   background: var(--c-bg);
   border: 1px solid var(--c-line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 28px;
+  padding: 24px;
 }
 
 .poll-question {
@@ -578,6 +617,12 @@ a:hover { color: var(--c-primary-dark); }
 
 .poll-btn:hover { border-color: var(--c-primary); }
 
+/* Během odesílání jsou volby zamčené i vizuálně */
+.poll-radio:disabled + .poll-btn {
+  opacity: 0.65;
+  cursor: default;
+}
+
 .poll-radio:checked + .poll-btn {
   background: var(--c-primary);
   border-color: var(--c-primary);
@@ -612,7 +657,7 @@ a:hover { color: var(--c-primary-dark); }
   grid-template-rows: 1fr;
 }
 
-.form-panel-inner { min-height: 0; }
+.form-panel-inner { min-height: 0; padding: 0 4px; margin: 0 -4px; }
 
 @supports selector(:has(*)) {
   .form-panel {
@@ -676,7 +721,7 @@ html.no-has .form-panel.open {
   color: var(--c-ink);
   background: #fff;
   border: 1.5px solid var(--c-line-strong);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 11px 13px;
 }
 
@@ -712,7 +757,7 @@ html.no-has .form-panel.open {
   background: var(--c-err-bg);
   color: var(--c-err);
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 12px 16px;
   margin-bottom: 16px;
 }
@@ -744,7 +789,7 @@ html.no-has .form-panel.open {
   background: var(--c-ok-bg);
   border: 1px solid #bfe3cc;
   border-radius: var(--radius);
-  padding: 20px 22px;
+  padding: 20px;
 }
 
 .success-box .success-icon {
@@ -765,27 +810,48 @@ html.no-has .form-panel.open {
 .site-footer {
   background: var(--c-footer-bg);
   color: var(--c-footer-text);
-  padding: 40px 0;
+  padding: 48px 0;
   font-size: 0.95rem;
 }
 
 .site-footer a { color: #9fc3e4; }
 .site-footer a:hover { color: #c9dff2; }
 
-.footer-owner { margin-bottom: 14px; }
+.footer-owner { margin-bottom: 16px; }
 
 .privacy {
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 10px;
   padding: 0;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .privacy summary {
   cursor: pointer;
   font-weight: 700;
   color: #fff;
-  padding: 12px 16px;
+  padding: 12px 44px 12px 16px;
+  position: relative;
+  list-style: none;
+}
+
+.privacy summary::-webkit-details-marker { display: none; }
+
+.privacy summary::after {
+  content: "";
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #9fc3e4;
+  border-bottom: 2px solid #9fc3e4;
+  transform: translateY(-70%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.privacy[open] summary::after {
+  transform: translateY(-30%) rotate(225deg);
 }
 
 .privacy-body {
@@ -875,11 +941,19 @@ html.no-has .form-panel.open {
 
 @media (max-width: 640px) {
   .section { padding: 40px 0; }
-  .hero { padding: 46px 0 54px; }
-  .poll { padding: 20px 16px; }
+  /* Kompaktní hero: cena i CTA se musí vejít nad fold telefonu */
+  .hero { padding: 32px 0 44px; }
+  .hero .eyebrow { margin-bottom: 10px; }
+  .hero h1 { margin-bottom: 14px; }
+  .hero .lead { font-size: 1.05rem; }
+  .hero-facts { margin-top: 18px; padding-bottom: 16px; gap: 8px; }
+  .hero-facts li { white-space: normal; }
+  .hero-price { margin-top: 16px; }
+  .hero-actions { margin: 22px 0 14px; gap: 16px; }
+  .poll { padding: 20px 16px; border-color: var(--c-line-strong); }
   .field-grid { grid-template-columns: 1fr; gap: 0; }
   .btn { width: 100%; text-align: center; }
-  .header-cta { padding: 6px 14px; font-size: 0.9rem; }
+  .header-cta { padding: 10px 16px; font-size: 0.9rem; }
 }
 
 /* --- Omezený pohyb ----------------------------------------- */
