@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" preserveAspectRatio="xMidYMid slice">
+  <!-- Jemná „blueprint" textura pro hero: mřížka + schematické motivy.
+       Kreslí se přes gradient, průhlednosti drží kontrast textu. -->
+  <defs>
+    <pattern id="g1" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0v40" fill="none" stroke="rgba(255,255,255,0.045)" stroke-width="1"/>
+    </pattern>
+    <pattern id="g2" width="200" height="200" patternUnits="userSpaceOnUse">
+      <path d="M200 0H0v200" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="700" fill="url(#g1)"/>
+  <rect width="1200" height="700" fill="url(#g2)"/>
+  <g fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="2">
+    <circle cx="1010" cy="160" r="92"/>
+    <circle cx="1010" cy="160" r="70" stroke-dasharray="4 10"/>
+    <path d="M1010 160 L958 118" stroke-linecap="round" stroke-width="3"/>
+    <circle cx="1010" cy="160" r="6" fill="rgba(255,255,255,0.13)" stroke="none"/>
+    <path d="M770 630 h140 v-80 h120" stroke-dasharray="2 7"/>
+    <circle cx="770" cy="630" r="5"/>
+    <circle cx="1030" cy="550" r="5"/>
+    <path d="M1128 408 l32 18v37l-32 18-32-18v-37z"/>
+    <circle cx="1128" cy="444" r="10"/>
+  </g>
+  <g fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="2">
+    <circle cx="170" cy="610" r="42"/>
+    <path d="M170 552 v116 M112 610 h116"/>
+  </g>
+</svg>

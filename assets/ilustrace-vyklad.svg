@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 400">
+  <!-- Ilustrace v barvách webu: rozvaděč + revizní checklist.
+       Slot pro fotografii z fotobanky – viz README, kapitola Fotografie. -->
+  <circle cx="260" cy="200" r="178" fill="#e6eef6"/>
+  <rect x="150" y="66" width="220" height="264" rx="14" fill="#12365c"/>
+  <rect x="166" y="82" width="188" height="232" rx="8" fill="#0c2743"/>
+  <circle cx="260" cy="150" r="44" fill="#f3f6f9"/>
+  <circle cx="260" cy="150" r="35" fill="none" stroke="#12365c" stroke-width="3"/>
+  <g stroke="#12365c" stroke-width="2" stroke-linecap="round">
+    <path d="M260 121 v6"/>
+    <path d="M289 150 h-6"/>
+    <path d="M231 150 h6"/>
+    <path d="M280 129 l-4 4"/>
+    <path d="M240 129 l4 4"/>
+  </g>
+  <path d="M260 150 L239 129" stroke="#e69426" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="260" cy="150" r="5" fill="#12365c"/>
+  <circle cx="206" cy="224" r="9" fill="#2ea35b"/>
+  <circle cx="239" cy="224" r="9" fill="#f0a63c"/>
+  <circle cx="272" cy="224" r="9" fill="#f3f6f9" opacity="0.45"/>
+  <rect x="197" y="254" width="18" height="42" rx="9" fill="#f3f6f9"/>
+  <circle cx="206" cy="265" r="7" fill="#12365c"/>
+  <rect x="230" y="254" width="18" height="42" rx="9" fill="#f3f6f9"/>
+  <circle cx="239" cy="285" r="7" fill="#e69426"/>
+  <rect x="296" y="254" width="42" height="14" rx="7" fill="#f3f6f9" opacity="0.6"/>
+  <rect x="296" y="278" width="42" height="14" rx="7" fill="#f3f6f9" opacity="0.35"/>
+  <g transform="rotate(-6 420 250)">
+    <rect x="358" y="166" width="124" height="166" rx="10" fill="#ffffff" stroke="#d9e1e8" stroke-width="2"/>
+    <rect x="398" y="156" width="44" height="20" rx="6" fill="#f0a63c"/>
+    <g stroke="#12365c" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M376 212 l8 8 14-16"/>
+      <path d="M376 252 l8 8 14-16"/>
+      <path d="M376 292 l8 8 14-16"/>
+    </g>
+    <g stroke="#d9e1e8" stroke-width="6" stroke-linecap="round">
+      <path d="M412 208 h50"/>
+      <path d="M412 248 h50"/>
+      <path d="M412 288 h50"/>
+    </g>
+  </g>
+  <g transform="translate(104 238)">
+    <path d="M34 0 L68 14v23c0 21-14.5 35.5-34 41C14.5 72.5 0 58 0 37V14z" fill="#f0a63c"/>
+    <path d="M19 36 l11 11 19-22" fill="none" stroke="#17222c" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
