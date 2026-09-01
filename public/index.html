@@ -48,7 +48,7 @@
 
       <div class="hero-form">
         <div id="hero-status" class="form-status"></div>
-        <div class="hero-panel">
+        <div class="hero-panel" id="hero-panel-ano">
           <div class="hero-panel-inner">
             <form id="form-ano-hero" class="reg-form hero-reg" action="api/submit.php" method="post">
               <input type="hidden" name="answer" value="ANO">
@@ -86,15 +86,20 @@
             </form>
           </div>
         </div>
-        <form id="form-ne-hero" class="ne-form-hero" action="api/submit.php" method="post">
-          <input type="hidden" name="answer" value="NE">
-          <div class="hp-field" aria-hidden="true">
-            <label for="kontrola-hero-ne">Toto pole nevyplňujte</label>
-            <input type="text" id="kontrola-hero-ne" name="kontrola" tabindex="-1" autocomplete="off">
+        <div class="hero-panel" id="hero-panel-ne">
+          <div class="hero-panel-inner">
+            <form id="form-ne-hero" class="ne-form hero-ne" action="api/submit.php" method="post">
+              <input type="hidden" name="answer" value="NE">
+              <div class="hp-field" aria-hidden="true">
+                <label for="kontrola-hero-ne">Toto pole nevyplňujte</label>
+                <input type="text" id="kontrola-hero-ne" name="kontrola" tabindex="-1" autocomplete="off">
+              </div>
+              <p class="ne-intro">Rozumíme. Potvrďte prosím svou odpověď&nbsp;– je zcela anonymní.</p>
+              <div class="form-error" role="alert" hidden></div>
+              <button class="btn btn-outline-light" type="submit">Odeslat odpověď</button>
+            </form>
           </div>
-          <div class="form-error" role="alert" hidden></div>
-          <button class="sr-only" type="submit" tabindex="-1">Odeslat odpověď</button>
-        </form>
+        </div>
       </div>
 
       <p class="hero-note">Pokud bude o&nbsp;tento formát webu zájem, bude spuštěn od ledna 2027 na adrese <a href="https://www.technickabezpecnost.cz">www.technickabezpecnost.cz</a>.</p>

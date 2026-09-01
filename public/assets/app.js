@@ -35,7 +35,8 @@
   var statusBottom = doc.getElementById('form-status');
 
   var heroSection = doc.querySelector('.hero');
-  var heroPanel = doc.querySelector('.hero-panel');
+  var heroPanelAno = doc.getElementById('hero-panel-ano');
+  var heroPanelNe = doc.getElementById('hero-panel-ne');
   var statusHero = doc.getElementById('hero-status');
   var formNeHero = doc.getElementById('form-ne-hero');
 
@@ -81,43 +82,12 @@
     });
   }
 
-  /* --- Programové odeslání formuláře --------------------------- */
-
-  function requestSubmitForm(form) {
-    if (!form || busyGlobal || answered) {
-      return;
-    }
-    if (form.requestSubmit) {
-      form.requestSubmit();
-    } else {
-      var submitEvent;
-      try {
-        submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-      } catch (err2) {
-        submitEvent = doc.createEvent('Event');
-        submitEvent.initEvent('submit', true, true);
-      }
-      form.dispatchEvent(submitEvent);
-    }
-  }
-
-  /* Pointer klik na volbu „Ne, nemám zájem" dole odešle rovnou.
-     Klávesnicová volba v radiogroup nic neodesílá (šipky slouží
-     k procházení možností) – tam zůstává explicitní tlačítko. */
-  var labelNe = doc.querySelector('label[for="ans-ne"]');
-  if (labelNe && window.PointerEvent) {
-    labelNe.addEventListener('pointerup', function () {
-      window.setTimeout(function () {
-        if (radioNe.checked) {
-          requestSubmitForm(doc.getElementById('form-ne'));
-        }
-      }, 0);
-    });
-  }
-
   /* --- CTA v hero ----------------------------------------------
-     „Mám zájem" rozbalí formulář přímo v hero, „Nemám zájem"
-     odešle odpověď rovnou. Bez JS vedou odkazy na dolní dotazník. */
+     „Mám zájem" rozbalí registrační formulář přímo v hero,
+     „Nemám zájem" rozbalí krátké potvrzení s tlačítkem Odeslat
+     (záměrně žádné odeslání bez potvrzení – překliknutí nesmí
+     kazit výsledky průzkumu). Bez JS vedou odkazy na dolní
+     dotazník. */
   var ctas = doc.querySelectorAll('a[data-vyber]');
   for (var c = 0; c < ctas.length; c++) {
     ctas[c].addEventListener('click', function (event) {
@@ -125,21 +95,22 @@
       if (busyGlobal || answered) {
         return;
       }
-      if (this.getAttribute('data-vyber') === 'ANO') {
-        if (heroPanel) {
-          heroPanel.classList.add('open');
-          window.setTimeout(function () {
-            var first = doc.getElementById('jmeno-h');
-            if (first) {
-              first.focus();
-            }
-          }, OPEN_DELAY);
-        }
-      } else {
-        if (heroPanel) {
-          heroPanel.classList.remove('open');
-        }
-        requestSubmitForm(formNeHero);
+      var isAno = this.getAttribute('data-vyber') === 'ANO';
+      var openPanel = isAno ? heroPanelAno : heroPanelNe;
+      var closePanel = isAno ? heroPanelNe : heroPanelAno;
+      if (closePanel) {
+        closePanel.classList.remove('open');
+      }
+      if (openPanel) {
+        openPanel.classList.add('open');
+        window.setTimeout(function () {
+          var target = isAno
+            ? doc.getElementById('jmeno-h')
+            : (formNeHero && formNeHero.querySelector('button[type="submit"]'));
+          if (target) {
+            target.focus();
+          }
+        }, OPEN_DELAY);
       }
     });
   }

@@ -4,15 +4,18 @@ Jednostránkový web, který ověřuje zájem o připravovaný odborný portál
 **Technická bezpečnost – odborné odpovědi pro praxi**. Návštěvník odpoví
 ANO/NE na otázku o placeném členství; při ANO se plynule rozbalí registrační
 formulář (jméno, příjmení, profese, e-mail). Formulář je na stránce dvakrát:
-skrytý v hero (rozbalí ho CTA „Mám zájem", „Nemám zájem" odešle odpověď
-rovnou) a plný dotazník dole. Odpovědi se ukládají do SQLite databáze
+skrytý v hero (CTA „Mám zájem" rozbalí registraci, „Nemám zájem" krátké
+potvrzení s tlačítkem) a plný dotazník dole. Odpovědi se ukládají do SQLite databáze
 a o každém novém zájemci odejde e-mailové upozornění klientovi.
 
 ## Technologie
 
 - **Frontend:** čisté HTML + CSS + JavaScript, žádný framework, žádný build
-  krok, žádné externí zdroje (fonty, CDN, analytika). Web funguje i s vypnutým
-  JavaScriptem (rozbalování řeší CSS, formuláře klasický POST).
+  krok, žádné externí zdroje (CDN, analytika). Web funguje i s vypnutým
+  JavaScriptem (rozbalování řeší CSS, formuláře klasický POST). Titulkové
+  písmo Barlow Condensed je self-hostované v `assets/fonts/` (licence
+  OFL-1.1, soubor `LICENSE-OFL.txt` tamtéž) – nic se nenačítá z Google
+  Fonts, tělový text používá systémová písma.
 - **Backend:** PHP 8.0 nebo novější (dva malé endpointy), SQLite přes PDO, `mail()`.
 - **Soukromí:** nulové cookies, žádný localStorage, žádné třetí strany,
   NE-odpovědi zcela anonymní, IP adresy se neukládají.
