@@ -19,15 +19,33 @@ function getPdo(): PDO
         return $pdo;
     }
     $dir = dirname(DB_PATH);
-    if (!is_dir($dir)) {
-        mkdir($dir, 0770, true);
+    // @mkdir + přetest: dva úplně první souběžné requesty by jinak
+    // vyhodily warning „File exists" (TOCTOU).
+    if (!is_dir($dir) && !@mkdir($dir, 0770, true) && !is_dir($dir)) {
+        throw new RuntimeException('Nelze vytvořit adresář pro data: ' . $dir);
+    }
+    // Samoobnova ochrany pro nouzový režim (data/ uvnitř docrootu):
+    // kdyby se .htaccess při nahrávání ztratil, databáze s osobními
+    // údaji nesmí zůstat stažitelná z webu.
+    $htaccess = $dir . '/.htaccess';
+    if (!is_file($htaccess)) {
+        @file_put_contents(
+            $htaccess,
+            "<IfModule mod_authz_core.c>\nRequire all denied\n</IfModule>\n"
+            . "<IfModule !mod_authz_core.c>\nDeny from all\n</IfModule>\n",
+            LOCK_EX
+        );
     }
     $pdo = new PDO('sqlite:' . DB_PATH, null, null, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 3,
     ]);
-    $pdo->exec('PRAGMA journal_mode = WAL');
+    // busy_timeout dřív než přepnutí na WAL – konverze journal módu
+    // při cold startu potřebuje zámek a bez timeoutu by souběžný
+    // request dostal SQLITE_BUSY.
     $pdo->exec('PRAGMA busy_timeout = 3000');
+    $pdo->exec('PRAGMA journal_mode = WAL');
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS responses (
             id         INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +89,8 @@ function clientWantsJson(): bool
     return str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
 }
 
-function respondJson(int $status, array $data): never
+/** Vždy končí exit; deklarováno jako void kvůli kompatibilitě s PHP 8.0. */
+function respondJson(int $status, array $data): void
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=UTF-8');
@@ -84,7 +103,7 @@ function respondJson(int $status, array $data): never
  * Minimální samostatná HTML stránka pro průchod bez JavaScriptu
  * a pro administrátorský přehled. Cesty jsou relativní k /api/ i /admin/.
  */
-function respondHtml(int $status, string $title, string $bodyHtml, string $bodyClass = 'fallback-page'): never
+function respondHtml(int $status, string $title, string $bodyHtml, string $bodyClass = 'fallback-page'): void
 {
     http_response_code($status);
     header('Content-Type: text/html; charset=UTF-8');
@@ -115,6 +134,7 @@ function mailFromAddress(): string
         return MAIL_FROM;
     }
     $host = strtolower($_SERVER['SERVER_NAME'] ?? 'localhost');
+    $host = preg_replace('/:\d+$/', '', $host) ?? $host;
     $host = preg_replace('/^www\./', '', $host) ?? $host;
     $host = preg_replace('/[^a-z0-9.-]/', '', $host) ?: 'localhost';
     return 'web@' . $host;

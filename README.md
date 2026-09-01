@@ -11,7 +11,7 @@ databáze a o každém novém zájemci odejde e-mailové upozornění klientovi.
 - **Frontend:** čisté HTML + CSS + JavaScript, žádný framework, žádný build
   krok, žádné externí zdroje (fonty, CDN, analytika). Web funguje i s vypnutým
   JavaScriptem (rozbalování řeší CSS, formuláře klasický POST).
-- **Backend:** PHP 8+ (dva malé endpointy), SQLite přes PDO, `mail()`.
+- **Backend:** PHP 8.0 nebo novější (dva malé endpointy), SQLite přes PDO, `mail()`.
 - **Soukromí:** nulové cookies, žádný localStorage, žádné třetí strany,
   NE-odpovědi zcela anonymní, IP adresy se neukládají.
 
@@ -38,7 +38,7 @@ databáze a o každém novém zájemci odejde e-mailové upozornění klientovi.
 | `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce. **Testovací `zbysek@digicary.cz` – před ostrým provozem změnit.** |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
 | `EXPORT_USER` | Přihlašovací jméno k exportu (výchozí `spravce`). |
-| `EXPORT_PASS_HASH` | Bcrypt hash hesla k exportu. **Dokud je prázdný, je export zamčený.** Hash vygenerujete: `php -r "echo password_hash('VaseHeslo', PASSWORD_DEFAULT), PHP_EOL;"` |
+| `EXPORT_PASS_HASH` | Bcrypt hash hesla k exportu. **Dokud je prázdný, je export zamčený.** Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
 
 ## Lokální vývoj
@@ -57,27 +57,59 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
 
 1. Nahrajte projekt tak, aby **document root ukazoval na složku `public/`**;
    složky `app/` a `data/` zůstávají o úroveň výš, mimo web.
-2. V `app/config.php` vyplňte `EXPORT_PASS_HASH` (viz výše), zkontrolujte
+2. V administraci hostingu zvolte **PHP 8.0 nebo novější** (doporučeno 8.2+).
+3. V `app/config.php` vyplňte `EXPORT_PASS_HASH` (postup níže), zkontrolujte
    `NOTIFY_EMAIL` a případně `MAIL_FROM`.
-3. V administraci hostingu zapněte HTTPS (Let's Encrypt). Po ověření, že
+4. V administraci hostingu zapněte HTTPS (Let's Encrypt). Po ověření, že
    HTTPS funguje, můžete v `public/.htaccess` odkomentovat hlavičku HSTS.
-4. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
+5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
    práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
-5. V `public/index.html` doplňte v patičce **jméno a kontaktní e-mail
+6. V `public/index.html` doplňte v patičce **jméno a kontaktní e-mail
    provozovatele** (placeholdery `[Jméno Příjmení]`, `[doplňte e-mail]`)
    a v hlavičce absolutní URL `og:image`.
 
 **Nouzový režim** – hosting neumožňuje umístit soubory nad document root:
 nahrajte složky `app/` i `data/` společně dovnitř webové složky vedle
 `index.html`. Obě obsahují `.htaccess` s `Require all denied`, takže je Apache
-nevydá. Doporučujeme pak v `app/config.php` změnit `DB_PATH` na název
-s náhodným přídavkem, např. `responses-9f3k2x8q.sqlite`.
+nevydá. **Pozor: soubory `.htaccess` jsou skryté a některé FTP klienty je
+při přenosu vynechají – po nahrání zkontrolujte, že na serveru opravdu
+jsou.** (Aplikace si chybějící `data/.htaccess` při prvním requestu sama
+doplní, na to ale nespoléhejte.) Doporučujeme pak v `app/config.php` změnit
+`DB_PATH` na název s náhodným přídavkem, např. `responses-9f3k2x8q.sqlite`.
+
+### Nastavení hesla k exportu
+
+Do `EXPORT_PASS_HASH` v `app/config.php` patří bcrypt hash hesla (nikdy ne
+heslo samotné). Jak ho získat:
+
+- **S PHP na počítači:** `php -r "echo password_hash('VaseHeslo', PASSWORD_DEFAULT), PHP_EOL;"`
+- **Bez PHP na počítači:** vytvořte soubor `hash.php` s obsahem
+  `<?php echo password_hash($_GET['h'] ?? '', PASSWORD_DEFAULT);`, nahrajte
+  ho do webové složky, otevřete `https://vase-domena.cz/hash.php?h=VaseHeslo`,
+  zobrazený hash zkopírujte do configu a **soubor `hash.php` ihned smažte**.
+
+Změna hesla = vygenerovat nový hash a nahradit ho v configu.
+
+### Když nechodí e-maily
+
+1. Zkontrolujte složku spam ve schránce `NOTIFY_EMAIL`.
+2. Nastavte `MAIL_FROM` na adresu **na doméně webu** (např.
+   `web@vase-domena.cz`) a ověřte, že doména má u hostingu SPF záznam
+   (hostingy ho většinou nastavují automaticky).
+3. Podívejte se do `data/mail-fail.log` – pokud existuje, `mail()` na
+   serveru selhává a je potřeba kontaktovat podporu hostingu (některé
+   hostingy odesílání přes `mail()` omezují nebo vyžadují povolení).
+4. Záznam v databázi vznikne i při selhání e-mailu – o zájemce nepřijdete,
+   vidíte ho v exportu.
 
 ## Export dat
 
 - `https://vase-domena.cz/admin/export.php` – po přihlášení přehled počtů
   ANO/NE, tabulka zájemců a tlačítko **Stáhnout CSV pro Excel**.
 - CSV má UTF-8 BOM, středníky a CRLF – český Excel jej otevře na dvojklik.
+- Hodnoty začínající znaky `=`, `+`, `-` nebo `@` mají v CSV předřazený
+  apostrof – to je záměrná ochrana, aby Excel nespouštěl podvržené vzorce
+  z vyplněných formulářů.
 - Export nemá veřejnou adresu, neposílejte jej e-mailem a nešiřte dál
   (obsahuje osobní údaje).
 
@@ -104,9 +136,26 @@ s náhodným přídavkem, např. `responses-9f3k2x8q.sqlite`.
   logy a notifikační e-maily ve schránce.
 - Formulář nemá (záměrně) souhlasový checkbox – právním základem je čl. 6
   odst. 1 písm. b) GDPR; web nemá cookies, proto není cookie lišta.
+- Tato obhajoba stojí na formulaci u formuláře, že odesláním **žádáte
+  o zaslání informace o spuštění** – při případných úpravách textů se tato
+  věta nesmí ztratit ani oslabit. Budoucí e-mail zájemcům smí být jen
+  o tomto projektu (jiná sdělení by už vyžadovala souhlas dle
+  zák. č. 480/2004 Sb.).
 
 ## Co tu záměrně není
 
 Žádná analytika, žádná CAPTCHA (spam řeší honeypot + limit počtu odeslání za
 minutu), žádné cookies, žádné externí fonty či skripty. Je to záměr – web je
 rychlý, auditovatelný a bez právních komplikací.
+
+## Vědomá interpretační rozhodnutí (ke schválení klientem)
+
+- **Duplicitní registrace:** stejný e-mail se uloží jen jednou a druhá
+  notifikace se neposílá (uživatel přesto vidí úspěch). Statistika i schránka
+  zůstávají čisté.
+- **Export = CSV kompatibilní s Excelem**, samostatný soubor .xlsx se
+  negeneruje (CSV s BOM a středníky otevře český Excel na dvojklik).
+- **Odpověď NE se odesílá tlačítkem** „Odeslat odpověď" (ne automaticky při
+  kliknutí na volbu) – brání omylům a nezkresluje statistiku.
+- **Texty voleb** jsou „Ano, mám zájem" / „Ne, nemám zájem" (zadání uvádělo
+  [ ANO ] / [ NE ]); ukládané hodnoty jsou ANO/NE dle zadání.

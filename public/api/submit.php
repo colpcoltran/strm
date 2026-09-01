@@ -17,6 +17,7 @@ foreach ([dirname(__DIR__, 2) . '/app/bootstrap.php', dirname(__DIR__) . '/app/b
 }
 if (!function_exists('respondJson')) {
     http_response_code(500);
+    // Záměrně bez diakritiky: hlavička s kódováním v tuto chvíli není nastavena.
     exit('Chybi app/bootstrap.php – zkontrolujte rozlozeni souboru dle README.');
 }
 
@@ -41,8 +42,11 @@ if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 8192) {
 
 $answer = is_string($_POST['answer'] ?? null) ? $_POST['answer'] : '';
 
-// Honeypot: skryté pole vyplní jen robot. Odpovíme „úspěchem", nic neuložíme.
-if (cleanText($_POST['website'] ?? '') !== '') {
+// Honeypot: skryté pole musí v požadavku být (prohlížeč prázdné textové
+// pole odesílá vždy) a musí být prázdné. Bot, který pole vynechá nebo
+// vyplní, dostane „úspěch“ a nic se neuloží.
+$honeypot = $_POST['kontrola'] ?? null;
+if (!is_string($honeypot) || cleanText($honeypot) !== '') {
     if (clientWantsJson()) {
         respondJson(200, ['ok' => true, 'answer' => $answer === 'NE' ? 'NE' : 'ANO']);
     }
@@ -50,7 +54,7 @@ if (cleanText($_POST['website'] ?? '') !== '') {
 }
 
 if ($answer !== 'ANO' && $answer !== 'NE') {
-    $message = 'Vyberte prosím jednu z možností.';
+    $message = 'Vyberte prosím jednu z možností.';
     if (clientWantsJson()) {
         respondJson(422, ['ok' => false, 'errors' => ['answer' => $message]]);
     }
@@ -80,7 +84,7 @@ try {
             respondJson(200, ['ok' => true, 'answer' => 'NE']);
         }
         respondHtml(200, 'Děkujeme za odpověď', '<h1>Děkujeme za odpověď</h1>'
-            . '<p>Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.</p>'
+            . '<p>Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.</p>'
             . $homeLink);
     }
 
@@ -130,7 +134,7 @@ try {
         respondJson(200, ['ok' => true, 'answer' => 'ANO']);
     }
     respondHtml(200, 'Děkujeme za registraci', '<h1>Děkujeme za registraci</h1>'
-        . '<p>Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději'
+        . '<p>Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději'
         . ' do konce listopadu 2026.</p>' . $homeLink);
 } catch (Throwable $exception) {
     error_log('submit.php: ' . $exception->getMessage());

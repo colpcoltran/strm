@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 /**
- * Konfigurace projektu „Technická bezpečnost – landing page".
+ * Konfigurace projektu „Technická bezpečnost – landing page“.
  * Toto je jediný soubor, který je potřeba před nasazením upravit.
  */
 

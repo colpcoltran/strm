@@ -16,6 +16,9 @@
   --c-bg: #ffffff;
   --c-bg-soft: #f3f6f9;
   --c-line: #d9e1e8;
+  /* Rámečky ovládacích prvků musí mít kontrast >= 3:1 (WCAG 1.4.11);
+     světlá --c-line zůstává jen pro dekorativní okraje karet. */
+  --c-line-strong: #7d8b97;
   --c-ok: #1e7d43;
   --c-ok-bg: #ecf7f0;
   --c-err: #b3261e;
@@ -83,6 +86,7 @@ a:hover { color: var(--c-primary-dark); }
 
 .skip-link:focus {
   left: 0;
+  outline-color: #f2bd6b;
 }
 
 /* --- Hlavička a hero -------------------------------------- */
@@ -247,10 +251,15 @@ a:hover { color: var(--c-primary-dark); }
 
 /* --- Karty ------------------------------------------------- */
 
+.cards-intro {
+  max-width: 72ch;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 18px;
+  margin-top: 26px;
 }
 
 .card {
@@ -363,7 +372,7 @@ a:hover { color: var(--c-primary-dark); }
 .poll-btn {
   flex: 1;
   text-align: center;
-  border: 2px solid var(--c-line);
+  border: 2px solid var(--c-line-strong);
   border-radius: 10px;
   padding: 14px 18px;
   font-weight: 700;
@@ -378,6 +387,18 @@ a:hover { color: var(--c-primary-dark); }
   background: var(--c-primary);
   border-color: var(--c-primary);
   color: #fff;
+}
+
+/* Fallback pro prohlížeče bez :focus-visible – bez něj by fokus
+   na klipem skrytém radiu neměl žádnou viditelnou indikaci. */
+.poll-radio:focus + .poll-btn {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Moderní prohlížeče indikaci omezí jen na klávesnicový fokus. */
+.poll-radio:focus:not(:focus-visible) + .poll-btn {
+  outline: none;
 }
 
 .poll-radio:focus-visible + .poll-btn {
@@ -415,16 +436,14 @@ a:hover { color: var(--c-primary-dark); }
   }
 }
 
+/* JS fallback bez :has – bez animace; display místo grid+visibility,
+   aby fungoval i v prohlížečích bez CSS gridu. */
 html.no-has .form-panel {
-  grid-template-rows: 0fr;
-  visibility: hidden;
+  display: none;
 }
 
-html.no-has .form-panel-inner { overflow: hidden; }
-
 html.no-has .form-panel.open {
-  grid-template-rows: 1fr;
-  visibility: visible;
+  display: block;
 }
 
 /* Po úspěšném odeslání zmizí otázka i formuláře */
@@ -461,9 +480,14 @@ html.no-has .form-panel.open {
   font: inherit;
   color: var(--c-ink);
   background: #fff;
-  border: 1.5px solid var(--c-line);
+  border: 1.5px solid var(--c-line-strong);
   border-radius: 8px;
   padding: 11px 13px;
+}
+
+.field input::placeholder {
+  color: var(--c-muted);
+  opacity: 1;
 }
 
 .field input:focus-visible {
@@ -660,7 +684,7 @@ html.no-has .form-panel.open {
   .poll { padding: 20px 16px; }
   .field-grid { grid-template-columns: 1fr; gap: 0; }
   .btn { width: 100%; text-align: center; }
-  .header-cta { display: none; }
+  .header-cta { padding: 6px 14px; font-size: 0.9rem; }
 }
 
 /* --- Omezený pohyb ----------------------------------------- */
@@ -669,9 +693,16 @@ html.no-has .form-panel.open {
   html { scroll-behavior: auto; }
 
   .form-panel,
-  .poll:has(#ans-ano:checked) .panel-ano,
-  .poll:has(#ans-ne:checked) .panel-ne,
   .btn, .poll-btn {
+    transition: none !important;
+  }
+}
+
+/* Zvlášť: neznámý selektor :has by v prohlížeči bez podpory
+   zneplatnil celý čárkový seznam výše. */
+@media (prefers-reduced-motion: reduce) {
+  .poll:has(#ans-ano:checked) .panel-ano,
+  .poll:has(#ans-ne:checked) .panel-ne {
     transition: none !important;
   }
 }

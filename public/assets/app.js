@@ -21,7 +21,7 @@
   }
 
   var poll = doc.querySelector('.poll');
-  if (!poll || !window.fetch) {
+  if (!poll) {
     return;
   }
 
@@ -31,9 +31,44 @@
   var panelNe = poll.querySelector('.panel-ne');
   var statusEl = doc.getElementById('form-status');
 
-  var reduceMotion = window.matchMedia
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var FOCUS_DELAY = reduceMotion ? 0 : 380;
+  /* --- Přepínání ANO/NE ---------------------------------------
+     Nesmí záviset na fetch a spol. – v prohlížeči bez :has je
+     toto jediný mechanismus, který panely otevírá. ------------- */
+
+  function syncPanels() {
+    if (!supportsHas) {
+      panelAno.classList.toggle('open', radioAno.checked);
+      panelNe.classList.toggle('open', radioNe.checked);
+    }
+  }
+
+  radioAno.addEventListener('change', syncPanels);
+  radioNe.addEventListener('change', syncPanels);
+
+  /* --- Odkazy na zásady otevřou <details> --------------------- */
+
+  var zasady = doc.getElementById('zasady');
+  if (zasady) {
+    doc.addEventListener('click', function (event) {
+      var target = event.target;
+      var link = target.closest
+        ? target.closest('a[href="#zasady"], a[href="#zasady-text"]')
+        : null;
+      if (link) {
+        zasady.open = true;
+      }
+    });
+  }
+
+  /* --- Fetch odesílání jen s plnou podporou prohlížeče --------
+     Bez ní zůstává klasický POST s nativní validací, který
+     funguje vždy. FormData musí být iterovatelná, jinak by
+     URLSearchParams poslal prázdné tělo. ----------------------- */
+
+  if (!window.fetch || !window.URLSearchParams || !window.FormData
+    || !window.FormData.prototype || !window.FormData.prototype.entries) {
+    return;
+  }
 
   var MSG = {
     jmeno: 'Vyplňte prosím jméno.',
@@ -48,31 +83,17 @@
     successNe: 'Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.'
   };
 
-  /* --- Přepínání ANO/NE ------------------------------------ */
+  /* Globální zámek: během odesílání nejde přepnout volbu
+     ani odeslat druhý formulář (dvojí hlas, skryté chyby). */
+  var busyGlobal = false;
 
-  function syncPanels() {
-    if (!supportsHas) {
-      panelAno.classList.toggle('open', radioAno.checked);
-      panelNe.classList.toggle('open', radioNe.checked);
-    }
+  function lockPoll(locked) {
+    busyGlobal = locked;
+    radioAno.disabled = locked;
+    radioNe.disabled = locked;
   }
 
-  function onChoice() {
-    syncPanels();
-    if (radioAno.checked) {
-      window.setTimeout(function () {
-        var first = doc.getElementById('jmeno');
-        if (first) {
-          first.focus();
-        }
-      }, FOCUS_DELAY);
-    }
-  }
-
-  radioAno.addEventListener('change', onChoice);
-  radioNe.addEventListener('change', onChoice);
-
-  /* --- Chybové stavy polí ----------------------------------- */
+  /* --- Chybové stavy polí ------------------------------------- */
 
   function errorElFor(input) {
     return doc.getElementById('err-' + input.id);
@@ -122,21 +143,26 @@
   }
 
   function applyServerErrors(form, serverErrors, banner) {
-    var known = false;
+    var focused = false;
+    var handled = false;
     for (var name in serverErrors) {
       if (!Object.prototype.hasOwnProperty.call(serverErrors, name)) {
         continue;
       }
       var input = form.querySelector('[name="' + name + '"]');
-      if (input) {
+      // Chybu lze ukázat jen u pole s viditelným místem pro hlášku;
+      // vše ostatní (hidden pole apod.) spadne do obecného banneru.
+      var errEl = input ? errorElFor(input) : null;
+      if (input && errEl) {
         setFieldError(input, serverErrors[name]);
-        if (!known) {
+        handled = true;
+        if (!focused) {
           input.focus();
-          known = true;
+          focused = true;
         }
       }
     }
-    if (!known) {
+    if (!handled) {
       showBanner(banner, MSG.server);
     }
   }
@@ -160,6 +186,8 @@
     box.appendChild(text);
     statusEl.textContent = '';
     statusEl.appendChild(box);
+    // Fokus na zprávu ji nechá přečíst čtečkou a nahradí fokus
+    // ze zmizelého tlačítka Odeslat.
     statusEl.tabIndex = -1;
     statusEl.focus();
   }
@@ -175,7 +203,7 @@
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
-      if (form.dataset.busy === '1') {
+      if (busyGlobal) {
         return;
       }
       banner.hidden = true;
@@ -192,15 +220,20 @@
         }
       }
 
-      form.dataset.busy = '1';
+      lockPoll(true);
       button.disabled = true;
       var originalLabel = button.textContent;
       button.textContent = 'Odesílám…';
 
-      function done() {
-        form.dataset.busy = '';
+      function done(restoreFocus) {
+        lockPoll(false);
         button.disabled = false;
         button.textContent = originalLabel;
+        // disabled tlačítko zahodilo fokus na <body> – vrátíme ho,
+        // aby se uživatel klávesnice nemusel protabovat celou stránkou.
+        if (restoreFocus && doc.activeElement === doc.body) {
+          button.focus();
+        }
       }
 
       fetch(form.getAttribute('action'), {
@@ -208,22 +241,29 @@
         headers: { 'Accept': 'application/json' },
         body: new URLSearchParams(new FormData(form))
       }).then(function (response) {
-        return response.json().then(function (data) {
+        return response.text().then(function (raw) {
+          var data = null;
+          try {
+            data = JSON.parse(raw);
+          } catch (parseErr) {
+            data = null;
+          }
           return { status: response.status, data: data };
         });
       }).then(function (result) {
-        done();
         if (result.data && result.data.ok) {
+          done(false);
           showSuccess(isAno);
           return;
         }
+        done(true);
         if (result.status === 422 && result.data && result.data.errors) {
           applyServerErrors(form, result.data.errors, banner);
           return;
         }
         showBanner(banner, (result.data && result.data.message) || MSG.server);
       }).catch(function () {
-        done();
+        done(true);
         showBanner(banner, MSG.network);
       });
     });
@@ -231,17 +271,4 @@
 
   wireForm(doc.getElementById('form-ano'));
   wireForm(doc.getElementById('form-ne'));
-
-  /* --- Odkazy na zásady otevřou <details> -------------------- */
-
-  var zasady = doc.getElementById('zasady');
-  if (zasady) {
-    doc.addEventListener('click', function (event) {
-      var target = event.target;
-      var link = target.closest ? target.closest('a[href="#zasady"]') : null;
-      if (link) {
-        zasady.open = true;
-      }
-    });
-  }
 }());

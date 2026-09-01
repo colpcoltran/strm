@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Technická bezpečnost – odborné odpovědi pro praxi</title>
-<meta name="description" content="Nový odborný web o bezpečnosti technických zařízení: praktický výklad norem, diskuse s odborníky a měsíční on-line stream. Spuštění od ledna 2027.">
+<meta name="description" content="Nový odborný web o bezpečnosti technických zařízení: praktický výklad norem, diskuse s odborníky a měsíční on-line stream. Plánované spuštění v lednu 2027.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Technická bezpečnost – odborné odpovědi pro praxi">
 <meta property="og:description" content="Praktický výklad předpisů pro provozovatele, revizní techniky a manažery BOZP. Každých 14 dní nový příspěvek, 1× měsíčně on-line stream. Zapojte se.">
@@ -55,34 +55,36 @@
   <section class="section section-soft" aria-labelledby="h-obsah">
     <div class="container">
       <h2 id="h-obsah">Pravidelný obsah a&nbsp;členský archiv</h2>
+      <p class="cards-intro">Každých 14&nbsp;dní nový odborný příspěvek, doplněný o&nbsp;pravidelné diskuse s&nbsp;odborníky na daná témata. Součástí bude také 1×&nbsp;měsíčně on-line stream s&nbsp;otázkami a&nbsp;odpověďmi a&nbsp;postupně budovaný členský archiv odborných výkladů, diskusí, rozborů a&nbsp;odpovědí.</p>
+      <p class="cards-intro">Vše bude přehledně popsáno s&nbsp;možností poslechu například v&nbsp;autě, ve vlaku anebo při sportu.</p>
       <div class="cards">
         <article class="card">
           <div class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15.5l2 2 4-4.5"/></svg>
           </div>
           <h3>Každých 14&nbsp;dní</h3>
-          <p>Nový odborný příspěvek, doplněný o&nbsp;pravidelné diskuse s&nbsp;odborníky na daná témata.</p>
+          <p>Nový odborný příspěvek a&nbsp;diskuse s&nbsp;odborníky.</p>
         </article>
         <article class="card">
           <div class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
           </div>
           <h3>1×&nbsp;měsíčně živě</h3>
-          <p>On-line stream s&nbsp;otázkami a&nbsp;odpověďmi&nbsp;– zeptáte se přímo na to, co řešíte.</p>
+          <p>On-line stream s&nbsp;otázkami a&nbsp;odpověďmi.</p>
         </article>
         <article class="card">
           <div class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7l2 2h7v14H4z"/><path d="M4 10h16"/></svg>
           </div>
           <h3>Členský archiv</h3>
-          <p>Postupně budovaný archiv odborných výkladů, diskusí, rozborů a&nbsp;odpovědí.</p>
+          <p>Výklady, diskuse, rozbory a&nbsp;odpovědi na jednom místě.</p>
         </article>
         <article class="card">
           <div class="card-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></svg>
           </div>
           <h3>Poslouchejte kdekoli</h3>
-          <p>Vše bude přehledně popsáno s&nbsp;možností poslechu například v&nbsp;autě, ve vlaku anebo při sportu.</p>
+          <p>Každý příspěvek také jako audio&nbsp;– v&nbsp;autě, ve vlaku anebo při sportu.</p>
         </article>
       </div>
     </div>
@@ -123,17 +125,19 @@
           </span>
         </div>
 
-        <div id="form-status" class="form-status" role="status" aria-live="polite"></div>
+        <!-- Úspěch se ohlašuje přesunem fokusu (JS); live region by
+             způsobil dvojí čtení toutéž čtečkou. -->
+        <div id="form-status" class="form-status"></div>
 
         <div class="form-panel panel-ano">
           <div class="form-panel-inner">
             <form id="form-ano" class="reg-form" action="api/submit.php" method="post">
               <input type="hidden" name="answer" value="ANO">
               <div class="hp-field" aria-hidden="true">
-                <label for="website-ano">Toto pole nevyplňujte</label>
-                <input type="text" id="website-ano" name="website" tabindex="-1" autocomplete="off">
+                <label for="kontrola-ano">Toto pole nevyplňujte</label>
+                <input type="text" id="kontrola-ano" name="kontrola" tabindex="-1" autocomplete="off">
               </div>
-              <p class="reg-intro">Skvělé! Nechte nám na sebe kontakt&nbsp;– dáme vám vědět, jakmile bude o&nbsp;spuštění webu rozhodnuto.</p>
+              <p class="reg-intro">Skvělé! Nechte nám na sebe kontakt&nbsp;– dáme vám vědět, jakmile bude o&nbsp;spuštění webu rozhodnuto. Všechna pole jsou povinná.</p>
               <div class="field-grid">
                 <div class="field">
                   <label for="jmeno">Jméno</label>
@@ -160,7 +164,7 @@
               </div>
               <div class="form-error" id="form-error-ano" role="alert" hidden></div>
               <button class="btn btn-primary" type="submit">Odeslat / Mám zájem</button>
-              <p class="gdpr-note">Odesláním formuláře projevujete zájem o&nbsp;připravovanou službu a&nbsp;žádáte o&nbsp;zaslání informace o&nbsp;jejím spuštění. Jméno, příjmení, profesi a&nbsp;e-mail zpracováváme jen pro tento účel a&nbsp;nejpozději do 31.&nbsp;3.&nbsp;2027 je smažeme. Podrobnosti: <a href="#zasady">Zásady zpracování osobních údajů</a>.</p>
+              <p class="gdpr-note">Odesláním formuláře projevujete zájem o&nbsp;připravovanou službu a&nbsp;žádáte o&nbsp;zaslání informace o&nbsp;jejím spuštění. Jméno, příjmení, profesi a&nbsp;e-mail zpracovávám jen pro tento účel a&nbsp;nejpozději do 31.&nbsp;3.&nbsp;2027 je smažu. Podrobnosti: <a href="#zasady-text">Zásady zpracování osobních údajů</a>.</p>
             </form>
           </div>
         </div>
@@ -170,8 +174,8 @@
             <form id="form-ne" class="ne-form" action="api/submit.php" method="post">
               <input type="hidden" name="answer" value="NE">
               <div class="hp-field" aria-hidden="true">
-                <label for="website-ne">Toto pole nevyplňujte</label>
-                <input type="text" id="website-ne" name="website" tabindex="-1" autocomplete="off">
+                <label for="kontrola-ne">Toto pole nevyplňujte</label>
+                <input type="text" id="kontrola-ne" name="kontrola" tabindex="-1" autocomplete="off">
               </div>
               <p class="ne-intro">Rozumíme. I&nbsp;záporná odpověď nám pomůže rozhodnout o&nbsp;podobě projektu. Odpověď je zcela anonymní.</p>
               <div class="form-error" id="form-error-ne" role="alert" hidden></div>
@@ -191,9 +195,9 @@
     <details id="zasady" class="privacy">
       <summary>Zásady zpracování osobních údajů</summary>
       <div class="privacy-body">
-        <p><strong>Správce:</strong> [Jméno Příjmení], fyzická osoba připravující projekt Technická bezpečnost, e-mail: [doplňte e-mail].</p>
-        <p><strong>Jaké údaje a&nbsp;proč:</strong> Pokud vyplníte registrační formulář zájemce, zpracovávám vaše jméno, příjmení, profesi a&nbsp;e-mailovou adresu, a&nbsp;to výhradně za účelem vyhodnocení zájmu o&nbsp;připravovanou službu a&nbsp;zaslání informace o&nbsp;jejím spuštění (nejpozději do konce listopadu 2026). Právním základem je provedení opatření před uzavřením smlouvy na vaši žádost (čl.&nbsp;6 odst.&nbsp;1 písm.&nbsp;b) GDPR). Odpověď „NE" se ukládá zcela anonymně, bez jakýchkoli osobních údajů.</p>
-        <p><strong>Doba uložení:</strong> Údaje uchovám nejdéle do rozhodnutí o&nbsp;spuštění či nespuštění služby, nejpozději do 31.&nbsp;3.&nbsp;2027. Poté je smažu. Pokud se ke spuštěné službě zaregistrujete, budou vaše údaje dále zpracovávány v&nbsp;rámci smluvního vztahu, o&nbsp;čemž budete samostatně informováni.</p>
+        <p id="zasady-text"><strong>Správce:</strong> [Jméno Příjmení], fyzická osoba připravující projekt Technická bezpečnost, e-mail: [doplňte e-mail].</p>
+        <p><strong>Jaké údaje a&nbsp;proč:</strong> Pokud vyplníte registrační formulář zájemce, zpracovávám vaše jméno, příjmení, profesi a&nbsp;e-mailovou adresu, a&nbsp;to výhradně za účelem vyhodnocení zájmu o&nbsp;připravovanou službu a&nbsp;zaslání informace o&nbsp;jejím spuštění (nejpozději do konce listopadu 2026). Právním základem je provedení opatření před uzavřením smlouvy na vaši žádost (čl.&nbsp;6 odst.&nbsp;1 písm.&nbsp;b) GDPR). Poskytnutí údajů je dobrovolné; bez nich vám však informaci o&nbsp;spuštění nebudu moci zaslat. Odpověď „NE“ se ukládá zcela anonymně, bez jakýchkoli osobních údajů.</p>
+        <p><strong>Doba uložení:</strong> Údaje uchovám do odeslání informace o&nbsp;rozhodnutí o&nbsp;spuštění či nespuštění služby a&nbsp;poté po přiměřenou dobu pro vyřízení případných navazujících žádostí, nejpozději do 31.&nbsp;3.&nbsp;2027. Poté je smažu. Pokud se ke spuštěné službě zaregistrujete, budou vaše údaje dále zpracovávány v&nbsp;rámci smluvního vztahu, o&nbsp;čemž budete samostatně informováni.</p>
         <p><strong>Komu údaje předávám:</strong> Nikomu, s&nbsp;výjimkou poskytovatele webhostingu, na jehož serverech data technicky leží (zpracovatel). Údaje nepředávám mimo EU/EHP a&nbsp;nevyužívám je k&nbsp;automatizovanému rozhodování ani profilování. Server poskytovatele může z&nbsp;bezpečnostních důvodů krátkodobě zaznamenávat IP adresy v&nbsp;provozních lozích.</p>
         <p><strong>Cookies:</strong> Tento web nepoužívá žádné cookies ani jiné sledovací technologie.</p>
         <p><strong>Vaše práva:</strong> Máte právo na přístup ke svým údajům, jejich opravu či výmaz, omezení zpracování, přenositelnost a&nbsp;právo vznést námitku. Stačí napsat na výše uvedený e-mail. Máte rovněž právo podat stížnost u&nbsp;Úřadu pro ochranu osobních údajů (<a href="https://uoou.gov.cz">uoou.gov.cz</a>).</p>

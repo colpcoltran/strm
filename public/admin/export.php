@@ -15,6 +15,7 @@ foreach ([dirname(__DIR__, 2) . '/app/bootstrap.php', dirname(__DIR__) . '/app/b
 }
 if (!function_exists('respondJson')) {
     http_response_code(500);
+    // Záměrně bez diakritiky: hlavička s kódováním v tuto chvíli není nastavena.
     exit('Chybi app/bootstrap.php – zkontrolujte rozlozeni souboru dle README.');
 }
 
@@ -28,10 +29,11 @@ function basicAuthCredentials(): array
         return [$user, (string) ($_SERVER['PHP_AUTH_PW'] ?? '')];
     }
     // CGI/FastCGI hostingy PHP_AUTH_* nenaplní – hlavičku předává
-    // pravidlo SetEnvIf v public/.htaccess.
+    // pravidlo SetEnvIf v public/.htaccess. Schéma „Basic" je dle
+    // RFC 7617 case-insensitive.
     $headerValue = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (is_string($headerValue) && str_starts_with($headerValue, 'Basic ')) {
-        $decoded = base64_decode(substr($headerValue, 6), true);
+    if (is_string($headerValue) && preg_match('/^Basic\s+(.+)$/i', $headerValue, $m)) {
+        $decoded = base64_decode($m[1], true);
         if (is_string($decoded) && str_contains($decoded, ':')) {
             [$user, $pass] = explode(':', $decoded, 2);
             return [$user, $pass];
@@ -51,7 +53,14 @@ if ($passHash === '') {
 }
 
 [$authUser, $authPass] = basicAuthCredentials();
-if ($authUser === null || !hash_equals(EXPORT_USER, $authUser) || !password_verify((string) $authPass, $passHash)) {
+// Bcrypt se ověřuje vždy (u špatného jména proti falešnému hashi)
+// a výsledky se skládají bez zkratu – doba odezvy tak neprozradí,
+// zda existuje zadané uživatelské jméno.
+$dummyHash = '$2y$12$cqIy7scMKMnbU/j.VdJ0Q.szb8yrd5CaBArnnmK8gg/FhaJ5DXkcO';
+$userOk = $authUser !== null && hash_equals(EXPORT_USER, $authUser);
+$passOk = password_verify((string) $authPass, $userOk ? $passHash : $dummyHash);
+if (!($userOk & $passOk)) {
+    usleep(300000); // zdražení online hádání hesla, bez ukládání IP
     header('WWW-Authenticate: Basic realm="Technicka bezpecnost - export dat"');
     respondHtml(401, 'Vyžadováno přihlášení', '<h1>Vyžadováno přihlášení</h1>'
         . '<p>Zadejte prosím přístupové údaje k exportu (viz README).</p>');
@@ -70,13 +79,11 @@ function csvCell(?string $value): string
     return $value;
 }
 
-function downloadCsv(PDO $pdo): never
+/** Vždy končí exit; deklarováno jako void kvůli kompatibilitě s PHP 8.0. */
+function downloadCsv(PDO $pdo): void
 {
-    $filename = 'technicka-bezpecnost-' . pragueTime(null, 'Y-m-d') . '.csv';
-    header('Content-Type: text/csv; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="' . $filename . '"');
-    header('Cache-Control: no-store');
-
+    // Nejdřív celé CSV sestavit, teprve pak poslat hlavičky – kdyby
+    // dotaz selhal, nesmí se chybová stránka stáhnout jako soubor.csv.
     // BOM + středníky + CRLF => český Excel otevře soubor správně na dvojklik.
     $lines = ['id;datum;odpoved;jmeno;prijmeni;profese;email'];
     $rows = $pdo->query('SELECT id, created_at, answer, jmeno, prijmeni, profese, email FROM responses ORDER BY id');
@@ -91,7 +98,13 @@ function downloadCsv(PDO $pdo): never
             csvCell($row['email']),
         ]);
     }
-    echo "\u{FEFF}" . implode("\r\n", $lines) . "\r\n";
+    $csv = "\u{FEFF}" . implode("\r\n", $lines) . "\r\n";
+
+    $filename = 'technicka-bezpecnost-' . pragueTime(null, 'Y-m-d') . '.csv';
+    header('Content-Type: text/csv; charset=UTF-8');
+    header('Content-Disposition: attachment; filename="' . $filename . '"');
+    header('Cache-Control: no-store');
+    echo $csv;
     exit;
 }
 
