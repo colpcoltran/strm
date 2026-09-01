@@ -155,12 +155,43 @@ a:hover { color: var(--c-primary-dark); }
   max-width: 62ch;
 }
 
-.hero-actions { margin: 28px 0 10px; }
+.hero-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0;
+  margin: 24px 0 0;
+}
+
+.hero-facts li {
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 999px;
+  padding: 6px 15px;
+  font-size: 0.92rem;
+  color: #dbe6f1;
+  white-space: nowrap;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 26px 0 14px;
+}
 
 .hero-note {
   color: #b9c9d9;
   font-size: 0.95rem;
   margin: 0;
+}
+
+.hero-note a {
+  color: #9fc3e4;
+}
+
+.hero-note a:hover {
+  color: #c9dff2;
 }
 
 /* Na tmavém pozadí musí být focus kroužek světlý */
@@ -218,6 +249,32 @@ a:hover { color: var(--c-primary-dark); }
   background: var(--c-bg-soft);
 }
 
+/* Světlá obrysová a nenápadná varianta pro CTA na tmavém hero */
+.btn-outline-light {
+  background: transparent;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.65);
+  padding: 12px 26px;
+}
+
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: #dbe6f1;
+  padding: 14px 14px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  font-weight: 600;
+}
+
+.btn-ghost:hover {
+  color: #fff;
+}
+
 .btn[disabled] {
   opacity: 0.65;
   cursor: wait;
@@ -251,15 +308,15 @@ a:hover { color: var(--c-primary-dark); }
 
 /* --- Karty ------------------------------------------------- */
 
-.cards-intro {
-  max-width: 72ch;
-}
-
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 18px;
-  margin-top: 26px;
+}
+
+.cards-outro {
+  max-width: 72ch;
+  margin: 26px 0 0;
 }
 
 .card {
@@ -293,43 +350,16 @@ a:hover { color: var(--c-primary-dark); }
   color: var(--c-muted);
 }
 
-/* --- Cena a termín ----------------------------------------- */
-
-.price-box {
-  background: var(--c-bg);
-  border: 1px solid var(--c-line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 28px 30px;
-  text-align: center;
-}
-
-.price {
-  margin-bottom: 10px;
-  color: var(--c-ink);
-}
-
-.price strong {
-  font-size: 2.3rem;
-  color: var(--c-primary);
-  letter-spacing: 0.01em;
-}
-
-.price span {
-  font-size: 1.05rem;
-  color: var(--c-muted);
-}
-
-.price-note {
-  margin: 0;
-  color: var(--c-muted);
-  font-size: 0.95rem;
-}
-
 /* --- Dotazník ---------------------------------------------- */
 
-.poll-section {
+.poll-section,
+#detaily {
   scroll-margin-top: 20px;
+}
+
+.poll-lead {
+  color: var(--c-muted);
+  margin: -0.4em 0 1.2em;
 }
 
 .poll {

@@ -45,6 +45,20 @@
   radioAno.addEventListener('change', syncPanels);
   radioNe.addEventListener('change', syncPanels);
 
+  /* CTA „Mám zájem" / „Nemám zájem" v hero předvyberou odpověď
+     a nechají proběhnout výchozí skok na #dotaznik. Bez JS vedou
+     na dotazník, kde si uživatel volbu klikne sám. */
+  var ctas = doc.querySelectorAll('a[data-vyber]');
+  for (var c = 0; c < ctas.length; c++) {
+    ctas[c].addEventListener('click', function () {
+      var radio = this.getAttribute('data-vyber') === 'ANO' ? radioAno : radioNe;
+      if (!radio.disabled && !poll.classList.contains('poll-done')) {
+        radio.checked = true;
+        syncPanels();
+      }
+    });
+  }
+
   /* --- Odkazy na zásady otevřou <details> --------------------- */
 
   var zasady = doc.getElementById('zasady');
