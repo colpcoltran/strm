@@ -53,12 +53,12 @@ if ($passHash === '') {
 }
 
 [$authUser, $authPass] = basicAuthCredentials();
-// Bcrypt se ověřuje vždy (u špatného jména proti falešnému hashi)
-// a výsledky se skládají bez zkratu – doba odezvy tak neprozradí,
-// zda existuje zadané uživatelské jméno.
-$dummyHash = '$2y$12$cqIy7scMKMnbU/j.VdJ0Q.szb8yrd5CaBArnnmK8gg/FhaJ5DXkcO';
+// Heslo se ověřuje vždy proti skutečnému hashi (ten v této chvíli vždy
+// existuje – jinak by výše padla 503) a s výsledkem kontroly jména se
+// skládá bez zkratu. Doba odezvy je tak u špatného jména i špatného
+// hesla z konstrukce stejná a neprozradí, zda zadané jméno existuje.
 $userOk = $authUser !== null && hash_equals(EXPORT_USER, $authUser);
-$passOk = password_verify((string) $authPass, $userOk ? $passHash : $dummyHash);
+$passOk = password_verify((string) $authPass, $passHash);
 if (!($userOk & $passOk)) {
     usleep(300000); // zdražení online hádání hesla, bez ukládání IP
     header('WWW-Authenticate: Basic realm="Technicka bezpecnost - export dat"');
