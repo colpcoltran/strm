@@ -186,17 +186,17 @@ a:hover { color: var(--c-primary-dark); }
   position: relative;
 }
 
-/* Oddělovač pod štítky: jemná bílá tečkovaná linka v šíři řady štítků */
+/* Oddělovač pod štítky: dlouhé bílé čárky s velkými mezerami, 1 px */
 .hero-facts::after {
   content: "";
   position: absolute;
   left: 2px;
   right: 2px;
   bottom: 0;
-  height: 3px;
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.75) 1.3px, transparent 1.6px);
-  background-size: 15px 3px;
-  background-repeat: repeat-x;
+  height: 1px;
+  background-image: repeating-linear-gradient(90deg,
+    rgba(255, 255, 255, 0.75) 0 24px,
+    transparent 24px 44px);
 }
 
 .hero-facts li {
