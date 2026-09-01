@@ -45,16 +45,54 @@
   radioAno.addEventListener('change', syncPanels);
   radioNe.addEventListener('change', syncPanels);
 
+  /* „Nemám zájem" se odesílá rovnou – kliknutím (pointerem) na volbu
+     v dotazníku nebo přes CTA v hero. Klávesnicová volba v radiogroup
+     naopak nic neodesílá (šipky slouží k procházení možností), tam
+     zůstává explicitní tlačítko. Bez JS funguje klasický POST. */
+  function submitNeForm() {
+    var formNe = doc.getElementById('form-ne');
+    if (!formNe || radioNe.disabled || poll.classList.contains('poll-done')) {
+      return;
+    }
+    if (formNe.requestSubmit) {
+      formNe.requestSubmit();
+    } else {
+      var submitEvent;
+      try {
+        submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+      } catch (err) {
+        submitEvent = doc.createEvent('Event');
+        submitEvent.initEvent('submit', true, true);
+      }
+      formNe.dispatchEvent(submitEvent);
+    }
+  }
+
+  var labelNe = doc.querySelector('label[for="ans-ne"]');
+  if (labelNe && window.PointerEvent) {
+    labelNe.addEventListener('pointerup', function () {
+      window.setTimeout(function () {
+        if (radioNe.checked) {
+          submitNeForm();
+        }
+      }, 0);
+    });
+  }
+
   /* CTA „Mám zájem" / „Nemám zájem" v hero předvyberou odpověď
      a nechají proběhnout výchozí skok na #dotaznik. Bez JS vedou
      na dotazník, kde si uživatel volbu klikne sám. */
   var ctas = doc.querySelectorAll('a[data-vyber]');
   for (var c = 0; c < ctas.length; c++) {
     ctas[c].addEventListener('click', function () {
-      var radio = this.getAttribute('data-vyber') === 'ANO' ? radioAno : radioNe;
+      var isAno = this.getAttribute('data-vyber') === 'ANO';
+      var radio = isAno ? radioAno : radioNe;
       if (!radio.disabled && !poll.classList.contains('poll-done')) {
         radio.checked = true;
         syncPanels();
+        if (!isAno) {
+          submitNeForm();
+        }
       }
     });
   }
