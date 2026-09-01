@@ -38,6 +38,19 @@ data/*.sqlite-wal
 data/*.log
 EOF
 
+cat >> "$STAGE/.htaccess" <<'EOF'
+
+# Poznámka nasazovací větve – návštěvníkům se nevydává
+<Files "NASAZENI.md">
+<IfModule mod_authz_core.c>
+Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+Deny from all
+</IfModule>
+</Files>
+EOF
+
 cat > "$STAGE/NASAZENI.md" <<EOF
 # Větev deploy-hostinger
 
