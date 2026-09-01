@@ -129,7 +129,9 @@ a:hover { color: var(--c-primary-dark); }
 }
 
 .hero {
-  background: linear-gradient(160deg, var(--c-hero-top), var(--c-hero-bottom));
+  background-image: url('hero-bg.svg'), linear-gradient(160deg, var(--c-hero-top), var(--c-hero-bottom));
+  background-size: cover, cover;
+  background-position: center, center;
   color: #e9f0f7;
   padding: 64px 0 72px;
 }
@@ -289,6 +291,29 @@ a:hover { color: var(--c-primary-dark); }
 .section h2 {
   font-size: clamp(1.35rem, 3vw, 1.8rem);
   margin-bottom: 0.8em;
+}
+
+/* Dvousloupcová sekce text + obrázek */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  gap: 40px;
+  align-items: center;
+}
+
+.split-media {
+  margin: 0;
+}
+
+.split-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 760px) {
+  .split { grid-template-columns: 1fr; gap: 24px; }
+  .split-media { max-width: 380px; margin: 0 auto; }
 }
 
 .callout {

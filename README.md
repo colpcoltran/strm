@@ -142,6 +142,32 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
   o tomto projektu (jiná sdělení by už vyžadovala souhlas dle
   zák. č. 480/2004 Sb.).
 
+## Fotografie (volitelné vylepšení)
+
+Web nyní používá vlastní vektorovou grafiku (jemná „blueprint" textura v hero,
+ilustrace `assets/ilustrace-vyklad.svg` v sekci detailů) – je bez licenčních
+starostí a ostrá na všech displejích. Chcete-li místo ilustrace skutečnou
+fotografii z fotobanky:
+
+1. **Odkud brát:** Unsplash (unsplash.com), Pexels (pexels.com) nebo Pixabay
+   (pixabay.com) – jejich licence dovolují komerční použití zdarma a bez
+   uvádění autora. Vyhýbejte se snímkům označeným „editorial use only"
+   a u fotek s rozpoznatelnými lidmi ověřte, že fotobanka uvádí souhlas
+   modelu (model release).
+2. **Co hledat:** „electrician switchboard", „electrical panel inspection",
+   „pressure gauge industrial", „technician safety check", „rozvaděč".
+   Vhodné jsou snímky s tmavšími/modrými tóny, které ladí s barvami webu.
+3. **Jak nasadit:** obrázek zmenšete na ~1000 px šířky a zkomprimujte
+   (např. squoosh.app, cílově do ~150 kB), uložte jako
+   `assets/foto-vyklad.jpg` a v `index.html` přepište `src` obrázku v sekci
+   „Praktický výklad" (komentář `Slot pro fotografii` místo označuje);
+   upravte i `alt` text podle obsahu fotky.
+4. Fotografii lze stejným způsobem dát i do hero: soubor
+   `assets/hero-bg.svg` nahraďte fotografií a v `style.css` u `.hero`
+   ponechte gradient jako druhou vrstvu, ať zůstane čitelný text
+   (`background-image: url('hero-foto.jpg'), linear-gradient(…)` +
+   případně ztmavení `linear-gradient(rgba(14,44,76,0.75), …)`).
+
 ## Co tu záměrně není
 
 Žádná analytika, žádná CAPTCHA (spam řeší honeypot + limit počtu odeslání za
