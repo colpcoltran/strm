@@ -40,7 +40,7 @@ a o každém novém zájemci odejde e-mailové upozornění klientovi.
 
 | Konstanta | Význam |
 | --- | --- |
-| `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce. **Testovací `zbysek@digicary.cz` – před ostrým provozem změnit.** |
+| `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce (testovací fáze: `info@technickabezpecnost.cz`). |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
 | `EXPORT_USER` | Přihlašovací jméno k exportu (výchozí `spravce`). |
 | `EXPORT_PASS_HASH` | Bcrypt hash hesla k exportu. **Dokud je prázdný, je export zamčený.** Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |

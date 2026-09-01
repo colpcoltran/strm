@@ -7,8 +7,8 @@ declare(strict_types=1);
  */
 
 // E-mail, na který chodí upozornění na nové zájemce.
-// POZOR: testovací adresa – před ostrým provozem změňte.
-const NOTIFY_EMAIL = 'zbysek@digicary.cz';
+// Testovací fáze: schránka projektu na vlastní doméně.
+const NOTIFY_EMAIL = 'info@technickabezpecnost.cz';
 
 // Adresa odesílatele notifikací. Měla by být na doméně hostingu,
 // jinak hrozí, že e-mail skončí ve spamu nebo ho hosting odmítne.
