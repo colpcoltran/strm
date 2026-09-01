@@ -182,19 +182,31 @@ a:hover { color: var(--c-primary-dark); }
 }
 
 .hero-facts li {
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.93);
   border-radius: 999px;
-  padding: 6px 15px;
+  padding: 7px 16px;
   font-size: 0.92rem;
-  color: #dbe6f1;
+  font-weight: 600;
+  color: var(--c-primary-dark);
   white-space: nowrap;
+}
+
+.hero-price {
+  font-size: 1.1rem;
+  color: #e9f0f7;
+  margin: 20px 0 0;
+}
+
+.hero-price strong {
+  color: #f2bd6b;
+  font-size: 1.25rem;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin: 26px 0 14px;
+  margin: 24px 0 14px;
 }
 
 .hero-note {
