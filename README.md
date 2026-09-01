@@ -20,7 +20,7 @@ databáze a o každém novém zájemci odejde e-mailové upozornění klientovi.
 ```
 ├── public/                  ← document root webu
 │   ├── index.html           ← celá stránka
-│   ├── assets/              ← style.css, app.js, og-image.png, apple-touch-icon.png
+│   ├── assets/              ← style.css, app.js, og-image.jpg, apple-touch-icon.png
 │   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
 │   ├── admin/export.php     ← chráněný přehled + export CSV
 │   ├── favicon.svg, robots.txt, .htaccess
@@ -142,31 +142,31 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
   o tomto projektu (jiná sdělení by už vyžadovala souhlas dle
   zák. č. 480/2004 Sb.).
 
-## Fotografie (volitelné vylepšení)
+## Fotografie
 
-Web nyní používá vlastní vektorovou grafiku (jemná „blueprint" textura v hero,
-ilustrace `assets/ilustrace-vyklad.svg` v sekci detailů) – je bez licenčních
-starostí a ostrá na všech displejích. Chcete-li místo ilustrace skutečnou
-fotografii z fotobanky:
+Web používá dvě fotografie z katalogu Freepik, stažené a licencované přes
+předplatné Magnific majitele projektu:
 
-1. **Odkud brát:** Unsplash (unsplash.com), Pexels (pexels.com) nebo Pixabay
-   (pixabay.com) – jejich licence dovolují komerční použití zdarma a bez
-   uvádění autora. Vyhýbejte se snímkům označeným „editorial use only"
-   a u fotek s rozpoznatelnými lidmi ověřte, že fotobanka uvádí souhlas
-   modelu (model release).
-2. **Co hledat:** „electrician switchboard", „electrical panel inspection",
-   „pressure gauge industrial", „technician safety check", „rozvaděč".
-   Vhodné jsou snímky s tmavšími/modrými tóny, které ladí s barvami webu.
-3. **Jak nasadit:** obrázek zmenšete na ~1000 px šířky a zkomprimujte
-   (např. squoosh.app, cílově do ~150 kB), uložte jako
-   `assets/foto-vyklad.jpg` a v `index.html` přepište `src` obrázku v sekci
-   „Praktický výklad" (komentář `Slot pro fotografii` místo označuje);
-   upravte i `alt` text podle obsahu fotky.
-4. Fotografii lze stejným způsobem dát i do hero: soubor
-   `assets/hero-bg.svg` nahraďte fotografií a v `style.css` u `.hero`
-   ponechte gradient jako druhou vrstvu, ať zůstane čitelný text
-   (`background-image: url('hero-foto.jpg'), linear-gradient(…)` +
-   případně ztmavení `linear-gradient(rgba(14,44,76,0.75), …)`).
+| Soubor | Použití | Autor (Freepik) |
+| --- | --- | --- |
+| `assets/foto-hero.jpg` | pozadí hero (1920 px, s modrým překryvem v CSS) | pixstocker (premium) |
+| `assets/foto-vyklad.jpg` | sekce „Praktický výklad" (ořez 4:3, 1000 px) | pvproductions |
+
+Licence předplatného umožňuje komerční použití bez uvádění autora; doklad
+o stažení zůstává na účtu Magnific, přes který byly fotografie pořízeny –
+účet nerušte, dokud web běží, případně si uložte potvrzení o licenci.
+
+**Výměna fotografie:** nový snímek zmenšete (hero ~1920 px šířky do
+~250 kB, sekce ~1000 px do ~150 kB, např. na squoosh.app), nahraďte
+příslušný soubor v `assets/` a u sekční fotky upravte `alt` text
+v `index.html`. Čitelnost textu v hero zajišťuje gradientní překryv
+v `style.css` (`.hero`) – u světlé fotografie ho případně ztmavte.
+
+**Návrat k vektorové variantě bez fotografií:** v repozitáři zůstávají
+`assets/hero-bg.svg` (blueprint textura) a `assets/ilustrace-vyklad.svg`;
+stačí v `style.css` u `.hero` nahradit `url('foto-hero.jpg')` za
+`url('hero-bg.svg')` a v `index.html` vrátit `src` obrázku sekce na
+ilustraci.
 
 ## Co tu záměrně není
 
