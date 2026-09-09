@@ -206,9 +206,10 @@ rychlý, auditovatelný a bez právních komplikací.
 - **Odpověď NE byla na pokyn klienta odstraněna z celého webu** (hero i dolní
   sekce); web tak měří jen absolutní počet zájemců, nikoli poměr
   zájem/nezájem – jako jmenovatel poslouží statistika návštěv z administrace
-  hostingu. Backendová větev NE v `api/submit.php` zůstává jako rezerva,
-  z webu se nevolá; export ukazuje počet NE jen tehdy, je-li nenulový
-  (starší testovací řádky).
+  hostingu. Endpoint `api/submit.php` přijímá jen `answer=ANO` (NE vrací 422),
+  aby se do statistiky nedostaly řádky, které z webu nikdo nemohl odeslat;
+  export ukazuje počet NE jen tehdy, je-li nenulový (starší testovací řádky).
+  Návrat ankety = obnovit větev NE z historie gitu (commit před 2. kolem).
 - **Pole „Vaše profese či oblast zájmu"** je přejmenované původní pole
   Profese (klient chtěl kolonku přidat, formulář ji už měl). Interně zůstává
   `profese` (databáze, CSV, e-mail) – žádná migrace dat.

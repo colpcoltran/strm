@@ -148,11 +148,11 @@ function mailFromAddress(): string
 function sendInterestNotification(int $rowId, string $jmeno, string $prijmeni, string $profese, string $email): bool
 {
     $body = "Nový zájemce o odborný web Technická bezpečnost:\n\n"
-        . 'Jméno:    ' . $jmeno . "\n"
-        . 'Příjmení: ' . $prijmeni . "\n"
-        . 'Profese:  ' . $profese . "\n"
-        . 'E-mail:   ' . $email . "\n"
-        . 'Odesláno: ' . pragueTime() . " (Europe/Prague)\n\n"
+        . 'Jméno:                  ' . $jmeno . "\n"
+        . 'Příjmení:               ' . $prijmeni . "\n"
+        . 'Profese / oblast zájmu: ' . $profese . "\n"
+        . 'E-mail:                 ' . $email . "\n"
+        . 'Odesláno:               ' . pragueTime() . " (Europe/Prague)\n\n"
         . "Tato zpráva byla vygenerována automaticky registračním formulářem na landing page.\n";
 
     $subject = mb_encode_mimeheader('Nový zájemce – Technická bezpečnost', 'UTF-8', 'B');

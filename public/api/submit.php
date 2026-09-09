@@ -2,9 +2,10 @@
 declare(strict_types=1);
 
 /**
- * Endpoint registrace: uloží zájemce (ANO) a odešle e-mailové
- * upozornění klientovi. Větev NE zůstává jako rezerva pro případ,
- * že by se anketa na web vrátila – z webu se aktuálně nevolá. Odpovídá JSON (fetch z app.js)
+ * Endpoint registrace: uloží zájemce (answer=ANO) a odešle e-mailové
+ * upozornění klientovi. Volba „nemám zájem“ (NE) byla na přání klienta
+ * z webu odstraněna – endpoint ji odmítá (422), aby se do statistiky
+ * nedostaly řádky, které z webu nikdo nemohl odeslat. Odpovídá JSON (fetch z app.js)
  * nebo samostatnou HTML stránkou (průchod bez JavaScriptu).
  */
 
@@ -49,13 +50,13 @@ $answer = is_string($_POST['answer'] ?? null) ? $_POST['answer'] : '';
 $honeypot = $_POST['kontrola'] ?? null;
 if (!is_string($honeypot) || cleanText($honeypot) !== '') {
     if (clientWantsJson()) {
-        respondJson(200, ['ok' => true, 'answer' => $answer === 'NE' ? 'NE' : 'ANO']);
+        respondJson(200, ['ok' => true, 'answer' => 'ANO']);
     }
-    respondHtml(200, 'Děkujeme', '<h1>Děkujeme</h1><p>Vaše odpověď byla zaznamenána.</p>' . $homeLink);
+    respondHtml(200, 'Děkujeme', '<h1>Děkujeme</h1><p>Vaše registrace byla přijata.</p>' . $homeLink);
 }
 
-if ($answer !== 'ANO' && $answer !== 'NE') {
-    $message = 'Vyberte prosím jednu z možností.';
+if ($answer !== 'ANO') {
+    $message = 'Neplatný požadavek – odešlete prosím formulář ze stránky projektu.';
     if (clientWantsJson()) {
         respondJson(422, ['ok' => false, 'errors' => ['answer' => $message]]);
     }
@@ -78,18 +79,7 @@ try {
         respondHtml(429, 'Zkuste to za chvíli', '<h1>' . e($message) . '</h1>' . $backLink);
     }
 
-    if ($answer === 'NE') {
-        // Anonymní statistika nezájmu – žádné osobní údaje.
-        $pdo->prepare('INSERT INTO responses (answer) VALUES (?)')->execute(['NE']);
-        if (clientWantsJson()) {
-            respondJson(200, ['ok' => true, 'answer' => 'NE']);
-        }
-        respondHtml(200, 'Děkujeme za odpověď', '<h1>Děkujeme za odpověď</h1>'
-            . '<p>Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.</p>'
-            . $homeLink);
-    }
-
-    // Větev ANO – všechna pole povinná.
+    // Všechna pole povinná.
     $jmeno    = cleanText($_POST['jmeno'] ?? '');
     $prijmeni = cleanText($_POST['prijmeni'] ?? '');
     $profese  = cleanText($_POST['profese'] ?? '');
@@ -134,7 +124,7 @@ try {
     if (clientWantsJson()) {
         respondJson(200, ['ok' => true, 'answer' => 'ANO']);
     }
-    respondHtml(200, 'Děkujeme za registraci', '<h1>Děkujeme za registraci</h1>'
+    respondHtml(200, 'Registrace přijata', '<h1>Registrace přijata</h1>'
         . '<p>Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději'
         . ' do konce listopadu 2026.</p>' . $homeLink);
 } catch (Throwable $exception) {

@@ -340,6 +340,12 @@ a:hover { color: var(--c-primary-dark); }
   margin: 0;
 }
 
+.hero-author-role {
+  font-size: 0.85rem;
+  color: var(--c-muted-warm);
+  margin: 2px 0 0;
+}
+
 /* --- Formulář přímo v hero ---------------------------------- */
 
 .hero-form {
@@ -895,6 +901,8 @@ a[data-vyber][aria-expanded="true"].btn-primary {
   .hero-portrait figcaption { padding: 0; }
 
   .hero-motto { font-size: 1.25rem; margin-bottom: 2px; }
+
+  .hero-author-role { display: none; }
 }
 
 @media (max-width: 640px) {

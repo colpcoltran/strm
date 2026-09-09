@@ -145,11 +145,11 @@ try {
         $tableRows = '<tr><td colspan="6">Zatím žádní zájemci.</td></tr>';
     }
 
-    respondHtml(200, 'Export odpovědí – Technická bezpečnost', '<h1>Odpovědi dotazníku</h1>'
+    respondHtml(200, 'Registrace zájemců – Technická bezpečnost', '<h1>Registrace zájemců</h1>'
         . '<div class="stat-row">'
         . '<div class="stat"><strong>' . $countAno . '</strong><span>má zájem (ANO)</span></div>'
         . ($countNe > 0 ? '<div class="stat"><strong>' . $countNe . '</strong><span>nemá zájem (NE)</span></div>' : '')
-        . '<div class="stat"><strong>' . ($countAno + $countNe) . '</strong><span>odpovědí celkem</span></div>'
+        . '<div class="stat"><strong>' . ($countAno + $countNe) . '</strong><span>záznamů celkem</span></div>'
         . '</div>'
         . '<p>Poslední odpověď: ' . e(is_string($lastAt) ? pragueTime($lastAt) : 'zatím žádná') . '</p>'
         . '<p><a class="btn btn-primary" href="export.php?download=1">Stáhnout CSV pro Excel</a></p>'
@@ -158,7 +158,7 @@ try {
         . '<thead><tr><th>Č.</th><th>Datum</th><th>Jméno</th><th>Příjmení</th><th>Profese / oblast zájmu</th><th>E-mail</th></tr></thead>'
         . '<tbody>' . $tableRows . '</tbody>'
         . '</table></div>'
-        . '<p class="note">Web sbírá jen registrace zájemců (volba „nemám zájem“ byla z webu na přání klienta odstraněna; případné starší anonymní odpovědi NE jsou jen v souhrnném počtu).'
+        . '<p class="note">Web sbírá jen registrace zájemců; volba „nemám zájem“ byla na přání klienta odstraněna a endpoint ji už nepřijímá (případné starší anonymní řádky NE zůstávají jen v souhrnném počtu).'
         . ' Nezapomeňte: všechna data je potřeba smazat nejpozději 31.&nbsp;3.&nbsp;2027 (viz Zásady).</p>',
         'fallback-page admin-page');
 } catch (Throwable $exception) {
