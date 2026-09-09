@@ -2,8 +2,9 @@
 declare(strict_types=1);
 
 /**
- * Endpoint dotazníku: uloží odpověď ANO/NE a u zájemců odešle
- * e-mailové upozornění klientovi. Odpovídá JSON (fetch z app.js)
+ * Endpoint registrace: uloží zájemce (ANO) a odešle e-mailové
+ * upozornění klientovi. Větev NE zůstává jako rezerva pro případ,
+ * že by se anketa na web vrátila – z webu se aktuálně nevolá. Odpovídá JSON (fetch z app.js)
  * nebo samostatnou HTML stránkou (průchod bez JavaScriptu).
  */
 
@@ -21,7 +22,7 @@ if (!function_exists('respondJson')) {
     exit('Chybi app/bootstrap.php – zkontrolujte rozlozeni souboru dle README.');
 }
 
-$backLink = '<p><a href="../#dotaznik">&larr; Zpět na formulář</a></p>';
+$backLink = '<p><a href="../#registrace">&larr; Zpět na formulář</a></p>';
 $homeLink = '<p><a href="../">&larr; Zpět na stránku</a></p>';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
@@ -30,7 +31,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
         respondJson(405, ['ok' => false, 'error' => 'method_not_allowed']);
     }
     respondHtml(405, 'Nepovolený požadavek', '<h1>Nepovolený požadavek</h1>'
-        . '<p>Formulář je potřeba odeslat ze stránky dotazníku.</p>' . $backLink);
+        . '<p>Formulář je potřeba odeslat ze stránky projektu.</p>' . $backLink);
 }
 
 if ((int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > 8192) {
@@ -95,7 +96,7 @@ try {
     $email    = mb_strtolower(cleanText($_POST['email'] ?? ''));
 
     $errors = [];
-    foreach (['jmeno' => 'Vyplňte prosím jméno.', 'prijmeni' => 'Vyplňte prosím příjmení.', 'profese' => 'Vyplňte prosím profesi.'] as $field => $emptyMessage) {
+    foreach (['jmeno' => 'Vyplňte prosím jméno.', 'prijmeni' => 'Vyplňte prosím příjmení.', 'profese' => 'Vyplňte prosím profesi či oblast zájmu.'] as $field => $emptyMessage) {
         if ($$field === '') {
             $errors[$field] = $emptyMessage;
         } elseif (mb_strlen($$field) > 100) {

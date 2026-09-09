@@ -1,12 +1,18 @@
 # Technická bezpečnost – validační landing page
 
 Jednostránkový web, který ověřuje zájem o připravovaný odborný portál
-**Technická bezpečnost – odborné odpovědi pro praxi**. Návštěvník odpoví
-ANO/NE na otázku o placeném členství; při ANO se plynule rozbalí registrační
-formulář (jméno, příjmení, profese, e-mail). Formulář je na stránce dvakrát:
-skrytý v hero (CTA „Mám zájem" rozbalí registraci, „Nemám zájem" krátké
-potvrzení s tlačítkem) a plný dotazník dole. Odpovědi se ukládají do SQLite databáze
-a o každém novém zájemci odejde e-mailové upozornění klientovi.
+**Technická bezpečnost – odborné odpovědi pro praxi**. Zájemce o placené
+členství (750 Kč měsíčně) vyplní registrační formulář (jméno, příjmení,
+profese či oblast zájmu, e-mail). Formulář je na stránce dvakrát: sbalený
+v hero (rozbalí a sbalí ho CTA „Mám zájem") a vždy viditelný dole v sekci
+`#registrace`. Registrace se ukládají do SQLite databáze a o každém novém
+zájemci odejde e-mailové upozornění klientovi. Volba „nemám zájem" byla ve
+2. kole připomínek na přání klienta z webu odstraněna (viz „Vědomá
+interpretační rozhodnutí").
+
+Vizuál: jednobarevný podklad „starý papír" (`--c-paper` ve `style.css`,
+odstín převzatý z klientem dodané textury), portrét autora s mottem
+„Ptejte se a já budu odpovídat." v hero, tmavě modré karty přínosů.
 
 ## Technologie
 
@@ -18,14 +24,14 @@ a o každém novém zájemci odejde e-mailové upozornění klientovi.
   Fonts, tělový text používá systémová písma.
 - **Backend:** PHP 8.0 nebo novější (dva malé endpointy), SQLite přes PDO, `mail()`.
 - **Soukromí:** nulové cookies, žádný localStorage, žádné třetí strany,
-  NE-odpovědi zcela anonymní, IP adresy se neukládají.
+  IP adresy se neukládají.
 
 ## Mapa souborů
 
 ```
 ├── public/                  ← document root webu
 │   ├── index.html           ← celá stránka
-│   ├── assets/              ← style.css, app.js, og-image.jpg, apple-touch-icon.png
+│   ├── assets/              ← style.css, app.js, portret-autor(@2x).jpg, og-image.jpg, fonts/
 │   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
 │   ├── admin/export.php     ← chráněný přehled + export CSV
 │   ├── favicon.svg, robots.txt, .htaccess
@@ -33,6 +39,7 @@ a o každém novém zájemci odejde e-mailové upozornění klientovi.
 │   ├── config.php           ← ⚙️ jediný soubor, který upravujete
 │   └── bootstrap.php        ← společný kód endpointů
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
+├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled)
 └── README.md
 ```
 
@@ -109,8 +116,9 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## Export dat
 
-- `https://vase-domena.cz/admin/export.php` – po přihlášení přehled počtů
-  ANO/NE, tabulka zájemců a tlačítko **Stáhnout CSV pro Excel**.
+- `https://vase-domena.cz/admin/export.php` – po přihlášení počet zájemců,
+  tabulka zájemců a tlačítko **Stáhnout CSV pro Excel** (sloupec `profese`
+  obsahuje „profesi či oblast zájmu" z formuláře).
 - CSV má UTF-8 BOM, středníky a CRLF – český Excel jej otevře na dvojklik.
 - Hodnoty začínající znaky `=`, `+`, `-` nebo `@` mají v CSV předřazený
   apostrof – to je záměrná ochrana, aby Excel nespouštěl podvržené vzorce
@@ -120,10 +128,11 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## Testovací checklist po nasazení
 
-1. Odpověď **ANO** + vyplněný formulář → success zpráva, řádek v DB,
-   e-mail dorazil na `NOTIFY_EMAIL`.
+1. CTA **Mám zájem** v hero rozbalí formulář (druhý klik ho sbalí); vyplněný
+   formulář → success zpráva v hero i dole, řádek v DB, e-mail dorazil na
+   `NOTIFY_EMAIL`.
 2. Stejný e-mail podruhé → žádný druhý řádek ani druhý e-mail (tichý úspěch).
-3. Odpověď **NE** → anonymní řádek (jen datum a NE).
+3. Dolní formulář v sekci **#registrace** je vidět bez klikání a funguje stejně.
 4. Prázdná pole / špatný e-mail → české chybové hlášky u polí.
 5. Vypnutý JavaScript → celý průchod funguje přes klasické stránky.
 6. Mobil (úzké okno) → vše čitelné a použitelné.
@@ -147,31 +156,39 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
   o tomto projektu (jiná sdělení by už vyžadovala souhlas dle
   zák. č. 480/2004 Sb.).
 
-## Fotografie
+## Obrázky a barva papíru
 
-Web používá dvě fotografie z katalogu Freepik, stažené a licencované přes
-předplatné Magnific majitele projektu:
+**Portrét autora** (`assets/portret-autor.jpg` 600×800 px a `portret-autor@2x.jpg`
+1200×1600 px, ořez 3:4 z fotografie dodané klientem) je jediná fotografie na
+webu. Na desktopu je vpravo v hero s mottem a popiskem, na mobilu jako kulatý
+avatar v „podpisovém řádku". Výměna: připravte ořez 3:4 (např. squoosh.app,
+JPEG ~80 %), přepište oba soubory a případně upravte `alt` (dnes „Autor
+projektu" – bez hranatých závorek, čtečky by je předčítaly) a popisek
+`.hero-author` v `index.html` (placeholder `[Jméno Příjmení]`). Originál
+fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
 
-| Soubor | Použití | Autor (Freepik) |
-| --- | --- | --- |
-| `assets/foto-hero.jpg` | pozadí hero (1920 px, s modrým překryvem v CSS) | pixstocker (premium) |
-| `assets/foto-vyklad.jpg` | sekce „Praktický výklad" (ořez 4:3, 1000 px) | pvproductions |
+**Barva papíru** – hero a sekce karet mají jednobarevný podklad „starý papír"
+(přání klienta). Odstín `#d9d7c4` je světlejší tón z dodané textury (medián
+textury `#cfcdb8` slouží jako `--c-paper-deep` pro rámečky). Ladění barvy =
+změna proměnné `--c-paper` v `style.css` (a případně `--c-paper-deep`,
+`--c-paper-light`). Texty na papíru jsou navrženy na kontrast WCAG AA:
+zesvětlení papíru nic nerozbije; při ztmavení pod `#cfcdb8` znovu ověřte
+bronzový eyebrow/cenu (`--c-bronze`) a tlumený text (`--c-muted-warm`),
+případně je ztmavte.
 
-Licence předplatného umožňuje komerční použití bez uvádění autora; doklad
-o stažení zůstává na účtu Magnific, přes který byly fotografie pořízeny –
-účet nerušte, dokud web běží, případně si uložte potvrzení o licenci.
+**OG obrázek** (`assets/og-image.jpg`, 1200×630) se generuje ze šablony
+`scripts/og-template.html` příkazem `node scripts/make-og-image.cjs`
+(vyžaduje Playwright s Chromiem). Spusťte znovu po změně barvy papíru,
+motta nebo portrétu. Absolutní URL do `og:image` doplňte po nasazení.
 
-**Výměna fotografie:** nový snímek zmenšete (hero ~1920 px šířky do
-~250 kB, sekce ~1000 px do ~150 kB, např. na squoosh.app), nahraďte
-příslušný soubor v `assets/` a u sekční fotky upravte `alt` text
-v `index.html`. Čitelnost textu v hero zajišťuje gradientní překryv
-v `style.css` (`.hero`) – u světlé fotografie ho případně ztmavte.
+**Motto** „Ptejte se a já budu odpovídat." je v `index.html` (`.hero-motto`)
+a v OG šabloně; klient nabídl i varianty „Mé zkušenosti jsou zde pro vás",
+„Pojďme se spolu posunout dále", „Výuka a školení jsou užitečné, ale
+zkušenosti se nedají nahradit" – výměna je jeden řetězec na dvou místech.
 
-**Návrat k vektorové variantě bez fotografií:** v repozitáři zůstávají
-`assets/hero-bg.svg` (blueprint textura) a `assets/ilustrace-vyklad.svg`;
-stačí v `style.css` u `.hero` nahradit `url('foto-hero.jpg')` za
-`url('hero-bg.svg')` a v `index.html` vrátit `src` obrázku sekce na
-ilustraci.
+**Náhled k prokliku bez serveru:** `python3 scripts/build-nahled.py
+cesta/nahled.html` složí jediný HTML soubor (fonty i obrázky vložené,
+odeslání formuláře simulované) – vhodné k zaslání klientovi.
 
 ## Co tu záměrně není
 
@@ -186,7 +203,17 @@ rychlý, auditovatelný a bez právních komplikací.
   zůstávají čisté.
 - **Export = CSV kompatibilní s Excelem**, samostatný soubor .xlsx se
   negeneruje (CSV s BOM a středníky otevře český Excel na dvojklik).
-- **Odpověď NE se odesílá tlačítkem** „Odeslat odpověď" (ne automaticky při
-  kliknutí na volbu) – brání omylům a nezkresluje statistiku.
-- **Texty voleb** jsou „Ano, mám zájem" / „Ne, nemám zájem" (zadání uvádělo
-  [ ANO ] / [ NE ]); ukládané hodnoty jsou ANO/NE dle zadání.
+- **Odpověď NE byla na pokyn klienta odstraněna z celého webu** (hero i dolní
+  sekce); web tak měří jen absolutní počet zájemců, nikoli poměr
+  zájem/nezájem – jako jmenovatel poslouží statistika návštěv z administrace
+  hostingu. Backendová větev NE v `api/submit.php` zůstává jako rezerva,
+  z webu se nevolá; export ukazuje počet NE jen tehdy, je-li nenulový
+  (starší testovací řádky).
+- **Pole „Vaše profese či oblast zájmu"** je přejmenované původní pole
+  Profese (klient chtěl kolonku přidat, formulář ji už měl). Interně zůstává
+  `profese` (databáze, CSV, e-mail) – žádná migrace dat.
+- **Audio karta sloučena do archivu:** klient zdůraznil, že nejde o podcast;
+  karta „Poslech kdekoli" se sluchátky zmizela, audio je zmíněno jen jako
+  doplněk v kartě Členský archiv a v calloutu „Není to podcast".
+- **Zvýraznění cílových skupin** v úvodní větě (`<strong>`) je typografické,
+  text klienta je doslovný; lze jedním tahem odebrat.

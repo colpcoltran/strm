@@ -71,7 +71,7 @@ cp -r "$STAGE/." .
 git add -A
 git -c user.name="Claude" -c user.email="noreply@anthropic.com" commit -q -m "Nasazovací větev pro Hostinger public_html (generováno z $SRC_BRANCH @ $SRC_SHA)
 
-Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
+Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01BPrFrtnSRncm2wvtuP24Hp"
 git branch -M _deploy_tmp deploy-hostinger
 git push --force-with-lease=deploy-hostinger origin deploy-hostinger || git push -f origin deploy-hostinger

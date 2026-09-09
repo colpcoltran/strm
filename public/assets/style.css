@@ -45,18 +45,26 @@
   --c-primary: #12365c;
   --c-primary-dark: #0c2743;
   --c-hero-top: #0e2c4c;
-  --c-hero-bottom: #16406e;
   --c-accent: #f0a63c;
   --c-accent-text: #17222c;
   --c-ink: #1a2733;
   --c-body: #33424f;
   --c-muted: #5b6b78;
+  /* „Starý papír“ – jednobarevný podklad pod textem (přání klienta).
+     Odstín je světlejší tón z dodané textury (medián textury = paper-deep).
+     Toto je jediný knoflík pro budoucí ladění barvy; při ztmavení pod
+     paper-deep znovu ověřit kontrast bronzu a muted-warm (README). */
+  --c-paper: #d9d7c4;
+  --c-paper-deep: #cfcdb8;
+  --c-paper-light: #eceadd;
+  --c-bronze: #6e3f05;       /* akcentní text na papíru (>= 6:1) */
+  --c-muted-warm: #4a4034;   /* tlumený text na papíru (>= 7:1) */
   --c-bg: #ffffff;
-  --c-bg-soft: #f3f6f9;
-  --c-line: #d9e1e8;
-  /* Rámečky ovládacích prvků musí mít kontrast >= 3:1 (WCAG 1.4.11);
-     světlá --c-line zůstává jen pro dekorativní okraje karet. */
-  --c-line-strong: #7d8b97;
+  --c-bg-soft: var(--c-paper-light);
+  --c-line: #d6d3c2;
+  /* Rámečky ovládacích prvků musí mít kontrast >= 3:1 (WCAG 1.4.11)
+     na bílé i na papíru; světlá --c-line je jen pro dekorativní okraje. */
+  --c-line-strong: #5f5a50;
   --c-ok: #1e7d43;
   --c-ok-bg: #ecf7f0;
   --c-err: #b3261e;
@@ -130,7 +138,7 @@ a:hover { color: var(--c-primary-dark); }
   outline-color: #f2bd6b;
 }
 
-/* --- Hlavička a hero -------------------------------------- */
+/* --- Hlavička ----------------------------------------------- */
 
 .site-header {
   background: var(--c-hero-top);
@@ -170,31 +178,30 @@ a:hover { color: var(--c-primary-dark); }
   background: rgba(255, 255, 255, 0.12);
 }
 
-.hero {
-  /* Fotografie s modrým překryvem: vlevo téměř neprůhledný kvůli textu,
-     vpravo nechává vyniknout snímek. Barva pod tím je fallback,
-     kdyby se fotografie nenačetla. */
-  background-color: var(--c-hero-top);
-  background-image:
-    linear-gradient(100deg, rgba(11, 36, 62, 0.95) 0%, rgba(13, 42, 72, 0.84) 45%, rgba(16, 48, 82, 0.52) 100%),
-    url('foto-hero.jpg');
-  background-size: cover, cover;
-  background-position: center, center 35%;
-  color: #e9f0f7;
-  padding: 96px 0;
+/* Na tmavé hlavičce a patičce musí být focus kroužek světlý */
+.site-header :focus-visible,
+.site-footer :focus-visible {
+  outline-color: #f2bd6b;
 }
 
-/* Na úzkém displeji jde text přes celou šířku – překryv musí být plošný */
-@media (max-width: 760px) {
-  .hero {
-    background-image:
-      linear-gradient(rgba(11, 36, 62, 0.93), rgba(13, 42, 72, 0.88)),
-      url('foto-hero.jpg');
-  }
+/* --- Hero: text vlevo, portrét autora vpravo ----------------- */
+
+.hero {
+  /* Jednobarevný podklad „starý papír“ – bez fotografie, bez textury. */
+  background: var(--c-paper);
+  color: var(--c-body);
+  padding: 72px 0 80px;
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 56px;
+  align-items: start;
 }
 
 .hero .eyebrow {
-  color: #f2bd6b;
+  color: var(--c-bronze);
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.85rem;
@@ -202,19 +209,42 @@ a:hover { color: var(--c-primary-dark); }
   margin-bottom: 16px;
 }
 
+/* Oranžový akcent přežívá jako dekorativní linka před eyebrow
+   (bez kontrastního požadavku), text sám je bronzový. */
+.hero .eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 28px;
+  height: 3px;
+  background: var(--c-accent);
+  margin-right: 10px;
+  vertical-align: middle;
+  border-radius: 2px;
+}
+
 .hero h1 {
-  color: #fff;
+  color: var(--c-primary-dark);
   text-transform: uppercase;
   font-weight: 700;
-  font-size: clamp(1.9rem, 4vw, 2.9rem);
-  letter-spacing: 0.035em;
-  margin-bottom: 24px;
+  font-size: clamp(2.4rem, 4.6vw, 3.3rem);
+  line-height: 1.05;
+  letter-spacing: 0.03em;
+  margin-bottom: 20px;
 }
 
 .hero .lead {
-  font-size: 1.15rem;
-  max-width: 62ch;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 60ch;
   margin-bottom: 0;
+  text-wrap: pretty;
+}
+
+/* Zvýraznění cílových skupin v závazné větě klienta – žádné slovo
+   se nemění, čtenář se v ní najde jedním pohledem. */
+.hero .lead strong {
+  font-weight: 600;
+  color: var(--c-ink);
 }
 
 .hero-facts {
@@ -223,13 +253,13 @@ a:hover { color: var(--c-primary-dark); }
   flex-wrap: wrap;
   gap: 10px;
   padding: 0 0 24px;
-  margin: 32px 0 0;
+  margin: 28px 0 0;
   width: fit-content;
   max-width: 100%;
   position: relative;
 }
 
-/* Oddělovač pod štítky: jedna nepřerušovaná bílá linka, 1 px,
+/* Oddělovač pod štítky: jedna nepřerušovaná linka, 1 px,
    v poloviční šíři řady štítků */
 .hero-facts::after {
   content: "";
@@ -238,11 +268,12 @@ a:hover { color: var(--c-primary-dark); }
   bottom: 0;
   width: 50%;
   height: 1px;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(18, 54, 92, 0.6);
 }
 
 .hero-facts li {
-  background: rgba(255, 255, 255, 0.93);
+  background: #fff;
+  border: 1px solid var(--c-paper-deep);
   border-radius: 999px;
   padding: 7px 16px;
   font-size: 0.92rem;
@@ -254,12 +285,12 @@ a:hover { color: var(--c-primary-dark); }
 .hero-price {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #e9f0f7;
+  color: var(--c-ink);
   margin: 24px 0 0;
 }
 
 .hero-price strong {
-  color: #f2bd6b;
+  color: var(--c-bronze);
   font-size: 1.25rem;
 }
 
@@ -268,6 +299,45 @@ a:hover { color: var(--c-primary-dark); }
   flex-wrap: wrap;
   gap: 12px;
   margin: 32px 0 16px;
+}
+
+/* --- Portrét autora s mottem --------------------------------- */
+
+.hero-portrait {
+  margin: 0;
+  background: #fff;
+  padding: 8px 8px 14px;
+  border-radius: 14px;
+  box-shadow: 0 14px 34px rgba(14, 44, 76, 0.18);
+}
+
+.hero-portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: 50% 25%;
+  border-radius: 8px;
+}
+
+.hero-portrait figcaption {
+  padding: 14px 6px 0;
+}
+
+.hero-motto {
+  font-family: 'Barlow Condensed', 'Arial Narrow', Arial, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  color: var(--c-primary);
+  margin: 0 0 6px;
+}
+
+.hero-author {
+  font-size: 0.9rem;
+  color: var(--c-muted-warm);
+  margin: 0;
 }
 
 /* --- Formulář přímo v hero ---------------------------------- */
@@ -295,43 +365,29 @@ a:hover { color: var(--c-primary-dark); }
   transition: grid-template-rows 0.35s ease, visibility 0s;
 }
 
-/* Rozbalený formulář dostává vlastní tmavou podložku – drží osu
-   stránky a text nikdy neleží na surové fotografii */
-.hero-reg, .hero-ne {
-  background: rgba(9, 30, 52, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+/* Rozbalený formulář leží na papíru jako bílá karta */
+.hero-reg {
+  background: #fff;
+  border: 1px solid rgba(18, 54, 92, 0.18);
   border-radius: var(--radius);
+  box-shadow: var(--shadow);
   padding: 20px;
 }
 
 .hero-reg .gdpr-note {
   margin-top: 18px;
   padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-top: 1px solid var(--c-line);
 }
-
-.hero-reg .field label { color: #e9f0f7; }
-.hero-reg .field-hint { color: #b9c9d9; }
-.hero-reg .field-error { color: #ffb0a6; }
-.hero-reg .gdpr-note { color: #b9c9d9; }
-.hero-reg .gdpr-note a { color: #9fc3e4; }
-.hero-reg .gdpr-note a:hover { color: #c9dff2; }
-
-.hero-ne .ne-intro { color: #e9f0f7; }
 
 #hero-status .success-box { margin: 20px 0 24px; }
 
 /* Rozbalený stav CTA (nastavuje JS přes aria-expanded) */
-a[data-vyber][aria-expanded="true"].btn-accent {
-  background: #d98a1f;
-  color: var(--c-accent-text);
+a[data-vyber][aria-expanded="true"].btn-primary {
+  background: var(--c-primary-dark);
 }
 
-a[data-vyber][aria-expanded="true"].btn-outline-light {
-  background: rgba(255, 255, 255, 0.18);
-}
-
-/* Po odpovědi zmizí CTA volby i formuláře v hero */
+/* Po odpovědi zmizí CTA i formulář v hero */
 .hero-answered a[data-vyber],
 .hero-answered .hero-panel {
   display: none;
@@ -341,24 +397,17 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
 .hero-answered .btn-ghost { padding-left: 0; }
 
 .hero-note {
-  color: #b9c9d9;
+  color: var(--c-muted-warm);
   font-size: 0.95rem;
   margin: 0;
 }
 
 .hero-note a {
-  color: #9fc3e4;
+  color: var(--c-primary);
 }
 
 .hero-note a:hover {
-  color: #c9dff2;
-}
-
-/* Na tmavém pozadí musí být focus kroužek světlý */
-.site-header :focus-visible,
-.hero :focus-visible,
-.site-footer :focus-visible {
-  outline-color: #f2bd6b;
+  color: var(--c-primary-dark);
 }
 
 /* --- Tlačítka --------------------------------------------- */
@@ -378,16 +427,6 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
 
 .btn:active { transform: translateY(1px); }
 
-.btn-accent {
-  background: var(--c-accent);
-  color: var(--c-accent-text);
-}
-
-.btn-accent:hover {
-  background: #e69426;
-  color: var(--c-accent-text);
-}
-
 .btn-primary {
   background: var(--c-primary);
   color: #fff;
@@ -396,6 +435,16 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
 .btn-primary:hover {
   background: var(--c-primary-dark);
   color: #fff;
+}
+
+.btn-accent {
+  background: var(--c-accent);
+  color: var(--c-accent-text);
+}
+
+.btn-accent:hover {
+  background: #e69426;
+  color: var(--c-accent-text);
 }
 
 .btn-secondary {
@@ -409,22 +458,9 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
   background: var(--c-bg-soft);
 }
 
-/* Světlá obrysová a nenápadná varianta pro CTA na tmavém hero */
-.btn-outline-light {
-  background: transparent;
-  color: #fff;
-  border: 2px solid rgba(255, 255, 255, 0.65);
-  padding: 12px 26px;
-}
-
-.btn-outline-light:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
 .btn-ghost {
   background: transparent;
-  color: #dbe6f1;
+  color: var(--c-primary);
   padding: 14px 14px;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -432,7 +468,7 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
 }
 
 .btn-ghost:hover {
-  color: #fff;
+  color: var(--c-primary-dark);
 }
 
 /* Šipka není součást podtržení */
@@ -451,45 +487,35 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
 
 .section { padding: 72px 0; }
 
-.section-soft { background: var(--c-bg-soft); }
+.section-paper { background: var(--c-paper); }
 
 .section h2 {
   font-size: clamp(1.65rem, 3.4vw, 2.25rem);
   margin-bottom: 0.8em;
 }
 
-/* Dvousloupcová sekce text + obrázek */
+/* Dvousloupcová sekce: text + doplňkové rámečky */
 .split {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 40px;
-  align-items: center;
+  align-items: start;
 }
 
-.split-media {
-  margin: 0;
-}
-
-.split-media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-}
+.split-text p:last-child { margin-bottom: 0; }
 
 @media (max-width: 760px) {
   .split { grid-template-columns: 1fr; gap: 24px; }
-  .split-media { max-width: 380px; margin: 0 auto; }
 }
 
 .callout {
   border-left: 4px solid var(--c-accent);
-  background: var(--c-bg-soft);
+  background: var(--c-paper-light);
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 20px;
-  margin-top: 24px;
 }
+
+.callout + .callout { margin-top: 16px; }
 
 .callout h3 {
   font-size: 1.5rem;
@@ -506,21 +532,15 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
   gap: 18px;
 }
 
-.cards-outro {
-  max-width: 72ch;
-  margin: 24px 0 0;
-}
-
 /* Karty: hlavička ikonka+nadpis vedle sebe, popisek přes celou šířku –
    žádné prázdné rohy ani těsné lámání textu. */
 .card {
   display: grid;
   grid-template-columns: 28px 1fr;
   column-gap: 14px;
-  align-items: center;
+  align-items: start;
   align-content: start;
   background: linear-gradient(180deg, #163f6c, #0f2f55);
-  border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: var(--radius);
   padding: 20px;
 }
@@ -529,6 +549,7 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
   width: 28px;
   height: 28px;
   color: #fff;
+  margin-top: 2px;
 }
 
 .card-icon svg {
@@ -540,6 +561,7 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
   font-size: 1.4rem;
   margin: 0;
   color: #fff;
+  text-wrap: balance;
 }
 
 .card p {
@@ -550,23 +572,46 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
   color: #c9d8e6;
 }
 
-/* --- Dotazník ---------------------------------------------- */
+/* Široká závěrečná karta přes celý řádek – čte se jako banner */
+.card-wide {
+  grid-column: 1 / -1;
+}
 
-.poll-section,
+@media (min-width: 761px) {
+  .card-wide {
+    grid-template-columns: 28px auto minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .card-wide .card-icon { margin-top: 0; }
+
+  .card-wide p {
+    grid-column: 3;
+    margin: 0;
+    padding-left: 14px;
+    border-left: 1px solid rgba(255, 255, 255, 0.22);
+  }
+}
+
+/* --- Registrace zájemců -------------------------------------- */
+
+.reg-section,
 #detaily {
   scroll-margin-top: 20px;
 }
 
-.poll-section h2 { margin-bottom: 12px; }
+.reg-section h2 { margin-bottom: 12px; }
 
-.poll-lead {
-  color: var(--c-muted);
+.reg-lead {
+  color: var(--c-body);
   margin: 0 0 24px;
 }
 
-#dotaznik.answered .poll-lead { display: none; }
+.reg-lead strong { color: var(--c-ink); }
 
-.poll {
+#registrace.answered .reg-lead { display: none; }
+
+.reg-card {
   background: var(--c-bg);
   border: 1px solid var(--c-line);
   border-radius: var(--radius);
@@ -574,130 +619,12 @@ a[data-vyber][aria-expanded="true"].btn-outline-light {
   padding: 24px;
 }
 
-.poll-question {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: var(--c-ink);
-  margin-bottom: 20px;
-}
-
-.poll-options {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 8px;
-}
-
-.poll-option { flex: 1 1 200px; display: flex; }
-
-/* Radio je skryté vizuálně, ale zůstává ovladatelné klávesnicí */
-.poll-radio {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.poll-btn {
-  flex: 1;
-  text-align: center;
-  border: 2px solid var(--c-line-strong);
-  border-radius: 10px;
-  padding: 14px 18px;
-  font-weight: 700;
-  color: var(--c-ink);
-  cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease, color 0.15s ease;
-}
-
-.poll-btn:hover { border-color: var(--c-primary); }
-
-/* Během odesílání jsou volby zamčené i vizuálně */
-.poll-radio:disabled + .poll-btn {
-  opacity: 0.65;
-  cursor: default;
-}
-
-.poll-radio:checked + .poll-btn {
-  background: var(--c-primary);
-  border-color: var(--c-primary);
-  color: #fff;
-}
-
-/* Fallback pro prohlížeče bez :focus-visible – bez něj by fokus
-   na klipem skrytém radiu neměl žádnou viditelnou indikaci. */
-.poll-radio:focus + .poll-btn {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-
-/* Moderní prohlížeče indikaci omezí jen na klávesnicový fokus. */
-.poll-radio:focus:not(:focus-visible) + .poll-btn {
-  outline: none;
-}
-
-.poll-radio:focus-visible + .poll-btn {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-
-/* --- Rozbalovací panely ------------------------------------
-   Základ (starý prohlížeč bez :has a bez JS): oba panely jsou vidět.
-   S podporou :has je řídí zaškrtnuté radio – i bez JavaScriptu.
-   JavaScript v prohlížeči bez :has přepíná třídu .open (html.no-has).
-   ------------------------------------------------------------ */
-
-.form-panel {
-  display: grid;
-  grid-template-rows: 1fr;
-}
-
-.form-panel-inner { min-height: 0; padding: 0 4px; margin: 0 -4px; }
-
-@supports selector(:has(*)) {
-  .form-panel {
-    grid-template-rows: 0fr;
-    visibility: hidden;
-    transition: grid-template-rows 0.35s ease, visibility 0s linear 0.35s;
-  }
-
-  .form-panel-inner { overflow: hidden; }
-
-  .poll:has(#ans-ano:checked) .panel-ano,
-  .poll:has(#ans-ne:checked) .panel-ne {
-    grid-template-rows: 1fr;
-    visibility: visible;
-    transition: grid-template-rows 0.35s ease, visibility 0s;
-  }
-}
-
-/* JS fallback bez :has – bez animace; display místo grid+visibility,
-   aby fungoval i v prohlížečích bez CSS gridu. */
-html.no-has .form-panel {
-  display: none;
-}
-
-html.no-has .form-panel.open {
-  display: block;
-}
-
-/* Po úspěšném odeslání zmizí otázka i formuláře */
-.poll.poll-done .poll-question,
-.poll.poll-done .poll-options,
-.poll.poll-done .form-panel {
-  display: none;
-}
+/* Po úspěšném odeslání zůstane v kartě jen poděkování */
+#registrace.answered .reg-form { display: none; }
 
 /* --- Formuláře --------------------------------------------- */
 
-.reg-form, .ne-form { padding-top: 18px; }
-
-.reg-intro, .ne-intro { color: var(--c-body); }
+.reg-intro { color: var(--c-muted); }
 
 .field-grid {
   display: grid;
@@ -939,18 +866,49 @@ html.no-has .form-panel.open {
 
 /* --- Responzivita ------------------------------------------ */
 
+/* Pod 900 px: jeden sloupec, portrét jako „podpisový řádek“ –
+   kulatý avatar + motto + jméno, aby cena a CTA zůstaly nad foldem. */
+@media (max-width: 899px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .hero-portrait {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 14px;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    max-width: 520px;
+  }
+
+  .hero-portrait img {
+    width: 72px;
+    height: 72px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    object-position: 50% 22%;
+  }
+
+  .hero-portrait figcaption { padding: 0; }
+
+  .hero-motto { font-size: 1.25rem; margin-bottom: 2px; }
+}
+
 @media (max-width: 640px) {
   .section { padding: 40px 0; }
   /* Kompaktní hero: cena i CTA se musí vejít nad fold telefonu */
-  .hero { padding: 32px 0 44px; }
+  .hero { padding: 32px 0 40px; }
   .hero .eyebrow { margin-bottom: 10px; }
   .hero h1 { margin-bottom: 14px; }
-  .hero .lead { font-size: 1.05rem; }
+  .hero .lead { font-size: 1rem; line-height: 1.55; }
   .hero-facts { margin-top: 18px; padding-bottom: 16px; gap: 8px; }
   .hero-facts li { white-space: normal; }
   .hero-price { margin-top: 16px; }
-  .hero-actions { margin: 22px 0 14px; gap: 16px; }
-  .poll { padding: 20px 16px; border-color: var(--c-line-strong); }
+  .hero-actions { margin: 22px 0 14px; gap: 14px; }
+  .reg-card { padding: 20px 16px; border-color: var(--c-line-strong); }
   .field-grid { grid-template-columns: 1fr; gap: 0; }
   .btn { width: 100%; text-align: center; }
   .header-cta { padding: 10px 16px; font-size: 0.9rem; }
@@ -961,18 +919,8 @@ html.no-has .form-panel.open {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 
-  .form-panel,
   .hero-panel,
-  .btn, .poll-btn {
-    transition: none !important;
-  }
-}
-
-/* Zvlášť: neznámý selektor :has by v prohlížeči bez podpory
-   zneplatnil celý čárkový seznam výše. */
-@media (prefers-reduced-motion: reduce) {
-  .poll:has(#ans-ano:checked) .panel-ano,
-  .poll:has(#ans-ne:checked) .panel-ne {
+  .btn {
     transition: none !important;
   }
 }
@@ -980,17 +928,19 @@ html.no-has .form-panel.open {
 /* --- Tisk --------------------------------------------------- */
 
 @media print {
-  .site-header, .hero-actions, .header-cta, .poll-section, .skip-link {
+  .site-header, .hero-actions, .header-cta, .reg-section, .skip-link {
     display: none;
   }
 
   body { color: #000; }
 
-  .hero {
+  .hero, .section-paper {
     background: none;
     color: #000;
     padding: 0;
   }
 
-  .hero h1, .hero .lead, .hero .eyebrow, .hero-note { color: #000; }
+  .hero h1, .hero .lead, .hero .eyebrow, .hero-note, .hero-motto { color: #000; }
+
+  .hero-portrait { box-shadow: none; }
 }

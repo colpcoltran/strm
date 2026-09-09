@@ -153,7 +153,7 @@ function sendInterestNotification(int $rowId, string $jmeno, string $prijmeni, s
         . 'Profese:  ' . $profese . "\n"
         . 'E-mail:   ' . $email . "\n"
         . 'Odesláno: ' . pragueTime() . " (Europe/Prague)\n\n"
-        . "Tato zpráva byla vygenerována automaticky dotazníkem na landing page.\n";
+        . "Tato zpráva byla vygenerována automaticky registračním formulářem na landing page.\n";
 
     $subject = mb_encode_mimeheader('Nový zájemce – Technická bezpečnost', 'UTF-8', 'B');
     // E-mail zájemce prošel FILTER_VALIDATE_EMAIL, do hlavičky Reply-To je bezpečný.

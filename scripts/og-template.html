@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>OG obrázek – Technická bezpečnost</title>
+<style>
+  /* Šablona 1200×630 pro og:image. Barvy drží tokeny webu (style.css):
+     papír #d9d7c4, navy #12365c / #0c2743, bronz #6e3f05, amber #f0a63c. */
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 700; src: url('../public/assets/fonts/barlow-condensed-latin-ext-700-normal.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 700; src: url('../public/assets/fonts/barlow-condensed-latin-700-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 600; src: url('../public/assets/fonts/barlow-condensed-latin-ext-600-normal.woff2') format('woff2'); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: 'Barlow Condensed'; font-weight: 600; src: url('../public/assets/fonts/barlow-condensed-latin-600-normal.woff2') format('woff2'); }
+  html, body { margin: 0; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden;
+    background: #d9d7c4;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #33424f;
+    position: relative;
+  }
+  .bar { position: absolute; left: 0; top: 0; right: 0; height: 14px; background: #0e2c4c; }
+  .copy { position: absolute; left: 72px; top: 92px; width: 700px; }
+  .eyebrow { color: #6e3f05; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 700; font-size: 20px; margin: 0 0 22px; }
+  .eyebrow::before { content: ""; display: inline-block; width: 40px; height: 4px; background: #f0a63c; margin-right: 14px; vertical-align: middle; border-radius: 2px; }
+  h1 { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 700; text-transform: uppercase; color: #0c2743; font-size: 92px; line-height: 0.98; letter-spacing: 0.02em; margin: 0 0 14px; }
+  h1 span { display: block; color: #12365c; font-size: 54px; letter-spacing: 0.03em; margin-top: 10px; }
+  .motto { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 40px; color: #12365c; margin: 22px 0 0; }
+  .domain { position: absolute; left: 72px; bottom: 56px; font-weight: 700; font-size: 26px; color: #0c2743; }
+  .price { position: absolute; left: 72px; bottom: 104px; width: 640px; font-size: 24px; line-height: 1.35; color: #33424f; margin: 0; }
+  .price strong { color: #6e3f05; }
+  .portrait { position: absolute; right: 72px; top: 76px; width: 330px; background: #fff; padding: 10px 10px 12px; border-radius: 18px; box-shadow: 0 18px 44px rgba(14,44,76,0.22); }
+  .portrait img { display: block; width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: 50% 25%; border-radius: 10px; }
+</style>
+</head>
+<body>
+  <div class="bar"></div>
+  <div class="copy">
+    <p class="eyebrow">Připravovaný projekt</p>
+    <h1>Technická bezpečnost <span>Odborné odpovědi pro praxi</span></h1>
+    <p class="motto">„Ptejte se a já budu odpovídat.“</p>
+  </div>
+  <p class="price">Každý měsíc nový příspěvek a živý stream.<br>Přístup za <strong>750 Kč</strong> měsíčně.</p>
+  <p class="domain">www.technickabezpecnost.cz</p>
+  <figure class="portrait" style="margin:0"><img src="../public/assets/portret-autor.jpg" alt=""></figure>
+</body>
+</html>

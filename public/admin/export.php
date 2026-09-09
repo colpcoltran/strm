@@ -148,17 +148,17 @@ try {
     respondHtml(200, 'Export odpovědí – Technická bezpečnost', '<h1>Odpovědi dotazníku</h1>'
         . '<div class="stat-row">'
         . '<div class="stat"><strong>' . $countAno . '</strong><span>má zájem (ANO)</span></div>'
-        . '<div class="stat"><strong>' . $countNe . '</strong><span>nemá zájem (NE)</span></div>'
+        . ($countNe > 0 ? '<div class="stat"><strong>' . $countNe . '</strong><span>nemá zájem (NE)</span></div>' : '')
         . '<div class="stat"><strong>' . ($countAno + $countNe) . '</strong><span>odpovědí celkem</span></div>'
         . '</div>'
         . '<p>Poslední odpověď: ' . e(is_string($lastAt) ? pragueTime($lastAt) : 'zatím žádná') . '</p>'
         . '<p><a class="btn btn-primary" href="export.php?download=1">Stáhnout CSV pro Excel</a></p>'
         . '<h2>Zájemci</h2>'
         . '<div class="table-wrap"><table>'
-        . '<thead><tr><th>Č.</th><th>Datum</th><th>Jméno</th><th>Příjmení</th><th>Profese</th><th>E-mail</th></tr></thead>'
+        . '<thead><tr><th>Č.</th><th>Datum</th><th>Jméno</th><th>Příjmení</th><th>Profese / oblast zájmu</th><th>E-mail</th></tr></thead>'
         . '<tbody>' . $tableRows . '</tbody>'
         . '</table></div>'
-        . '<p class="note">Odpovědi NE se ukládají anonymně, proto jsou jen v souhrnném počtu.'
+        . '<p class="note">Web sbírá jen registrace zájemců (volba „nemám zájem“ byla z webu na přání klienta odstraněna; případné starší anonymní odpovědi NE jsou jen v souhrnném počtu).'
         . ' Nezapomeňte: všechna data je potřeba smazat nejpozději 31.&nbsp;3.&nbsp;2027 (viz Zásady).</p>',
         'fallback-page admin-page');
 } catch (Throwable $exception) {

@@ -1,44 +1,23 @@
 /*
- * Technická bezpečnost – progressive enhancement dotazníku.
- * Na stránce jsou dva formuláře: skrytý v hero (rozbalí ho CTA
- * „Mám zájem", CTA „Nemám zájem" odešle odpověď rovnou) a plný
- * dotazník dole. Po odpovědi kdekoli se obě místa přepnou na
- * poděkování. Bez JavaScriptu vedou CTA na dolní dotazník
- * a formuláře se odesílají klasickým POSTem.
+ * Technická bezpečnost – progressive enhancement registrace.
+ * Na stránce jsou dva registrační formuláře: skrytý v hero (rozbalí
+ * a sbalí ho CTA „Mám zájem") a plný dole v sekci #registrace, který
+ * je vidět vždy. Po úspěšném odeslání kdekoli se obě místa přepnou na
+ * poděkování. Bez JavaScriptu vede CTA na dolní formulář a formuláře
+ * se odesílají klasickým POSTem (PHP vrátí samostatnou stránku).
  */
 (function () {
   'use strict';
 
   var doc = document;
-  var root = doc.documentElement;
-  root.classList.add('js');
-
-  var supportsHas = false;
-  try {
-    supportsHas = !!(window.CSS && CSS.supports && CSS.supports('selector(:has(*))'));
-  } catch (err) {
-    supportsHas = false;
-  }
-  if (!supportsHas) {
-    root.classList.add('no-has');
-  }
-
-  var poll = doc.querySelector('.poll');
-  if (!poll) {
-    return;
-  }
-
-  var radioAno = doc.getElementById('ans-ano');
-  var radioNe = doc.getElementById('ans-ne');
-  var panelAno = poll.querySelector('.panel-ano');
-  var panelNe = poll.querySelector('.panel-ne');
-  var statusBottom = doc.getElementById('form-status');
+  doc.documentElement.classList.add('js');
 
   var heroSection = doc.querySelector('.hero');
-  var heroPanelAno = doc.getElementById('hero-panel-ano');
-  var heroPanelNe = doc.getElementById('hero-panel-ne');
+  var heroPanel = doc.getElementById('hero-panel-ano');
   var statusHero = doc.getElementById('hero-status');
-  var formNeHero = doc.getElementById('form-ne-hero');
+  var statusBottom = doc.getElementById('form-status');
+  var registrace = doc.getElementById('registrace');
+  var cta = doc.querySelector('a[data-vyber="ANO"]');
 
   var reduceMotion = window.matchMedia
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -48,24 +27,6 @@
      zobrazí poděkování); během requestu je vše zamčené. */
   var answered = false;
   var busyGlobal = false;
-
-  function lockAll(locked) {
-    busyGlobal = locked;
-    radioAno.disabled = locked;
-    radioNe.disabled = locked;
-  }
-
-  /* --- Přepínání ANO/NE v dolním dotazníku --------------------- */
-
-  function syncPanels() {
-    if (!supportsHas) {
-      panelAno.classList.toggle('open', radioAno.checked);
-      panelNe.classList.toggle('open', radioNe.checked);
-    }
-  }
-
-  radioAno.addEventListener('change', syncPanels);
-  radioNe.addEventListener('change', syncPanels);
 
   /* --- Odkazy na zásady otevřou <details> ---------------------- */
 
@@ -83,42 +44,25 @@
   }
 
   /* --- CTA v hero ----------------------------------------------
-     „Mám zájem" rozbalí registrační formulář přímo v hero,
-     „Nemám zájem" rozbalí krátké potvrzení s tlačítkem Odeslat
-     (záměrně žádné odeslání bez potvrzení – překliknutí nesmí
-     kazit výsledky průzkumu). Bez JS vedou odkazy na dolní
-     dotazník. */
-  var ctaAno = doc.querySelector('a[data-vyber="ANO"]');
-  var ctaNe = doc.querySelector('a[data-vyber="NE"]');
-  var ctas = doc.querySelectorAll('a[data-vyber]');
-  for (var c = 0; c < ctas.length; c++) {
-    ctas[c].addEventListener('click', function (event) {
+     „Mám zájem" rozbalí registrační formulář přímo v hero; druhý klik
+     ho zase sbalí, aby aria-expanded vždy odpovídalo skutečnosti.
+     Bez JS vede odkaz na dolní formulář (#registrace). */
+  if (cta && heroPanel) {
+    cta.addEventListener('click', function (event) {
       event.preventDefault();
       if (busyGlobal || answered) {
         return;
       }
-      var isAno = this.getAttribute('data-vyber') === 'ANO';
-      var openPanel = isAno ? heroPanelAno : heroPanelNe;
-      var closePanel = isAno ? heroPanelNe : heroPanelAno;
-      if (closePanel) {
-        closePanel.classList.remove('open');
-      }
-      if (openPanel) {
-        openPanel.classList.add('open');
+      var open = !heroPanel.classList.contains('open');
+      heroPanel.classList.toggle('open', open);
+      cta.setAttribute('aria-expanded', String(open));
+      if (open) {
         window.setTimeout(function () {
-          var target = isAno
-            ? doc.getElementById('jmeno-h')
-            : (formNeHero && formNeHero.querySelector('button[type="submit"]'));
-          if (target) {
-            target.focus();
+          var first = doc.getElementById('jmeno-h');
+          if (first) {
+            first.focus();
           }
         }, OPEN_DELAY);
-      }
-      if (ctaAno) {
-        ctaAno.setAttribute('aria-expanded', String(isAno));
-      }
-      if (ctaNe) {
-        ctaNe.setAttribute('aria-expanded', String(!isAno));
       }
     });
   }
@@ -133,14 +77,13 @@
   var MSG = {
     jmeno: 'Vyplňte prosím jméno.',
     prijmeni: 'Vyplňte prosím příjmení.',
-    profese: 'Vyplňte prosím profesi.',
+    profese: 'Vyplňte prosím profesi či oblast zájmu.',
     emailEmpty: 'Zadejte prosím svou e-mailovou adresu.',
     emailInvalid: 'Zkontrolujte prosím formát e-mailové adresy (např. jmeno@firma.cz).',
     tooLong: 'Zadaný text je příliš dlouhý.',
     network: 'Odeslání se nezdařilo. Zkontrolujte prosím připojení a zkuste to znovu.',
     server: 'Odeslání se nezdařilo. Zkuste to prosím za chvíli znovu.',
-    successAno: 'Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději do konce listopadu 2026.',
-    successNe: 'Děkujeme za váš čas a upřímnou odpověď. I ta nám pomáhá rozhodnout o podobě projektu.'
+    success: 'Děkujeme za registraci, budete informováni o vývoji tohoto projektu nejpozději do konce listopadu 2026.'
   };
 
   /* --- Chybové stavy polí -------------------------------------- */
@@ -170,7 +113,7 @@
     }
   }
 
-  function validateAno(form) {
+  function validate(form) {
     var errors = [];
     var fields = ['jmeno', 'prijmeni', 'profese'];
     for (var i = 0; i < fields.length; i++) {
@@ -222,7 +165,7 @@
 
   /* --- Success ------------------------------------------------- */
 
-  function renderSuccess(container, isAno) {
+  function renderSuccess(container) {
     if (!container) {
       return;
     }
@@ -232,27 +175,30 @@
       + ' stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
       + '<circle cx="12" cy="12" r="10"></circle><path d="M8 12.5l2.5 2.5L16 9"></path></svg>';
     var text = doc.createElement('p');
-    text.textContent = isAno ? MSG.successAno : MSG.successNe;
+    text.textContent = MSG.success;
     box.appendChild(text);
     container.textContent = '';
     container.appendChild(box);
   }
 
-  function showSuccess(isAno, originStatus) {
+  function showSuccess(originStatus) {
     answered = true;
-    poll.classList.add('poll-done');
-    var dotaznik = doc.getElementById('dotaznik');
-    if (dotaznik) {
-      dotaznik.classList.add('answered');
+    if (registrace) {
+      registrace.classList.add('answered');
     }
     if (heroSection) {
       heroSection.classList.add('hero-answered');
     }
-    renderSuccess(statusBottom, isAno);
-    renderSuccess(statusHero, isAno);
+    if (cta) {
+      cta.setAttribute('aria-expanded', 'false');
+    }
+    renderSuccess(statusBottom);
+    renderSuccess(statusHero);
     var focusTarget = originStatus || statusBottom;
-    focusTarget.tabIndex = -1;
-    focusTarget.focus();
+    if (focusTarget) {
+      focusTarget.tabIndex = -1;
+      focusTarget.focus();
+    }
   }
 
   /* --- Odeslání přes fetch ------------------------------------- */
@@ -265,7 +211,6 @@
     form.noValidate = true;
     var button = form.querySelector('button[type="submit"]');
     var banner = form.querySelector('.form-error');
-    var isAno = form.querySelector('[name="answer"]').value === 'ANO';
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();
@@ -275,24 +220,22 @@
       banner.hidden = true;
       clearErrors(form);
 
-      if (isAno) {
-        var errors = validateAno(form);
-        if (errors.length) {
-          for (var i = 0; i < errors.length; i++) {
-            setFieldError(errors[i].input, errors[i].message);
-          }
-          errors[0].input.focus();
-          return;
+      var errors = validate(form);
+      if (errors.length) {
+        for (var i = 0; i < errors.length; i++) {
+          setFieldError(errors[i].input, errors[i].message);
         }
+        errors[0].input.focus();
+        return;
       }
 
-      lockAll(true);
+      busyGlobal = true;
       button.disabled = true;
       var originalLabel = button.textContent;
       button.textContent = 'Odesílám…';
 
       function done(restoreFocus) {
-        lockAll(false);
+        busyGlobal = false;
         button.disabled = false;
         button.textContent = originalLabel;
         // disabled tlačítko zahodilo fokus na <body> – vrátíme ho.
@@ -318,7 +261,7 @@
       }).then(function (result) {
         if (result.data && result.data.ok) {
           done(false);
-          showSuccess(isAno, originStatus);
+          showSuccess(originStatus);
           return;
         }
         done(true);
@@ -335,7 +278,5 @@
   }
 
   wireForm(doc.getElementById('form-ano'), statusBottom);
-  wireForm(doc.getElementById('form-ne'), statusBottom);
   wireForm(doc.getElementById('form-ano-hero'), statusHero);
-  wireForm(formNeHero, statusHero);
 }());
