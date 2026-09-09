@@ -4,7 +4,7 @@ Jednostránkový web, který ověřuje zájem o připravovaný odborný portál
 **Technická bezpečnost – odborné odpovědi pro praxi**. Zájemce o placené
 členství (750 Kč měsíčně) vyplní registrační formulář (jméno, příjmení,
 profese či oblast zájmu, e-mail). Formulář je na stránce dvakrát: sbalený
-v hero (rozbalí a sbalí ho CTA „Mám zájem") a vždy viditelný dole v sekci
+v hero (rozbalí a sbalí ho CTA „Budu mít zájem") a vždy viditelný dole v sekci
 `#registrace`. Registrace se ukládají do SQLite databáze a o každém novém
 zájemci odejde e-mailové upozornění klientovi. Volba „nemám zájem" byla ve
 2. kole připomínek na přání klienta z webu odstraněna (viz „Vědomá
@@ -77,9 +77,10 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
    HTTPS funguje, můžete v `public/.htaccess` odkomentovat hlavičku HSTS.
 5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
    práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
-6. V `public/index.html` doplňte **jméno, kvalifikaci a kontaktní e-mail
-   provozovatele** – pod portrétem v hero (`.hero-author`, `.hero-author-role`)
-   i v patičce a Zásadách (všechny placeholdery v hranatých závorkách `[…]`;
+6. V `public/index.html` doplňte **reference autora a kontaktní e-mail** –
+   pod portrétem v hero (`.hero-author-role`, dnes „[doplnit reference]")
+   a v patičce i Zásadách („[doplňte e-mail]"); jméno Martin Šturma už je
+   vyplněno (zbylé placeholdery jsou v hranatých závorkách `[…]`;
    `scripts/build-deploy-hostinger.sh` na zbylé závorky upozorní). `og:url`
    a `og:image` už míří na www.technickabezpecnost.cz – při jiné doméně upravte.
 
@@ -131,7 +132,7 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## Testovací checklist po nasazení
 
-1. CTA **Mám zájem** v hero rozbalí formulář (druhý klik ho sbalí); vyplněný
+1. CTA **Budu mít zájem** v hero rozbalí formulář (druhý klik ho sbalí); vyplněný
    formulář → success zpráva v hero i dole, řádek v DB, e-mail dorazil na
    `NOTIFY_EMAIL`.
 2. Stejný e-mail podruhé → žádný druhý řádek ani druhý e-mail (tichý úspěch).
@@ -166,9 +167,8 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 z fotografie dodané klientem) je jediná fotografie na
 webu. Na desktopu je vpravo v hero s mottem a popiskem, na mobilu jako kulatý
 avatar v „podpisovém řádku". Výměna: připravte ořez 3:4 (např. squoosh.app,
-JPEG ~80 %), přepište oba soubory a případně upravte `alt` (dnes „Autor
-projektu" – bez hranatých závorek, čtečky by je předčítaly) a popisek
-`.hero-author` v `index.html` (placeholder `[Jméno Příjmení]`). Originál
+JPEG ~80 %), přepište oba soubory a případně upravte `alt` („Portrét: Martin Šturma") a popisek
+`.hero-author-role` v `index.html` (placeholder „[doplnit reference]"). Originál
 fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
 
 **Barva papíru** – hero a sekce karet mají jednobarevný podklad „starý papír"
@@ -186,10 +186,14 @@ případně je ztmavte.
 install chromium`; `node_modules/` je v `.gitignore`). Spusťte znovu po
 změně barvy papíru, motta nebo portrétu.
 
-**Motto** „Ptejte se a já budu odpovídat." je v `index.html` (`.hero-motto`)
-a v OG šabloně; klient nabídl i varianty „Mé zkušenosti jsou zde pro vás",
-„Pojďme se spolu posunout dále", „Výuka a školení jsou užitečné, ale
-zkušenosti se nedají nahradit" – výměna je jeden řetězec na dvou místech.
+**Motto** „Ptejte se. Odpovídám z praxe, ne z paragrafů." je v `index.html`
+(`.hero-motto`) a v OG šabloně – výměna je jeden řetězec na dvou místech
+(+ `node scripts/make-og-image.cjs`). Zvoleno z návrhů: „Tisíc stran norem.
+Jedna jasná odpověď.", „Vy ručíte za provoz. Já za odpovědi.", „Norma vás
+neochrání. Rozumět jí ano.", „Norma říká. Praxe ukáže. Já vysvětlím.",
+„Odpovědi bez alibismu."; původní návrhy klienta: „Ptejte se a já budu
+odpovídat", „Mé zkušenosti jsou zde pro vás", „Pojďme se spolu posunout dále",
+„Výuka a školení jsou užitečné, ale zkušenosti se nedají nahradit".
 
 **Náhled k prokliku bez serveru:** `python3 scripts/build-nahled.py
 cesta/nahled.html` složí jediný HTML soubor (fonty i obrázky vložené,

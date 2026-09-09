@@ -194,8 +194,8 @@ a:hover { color: var(--c-primary-dark); }
 
 .hero-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 300px;
-  gap: 56px;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 48px;
   align-items: start;
 }
 
