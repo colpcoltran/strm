@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technická bezpečnost – odborné odpovědi pro praxi</title>
+<meta name="description" content="Připravovaný odborný web o bezpečnosti technických zařízení: výklad norem a předpisů pro praxi, nový příspěvek a živý stream každý měsíc. Start leden 2027.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Technická bezpečnost – odborné odpovědi pro praxi">
+<meta property="og:description" content="Připravovaný odborný web: praktický výklad předpisů pro provozovatele, revizní techniky, OZO v BOZP i montážní a dodavatelské firmy. Každý měsíc nový příspěvek a živý stream. Zapojte se.">
+<meta property="og:url" content="https://www.technickabezpecnost.cz/">
+<meta property="og:image" content="https://www.technickabezpecnost.cz/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="cs_CZ">
+<meta name="theme-color" content="#0e2c4c">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/app.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Přeskočit na obsah</a>
+
+<header class="site-header">
+  <div class="container header-row">
+    <p class="brand">Technická bezpečnost</p>
+    <a class="header-cta" href="#registrace">Budu mít zájem</a>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Připravovaný projekt</p>
+        <h1>Odborné odpovědi pro praxi</h1>
+        <p class="lead">Připravuji nový odborný web věnovaný bezpečnosti všech technických zařízení, normám a&nbsp;legislativě s&nbsp;ohledem na odpovědnosti <strong>provozovatelů</strong>, práci <strong>revizních techniků</strong>, činnosti <strong>osob odborně způsobilých v&nbsp;BOZP</strong>, povinnosti <strong>montážních a&nbsp;dodavatelských společností</strong>.</p>
+        <ul class="hero-facts" role="list">
+          <li>Nový příspěvek 1×&nbsp;měsíčně</li>
+          <li>Živý stream 1×&nbsp;měsíčně</li>
+          <li>Rozhovory s&nbsp;odborníky i&nbsp;kontrolními orgány</li>
+        </ul>
+        <p class="hero-price">Přístup ke kompletnímu obsahu by stál <strong>750&nbsp;Kč</strong> měsíčně.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#registrace" data-vyber="ANO">Budu mít zájem</a>
+          <a class="btn btn-ghost" href="#detaily">Zjistit víc<span aria-hidden="true">&nbsp;↓</span></a>
+        </div>
+
+        <div class="hero-form">
+          <div id="hero-status" class="form-status"></div>
+          <div class="hero-panel" id="hero-panel-ano">
+            <div class="hero-panel-inner">
+              <form id="form-ano-hero" class="reg-form hero-reg" action="api/submit.php" method="post">
+                <input type="hidden" name="answer" value="ANO">
+                <div class="hp-field" aria-hidden="true">
+                  <label for="kontrola-hero">Toto pole nevyplňujte</label>
+                  <input type="text" id="kontrola-hero" name="kontrola" tabindex="-1" autocomplete="off">
+                </div>
+                <p class="reg-intro">Všechna pole jsou povinná.</p>
+                <div class="field-grid">
+                  <div class="field">
+                    <label for="jmeno-h">Jméno</label>
+                    <input type="text" id="jmeno-h" name="jmeno" required maxlength="100" autocomplete="given-name" aria-describedby="err-jmeno-h">
+                    <p class="field-error" id="err-jmeno-h" hidden></p>
+                  </div>
+                  <div class="field">
+                    <label for="prijmeni-h">Příjmení</label>
+                    <input type="text" id="prijmeni-h" name="prijmeni" required maxlength="100" autocomplete="family-name" aria-describedby="err-prijmeni-h">
+                    <p class="field-error" id="err-prijmeni-h" hidden></p>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="profese-h">Vaše profese či oblast zájmu</label>
+                  <input type="text" id="profese-h" name="profese" required maxlength="100" autocomplete="organization-title" aria-describedby="hint-profese-h err-profese-h">
+                  <p class="field-hint" id="hint-profese-h">Např. revizní technik, OZO v&nbsp;BOZP, provozovatel VTZ, montážní firma, ocelové konstrukce…</p>
+                  <p class="field-error" id="err-profese-h" hidden></p>
+                </div>
+                <div class="field">
+                  <label for="email-h">E-mail</label>
+                  <input type="email" id="email-h" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="jmeno@firma.cz" aria-describedby="hint-email-h err-email-h">
+                  <p class="field-hint" id="hint-email-h">E-mail použiji jen k&nbsp;informování o&nbsp;tomto projektu.</p>
+                  <p class="field-error" id="err-email-h" hidden></p>
+                </div>
+                <div class="form-error" id="form-error-ano-hero" role="alert" hidden></div>
+                <button class="btn btn-primary" type="submit">Odeslat / Budu mít zájem</button>
+                <p class="gdpr-note">Odesláním formuláře projevujete zájem o&nbsp;připravovanou službu a&nbsp;žádáte o&nbsp;zaslání informace o&nbsp;jejím spuštění. Jméno, příjmení, profesi či oblast zájmu a&nbsp;e-mail zpracovávám jen pro tento účel a&nbsp;nejpozději do 31.&nbsp;3.&nbsp;2027 je smažu. Podrobnosti: <a href="#zasady-text">Zásady zpracování osobních údajů</a>.</p>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <p class="hero-note">Pokud bude o&nbsp;tento formát webu zájem, bude spuštěn od ledna 2027 na adrese <a href="https://www.technickabezpecnost.cz">www.technickabezpecnost.cz</a>.</p>
+      </div>
+
+      <figure class="hero-portrait">
+        <img src="assets/portret-autor.jpg" srcset="assets/portret-autor-300.jpg 300w, assets/portret-autor.jpg 600w, assets/portret-autor@2x.jpg 1200w" sizes="(max-width: 959px) 72px, 360px" width="600" height="800" alt="Portrét: Martin Šturma" fetchpriority="high">
+        <figcaption>
+          <p class="hero-motto">„Ptejte se. Odpovídám z&nbsp;praxe, ne z&nbsp;paragrafů.“</p>
+          <p class="hero-author">Martin Šturma</p>
+          <p class="hero-author-role">[doplnit reference]</p>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="detaily" aria-labelledby="h-detaily">
+    <div class="container">
+      <h2 id="h-detaily">Praktický výklad pro reálný provoz</h2>
+      <div class="split">
+        <div class="split-text">
+          <p>Interaktivní web bude založen na praktickém výkladu předpisů, řešení skutečných situací z&nbsp;provozu a&nbsp;odpovědích na otázky, které řeší provozovatelé, revizní technici, odpovědné osoby za VTZ, projektanti, manažeři BOZP, facility manažeři i&nbsp;technické vedení firem.</p>
+          <p>Projekt bude zaměřen na všechna vyhrazená i&nbsp;nevyhrazená technická zařízení včetně například ocelových konstrukcí, strojních zařízení apod.</p>
+        </div>
+        <div class="split-aside">
+          <div class="callout">
+            <h3>Žádné předčítání norem</h3>
+            <p>Neočekávejte žádné předčítání norem a&nbsp;právních předpisů, ale naopak praktický výklad toho, co norma či předpis požaduje, koho se týká, kdo za co odpovídá a&nbsp;jak to řešit v&nbsp;reálném provozu.</p>
+          </div>
+          <div class="callout">
+            <h3>Naučný a&nbsp;komunikační web, ne podcast</h3>
+            <p>Základem budou psané výklady, rozbory, živé diskuse a&nbsp;odpovědi na vaše dotazy. Audio verze příspěvků bude jen doplněk na cesty.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-paper" aria-labelledby="h-obsah">
+    <div class="container">
+      <h2 id="h-obsah">Co členství přinese</h2>
+      <div class="cards">
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M9 15.5l2 2 4-4.5"/></svg>
+          </div>
+          <h3>Nový příspěvek 1×&nbsp;měsíčně</h3>
+          <p>Rozbor jednoho konkrétního tématu z&nbsp;praxe a&nbsp;diskuse k&nbsp;němu.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5z"/></svg>
+          </div>
+          <h3>Živý stream 1×&nbsp;měsíčně</h3>
+          <p>Vaše otázky a&nbsp;moje odpovědi v&nbsp;přímém přenosu.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6.5A2.5 2.5 0 0 1 5.5 4h7A2.5 2.5 0 0 1 15 6.5v4a2.5 2.5 0 0 1-2.5 2.5H8l-3.5 3v-3A2.5 2.5 0 0 1 3 10.5z"/><path d="M17 9h1.5A2.5 2.5 0 0 1 21 11.5v4a2.5 2.5 0 0 1-2.5 2.5H18v3l-3.5-3H12"/></svg>
+          </div>
+          <h3>Rozhovory s&nbsp;odborníky a&nbsp;kontrolními orgány státní správy</h3>
+          <p>Zkušenosti z&nbsp;praxe i&nbsp;pohled těch, kdo dodržování předpisů kontrolují.</p>
+        </article>
+        <article class="card">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h7l2 2h7v14H4z"/><path d="M4 10h16"/></svg>
+          </div>
+          <h3>Členský archiv</h3>
+          <p>Všechny výklady, rozhovory a&nbsp;odpovědi na jednom místě&nbsp;– ke čtení, případně i&nbsp;k&nbsp;poslechu.</p>
+        </article>
+        <article class="card card-wide">
+          <div class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.5-1.2A9 9 0 1 0 12 3z"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.7.4-1 1-1 1.7"/><path d="M12 16.6h.01"/></svg>
+          </div>
+          <h3>Témata určujete vy</h3>
+          <p>Podílejte se i&nbsp;vy na tomto projektu&nbsp;– vaše dotazy, zkušenosti a&nbsp;problémy z&nbsp;praxe budou určovat témata, kterým se budeme věnovat.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section reg-section" id="registrace" aria-labelledby="h-registrace">
+    <div class="container narrow">
+      <h2 id="h-registrace">Máte zájem? Dejte mi vědět</h2>
+      <p class="reg-lead">Přístup ke kompletnímu obsahu by stál <strong>750&nbsp;Kč</strong> měsíčně. Pokud vám takový web dává smysl, nechte mi na sebe kontakt&nbsp;– k&nbsp;ničemu se nezavazujete, jen mi dáte vědět, že o&nbsp;něj stojíte. Ozvu se nejpozději do konce listopadu 2026; zabere to necelou minutu.</p>
+      <div class="reg-card">
+        <!-- Úspěch se ohlašuje přesunem fokusu (JS); live region by
+             způsobil dvojí čtení toutéž čtečkou. -->
+        <div id="form-status" class="form-status"></div>
+
+        <form id="form-ano" class="reg-form" action="api/submit.php" method="post">
+          <input type="hidden" name="answer" value="ANO">
+          <div class="hp-field" aria-hidden="true">
+            <label for="kontrola-ano">Toto pole nevyplňujte</label>
+            <input type="text" id="kontrola-ano" name="kontrola" tabindex="-1" autocomplete="off">
+          </div>
+          <p class="reg-intro">Všechna pole jsou povinná.</p>
+          <div class="field-grid">
+            <div class="field">
+              <label for="jmeno">Jméno</label>
+              <input type="text" id="jmeno" name="jmeno" required maxlength="100" autocomplete="given-name" aria-describedby="err-jmeno">
+              <p class="field-error" id="err-jmeno" hidden></p>
+            </div>
+            <div class="field">
+              <label for="prijmeni">Příjmení</label>
+              <input type="text" id="prijmeni" name="prijmeni" required maxlength="100" autocomplete="family-name" aria-describedby="err-prijmeni">
+              <p class="field-error" id="err-prijmeni" hidden></p>
+            </div>
+          </div>
+          <div class="field">
+            <label for="profese">Vaše profese či oblast zájmu</label>
+            <input type="text" id="profese" name="profese" required maxlength="100" autocomplete="organization-title" aria-describedby="hint-profese err-profese">
+            <p class="field-hint" id="hint-profese">Např. revizní technik, OZO v&nbsp;BOZP, provozovatel VTZ, montážní firma, ocelové konstrukce…</p>
+            <p class="field-error" id="err-profese" hidden></p>
+          </div>
+          <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" name="email" required maxlength="254" autocomplete="email" inputmode="email" placeholder="jmeno@firma.cz" aria-describedby="hint-email err-email">
+            <p class="field-hint" id="hint-email">E-mail použiji jen k&nbsp;informování o&nbsp;tomto projektu.</p>
+            <p class="field-error" id="err-email" hidden></p>
+          </div>
+          <div class="form-error" id="form-error-ano" role="alert" hidden></div>
+          <button class="btn btn-primary" type="submit">Odeslat / Budu mít zájem</button>
+          <p class="gdpr-note">Odesláním formuláře projevujete zájem o&nbsp;připravovanou službu a&nbsp;žádáte o&nbsp;zaslání informace o&nbsp;jejím spuštění. Jméno, příjmení, profesi či oblast zájmu a&nbsp;e-mail zpracovávám jen pro tento účel a&nbsp;nejpozději do 31.&nbsp;3.&nbsp;2027 je smažu. Podrobnosti: <a href="#zasady-text">Zásady zpracování osobních údajů</a>.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container narrow">
+    <p class="footer-owner">Provozovatel: Martin Šturma · Kontakt: [doplňte e-mail]</p>
+    <details id="zasady" class="privacy">
+      <summary>Zásady zpracování osobních údajů</summary>
+      <div class="privacy-body">
+        <p id="zasady-text"><strong>Správce:</strong> Martin Šturma, fyzická osoba připravující projekt Technická bezpečnost, e-mail: [doplňte e-mail].</p>
+        <p><strong>Jaké údaje a&nbsp;proč:</strong> Pokud vyplníte registrační formulář zájemce, zpracovávám vaše jméno, příjmení, profesi či oblast zájmu a&nbsp;e-mailovou adresu, a&nbsp;to výhradně za účelem vyhodnocení zájmu o&nbsp;připravovanou službu a&nbsp;zaslání informace o&nbsp;jejím spuštění (nejpozději do konce listopadu 2026). Právním základem je provedení opatření před uzavřením smlouvy na vaši žádost (čl.&nbsp;6 odst.&nbsp;1 písm.&nbsp;b) GDPR). Poskytnutí údajů je dobrovolné; bez nich vám však informaci o&nbsp;spuštění nebudu moci zaslat.</p>
+        <p><strong>Doba uložení:</strong> Údaje uchovám do odeslání informace o&nbsp;rozhodnutí o&nbsp;spuštění či nespuštění služby a&nbsp;poté po přiměřenou dobu pro vyřízení případných navazujících žádostí, nejpozději do 31.&nbsp;3.&nbsp;2027. Poté je smažu. Pokud se ke spuštěné službě zaregistrujete, budou vaše údaje dále zpracovávány v&nbsp;rámci smluvního vztahu, o&nbsp;čemž budete samostatně informováni.</p>
+        <p><strong>Komu údaje předávám:</strong> Nikomu, s&nbsp;výjimkou poskytovatele webhostingu, na jehož serverech data technicky leží (zpracovatel). Údaje nepředávám mimo EU/EHP a&nbsp;nevyužívám je k&nbsp;automatizovanému rozhodování ani profilování. Server poskytovatele může z&nbsp;bezpečnostních důvodů krátkodobě zaznamenávat IP adresy v&nbsp;provozních lozích.</p>
+        <p><strong>Cookies:</strong> Tento web nepoužívá žádné cookies ani jiné sledovací technologie.</p>
+        <p><strong>Vaše práva:</strong> Máte právo na přístup ke svým údajům, jejich opravu či výmaz, omezení zpracování, přenositelnost a&nbsp;právo vznést námitku. Stačí napsat na výše uvedený e-mail. Máte rovněž právo podat stížnost u&nbsp;Úřadu pro ochranu osobních údajů (<a href="https://uoou.gov.cz">uoou.gov.cz</a>).</p>
+      </div>
+    </details>
+    <p class="footer-meta">Tento web nepoužívá cookies ani analytické nástroje třetích stran. © 2026 Technická bezpečnost</p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+# ------------------------------------------------------------
+# Technická bezpečnost – landing page (Apache, sdílený hosting)
+# ------------------------------------------------------------
+
+AddDefaultCharset UTF-8
+
+# Přesměrování na HTTPS (výjimka pro ověření Let's Encrypt).
+# Podmínka na X-Forwarded-Proto brání smyčce přesměrování, když TLS
+# terminuje proxy před Apachem (proxy cache hostingu, Cloudflare…).
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Skryté soubory (.htaccess, .git…) nikdy nevydávat,
+# ověřovací adresář Let's Encrypt zůstává dostupný
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule (^|/)\. - [F]
+</IfModule>
+
+# Předání hlavičky Authorization do PHP (Basic Auth pro /admin/export.php
+# na hostinzích s PHP přes CGI/FastCGI)
+<IfModule mod_setenvif.c>
+SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1
+</IfModule>
+
+# Bezpečnostní hlavičky
+<IfModule mod_headers.c>
+# !!! TESTOVACÍ FÁZE: web se nesmí indexovat. PŘED OSTRÝM SPUŠTĚNÍM
+# !!! TENTO ŘÁDEK SMAZAT (a smazat i tento komentář).
+Header always set X-Robots-Tag "noindex, nofollow"
+Header unset X-Powered-By
+Header always unset X-Powered-By
+Header always set Content-Security-Policy "default-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "no-referrer"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+# HSTS zapněte odkomentováním až po ověření, že HTTPS spolehlivě funguje:
+# Header always set Strict-Transport-Security "max-age=31536000"
+</IfModule>
+
+# Žádné výpisy adresářů
+<IfModule mod_autoindex.c>
+IndexIgnore *
+</IfModule>
+
+# Poznámka nasazovací větve – návštěvníkům se nevydává
+<Files "NASAZENI.md">
+<IfModule mod_authz_core.c>
+Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+Deny from all
+</IfModule>
+</Files>
