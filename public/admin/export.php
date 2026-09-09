@@ -155,7 +155,7 @@ try {
         . '<p><a class="btn btn-primary" href="export.php?download=1">Stáhnout CSV pro Excel</a></p>'
         . '<h2>Zájemci</h2>'
         . '<div class="table-wrap"><table>'
-        . '<thead><tr><th>Č.</th><th>Datum</th><th>Jméno</th><th>Příjmení</th><th>Profese / oblast zájmu</th><th>E-mail</th></tr></thead>'
+        . '<thead><tr><th scope="col">Č.</th><th scope="col">Datum</th><th scope="col">Jméno</th><th scope="col">Příjmení</th><th scope="col">Profese / oblast zájmu</th><th scope="col">E-mail</th></tr></thead>'
         . '<tbody>' . $tableRows . '</tbody>'
         . '</table></div>'
         . '<p class="note">Web sbírá jen registrace zájemců; volba „nemám zájem“ byla na přání klienta odstraněna a endpoint ji už nepřijímá (případné starší anonymní řádky NE zůstávají jen v souhrnném počtu).'

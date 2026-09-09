@@ -49,7 +49,9 @@ end = js.index("}).then(function (result) {", start) + len("}).then(function (re
 js = js[:start] + "fakeSubmit(form).then(function (result) {" + js[end:]
 
 html = html.replace('<link rel="stylesheet" href="assets/style.css">', '<style>\n' + css + '\n</style>')
-html = html.replace('<script src="assets/app.js" defer></script>', '<script defer>\n' + js + '\n</script>')
+# Inline skript nezná `defer` – musí být až za obsahem stránky.
+html = html.replace('<script src="assets/app.js" defer></script>', '')
+html = html.replace('</body>', '<script>\n' + js + '\n</script>\n</body>')
 banner = ('<div style="background:#f0a63c;color:#17222c;font:600 14px/1.4 system-ui;text-align:center;padding:8px 12px">'
           'NÁHLED – odeslání formuláře je simulované, nic se neukládá</div>')
 html = html.replace('<body>', '<body>' + banner, 1)

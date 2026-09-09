@@ -7,3 +7,6 @@ data/*.log
 # Systémové soubory
 .DS_Store
 Thumbs.db
+
+# Lokální závislosti vývojových skriptů (Playwright)
+node_modules/

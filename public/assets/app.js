@@ -45,24 +45,63 @@
 
   /* --- CTA v hero ----------------------------------------------
      „Mám zájem" rozbalí registrační formulář přímo v hero; druhý klik
-     ho zase sbalí, aby aria-expanded vždy odpovídalo skutečnosti.
-     Bez JS vede odkaz na dolní formulář (#registrace). */
+     (nebo Escape v panelu) ho zase sbalí. ARIA disclosure (role button,
+     aria-expanded, aria-controls) nastavuje až JS – bez něj je CTA
+     obyčejný odkaz na vždy viditelný dolní formulář (#registrace). */
+  var setHeroPanel = function (open) {
+    heroPanel.classList.toggle('open', open);
+    cta.setAttribute('aria-expanded', String(open));
+    if (open) {
+      window.setTimeout(function () {
+        var first = doc.getElementById('jmeno-h');
+        if (first) {
+          first.focus();
+        }
+      }, OPEN_DELAY);
+    } else if (heroPanel.contains(doc.activeElement) || doc.activeElement === doc.body) {
+      // Fokus nesmí spadnout do skrytého panelu ani na <body>.
+      cta.focus();
+    }
+  };
+
   if (cta && heroPanel) {
+    cta.setAttribute('role', 'button');
+    cta.setAttribute('aria-expanded', 'false');
+    cta.setAttribute('aria-controls', 'hero-panel-ano');
+
     cta.addEventListener('click', function (event) {
       event.preventDefault();
       if (busyGlobal || answered) {
         return;
       }
-      var open = !heroPanel.classList.contains('open');
-      heroPanel.classList.toggle('open', open);
-      cta.setAttribute('aria-expanded', String(open));
-      if (open) {
-        window.setTimeout(function () {
-          var first = doc.getElementById('jmeno-h');
-          if (first) {
-            first.focus();
-          }
-        }, OPEN_DELAY);
+      setHeroPanel(!heroPanel.classList.contains('open'));
+    });
+
+    // Odkaz s rolí tlačítka musí reagovat i na mezerník (Enter dělá odkaz sám).
+    cta.addEventListener('keydown', function (event) {
+      if (event.key === ' ' || event.key === 'Spacebar' || event.keyCode === 32) {
+        event.preventDefault();
+        cta.click();
+      }
+    });
+
+    heroPanel.addEventListener('keydown', function (event) {
+      if ((event.key === 'Escape' || event.key === 'Esc' || event.keyCode === 27)
+        && heroPanel.classList.contains('open') && !busyGlobal) {
+        event.preventDefault();
+        setHeroPanel(false);
+        cta.focus();
+      }
+    });
+  }
+
+  /* Deep-link (např. #registrace) při studené cache: po doskočení webfontu
+     se změní výška obsahu nad cílem – po načtení fontů cíl znovu zarovnáme. */
+  if (window.location.hash && doc.fonts && doc.fonts.ready) {
+    doc.fonts.ready.then(function () {
+      var target = doc.getElementById(window.location.hash.slice(1));
+      if (target && target.scrollIntoView) {
+        target.scrollIntoView();
       }
     });
   }
@@ -118,6 +157,9 @@
     var fields = ['jmeno', 'prijmeni', 'profese'];
     for (var i = 0; i < fields.length; i++) {
       var input = form.querySelector('[name="' + fields[i] + '"]');
+      if (!input) {
+        continue;
+      }
       var value = input.value.trim();
       if (value === '') {
         errors.push({ input: input, message: MSG[fields[i]] });
@@ -126,6 +168,9 @@
       }
     }
     var email = form.querySelector('[name="email"]');
+    if (!email) {
+      return errors;
+    }
     var emailValue = email.value.trim();
     if (emailValue === '') {
       errors.push({ input: email, message: MSG.emailEmpty });
@@ -192,6 +237,9 @@
     if (cta) {
       cta.setAttribute('aria-expanded', 'false');
     }
+    if (heroPanel) {
+      heroPanel.classList.remove('open');
+    }
     renderSuccess(statusBottom);
     renderSuccess(statusHero);
     var focusTarget = originStatus || statusBottom;
@@ -211,6 +259,9 @@
     form.noValidate = true;
     var button = form.querySelector('button[type="submit"]');
     var banner = form.querySelector('.form-error');
+    if (!button || !banner) {
+      return;
+    }
 
     form.addEventListener('submit', function (event) {
       event.preventDefault();

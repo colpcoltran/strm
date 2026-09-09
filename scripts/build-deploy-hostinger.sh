@@ -5,6 +5,16 @@
 # Spouštět z kořene repozitáře na vývojové větvi s čistým pracovním stromem.
 set -euo pipefail
 
+# Nasazuje se pracovní strom – musí odpovídat commitu, jinak by SRC_SHA lhal
+# a neuložené změny by po návratu na zdrojovou větev zmizely.
+if ! git diff-index --quiet HEAD -- || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+  echo "Pracovní strom není čistý – nejdřív změny commitněte (nebo git stash)." >&2
+  exit 1
+fi
+if grep -q '\[Jméno Příjmení\]\|\[doplňte e-mail\]\|\[kvalifikace' public/index.html; then
+  echo "UPOZORNĚNÍ: v public/index.html zůstávají placeholdery v hranatých závorkách (jméno/kvalifikace/e-mail)." >&2
+fi
+
 DB_SUFFIX="d1b24c430ca4"   # NEMĚNIT: název souboru živé databáze
 SRC_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 SRC_SHA=$(git rev-parse --short HEAD)
@@ -74,7 +84,8 @@ git -c user.name="Claude" -c user.email="noreply@anthropic.com" commit -q -m "Na
 Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01BPrFrtnSRncm2wvtuP24Hp"
 git branch -M _deploy_tmp deploy-hostinger
-git push --force-with-lease=deploy-hostinger origin deploy-hostinger || git push -f origin deploy-hostinger
+git fetch -q origin deploy-hostinger || true
+git push --force-with-lease=deploy-hostinger:origin/deploy-hostinger origin deploy-hostinger
 git checkout "$SRC_BRANCH" -q
 rm -rf "$STAGE"
 echo "deploy-hostinger přegenerována z $SRC_BRANCH @ $SRC_SHA"

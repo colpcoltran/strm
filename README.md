@@ -18,7 +18,8 @@ odstín převzatý z klientem dodané textury), portrét autora s mottem
 
 - **Frontend:** čisté HTML + CSS + JavaScript, žádný framework, žádný build
   krok, žádné externí zdroje (CDN, analytika). Web funguje i s vypnutým
-  JavaScriptem (rozbalování řeší CSS, formuláře klasický POST). Titulkové
+  JavaScriptem (CTA vede na vždy viditelný formulář dole, formuláře posílá
+  klasický POST a PHP vrátí samostatnou stránku). Titulkové
   písmo Barlow Condensed je self-hostované v `assets/fonts/` (licence
   OFL-1.1, soubor `LICENSE-OFL.txt` tamtéž) – nic se nenačítá z Google
   Fonts, tělový text používá systémová písma.
@@ -76,9 +77,11 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
    HTTPS funguje, můžete v `public/.htaccess` odkomentovat hlavičku HSTS.
 5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
    práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
-6. V `public/index.html` doplňte v patičce **jméno a kontaktní e-mail
-   provozovatele** (placeholdery `[Jméno Příjmení]`, `[doplňte e-mail]`)
-   a v hlavičce absolutní URL `og:image`.
+6. V `public/index.html` doplňte **jméno, kvalifikaci a kontaktní e-mail
+   provozovatele** – pod portrétem v hero (`.hero-author`, `.hero-author-role`)
+   i v patičce a Zásadách (všechny placeholdery v hranatých závorkách `[…]`;
+   `scripts/build-deploy-hostinger.sh` na zbylé závorky upozorní). `og:url`
+   a `og:image` už míří na www.technickabezpecnost.cz – při jiné doméně upravte.
 
 **Nouzový režim** – hosting neumožňuje umístit soubory nad document root:
 nahrajte složky `app/` i `data/` společně dovnitř webové složky vedle
@@ -158,8 +161,9 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## Obrázky a barva papíru
 
-**Portrét autora** (`assets/portret-autor.jpg` 600×800 px a `portret-autor@2x.jpg`
-1200×1600 px, ořez 3:4 z fotografie dodané klientem) je jediná fotografie na
+**Portrét autora** (`assets/portret-autor.jpg` 600×800 px, `portret-autor-300.jpg`
+300×400 px pro mobilní avatar a `portret-autor@2x.jpg` 1200×1600 px, ořez 3:4
+z fotografie dodané klientem) je jediná fotografie na
 webu. Na desktopu je vpravo v hero s mottem a popiskem, na mobilu jako kulatý
 avatar v „podpisovém řádku". Výměna: připravte ořez 3:4 (např. squoosh.app,
 JPEG ~80 %), přepište oba soubory a případně upravte `alt` (dnes „Autor
@@ -168,8 +172,8 @@ projektu" – bez hranatých závorek, čtečky by je předčítaly) a popisek
 fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
 
 **Barva papíru** – hero a sekce karet mají jednobarevný podklad „starý papír"
-(přání klienta). Odstín `#d9d7c4` je světlejší tón z dodané textury (medián
-textury `#cfcdb8` slouží jako `--c-paper-deep` pro rámečky). Ladění barvy =
+(přání klienta). Odstín `#e0ddcb` je světlý tón z dodané textury – medián
+textury `#cfcdb8` by na obrazovce zešedl; slouží jako `--c-paper-deep`. Ladění barvy =
 změna proměnné `--c-paper` v `style.css` (a případně `--c-paper-deep`,
 `--c-paper-light`). Texty na papíru jsou navrženy na kontrast WCAG AA:
 zesvětlení papíru nic nerozbije; při ztmavení pod `#cfcdb8` znovu ověřte
@@ -178,8 +182,9 @@ případně je ztmavte.
 
 **OG obrázek** (`assets/og-image.jpg`, 1200×630) se generuje ze šablony
 `scripts/og-template.html` příkazem `node scripts/make-og-image.cjs`
-(vyžaduje Playwright s Chromiem). Spusťte znovu po změně barvy papíru,
-motta nebo portrétu. Absolutní URL do `og:image` doplňte po nasazení.
+(vyžaduje Playwright s Chromiem: `npm i -D playwright && npx playwright
+install chromium`; `node_modules/` je v `.gitignore`). Spusťte znovu po
+změně barvy papíru, motta nebo portrétu.
 
 **Motto** „Ptejte se a já budu odpovídat." je v `index.html` (`.hero-motto`)
 a v OG šabloně; klient nabídl i varianty „Mé zkušenosti jsou zde pro vás",
