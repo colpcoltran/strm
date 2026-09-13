@@ -79,7 +79,7 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
 5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
    práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
 6. Jméno autora, medailonek („Kdo za projektem stojí", `#autor`), provozovatel
-   (Special Inspections s.r.o.) i kontaktní e-mail (info@special-inspections.com)
+   (Special Inspections s. r. o., IČO, sídlo) i kontaktní e-mail (info@special-inspections.com)
    jsou vyplněné podle podkladů klienta. Při změně upravte hero (`.hero-author`,
    `.hero-author-role`), `#autor`, patičku (`.footer-owner`, `.footer-meta`), Zásady
    a OG šablonu (`scripts/og-template.html` + `node scripts/make-og-image.cjs`);
@@ -154,10 +154,10 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 - Správce údajů je Special Inspections s.r.o. (kontaktní osoba Martin Šturma,
   info@special-inspections.com) – vyplněno v patičce i Zásadách; v odstavci
   Správce je věta, že Zásady píše v 1. osobě Martin Šturma za správce.
-- **Před ostrým spuštěním doplnit IČO a sídlo správce** (od klienta) do
-  Zásady (`#zasady-text`) i patičky (`.footer-owner`) – § 435 odst. 1 OZ
-  vyžaduje u podnikatele na webu jméno, sídlo a IČO; čl. 13 GDPR totožnost
-  správce.
+- Identifikace provozovatele/správce (§ 435 odst. 1 OZ, čl. 13 GDPR) je
+  v patičce i Zásadách: Special Inspections s. r. o., IČO 06447058, Otěvěky
+  č. ev. 16, 270 33 Žďár (zápis názvu podle podkladu klienta – ověřte proti
+  obchodnímu rejstříku).
 - Schránku správce reálně číst – mohou přijít žádosti o výmaz údajů.
 - Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
   logy a notifikační e-maily ve schránce.
