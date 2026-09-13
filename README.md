@@ -77,12 +77,12 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
    HTTPS funguje, můžete v `public/.htaccess` odkomentovat hlavičku HSTS.
 5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
    práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
-6. V `public/index.html` doplňte **reference autora a kontaktní e-mail** –
-   pod portrétem v hero (`.hero-author-role`, dnes „[doplnit reference]")
-   a v patičce i Zásadách („[doplňte e-mail]"); jméno Martin Šturma už je
-   vyplněno (zbylé placeholdery jsou v hranatých závorkách `[…]`;
-   `scripts/build-deploy-hostinger.sh` na zbylé závorky upozorní). `og:url`
-   a `og:image` už míří na www.technickabezpecnost.cz – při jiné doméně upravte.
+6. Jméno autora, medailonek („Kdo za projektem stojí", `#autor`), provozovatel
+   (Special Inspections s.r.o.) i kontaktní e-mail (info@special-inspections.com)
+   jsou vyplněné podle podkladů klienta. Při změně upravte hero (`.hero-author`,
+   `.hero-author-role`), `#autor`, patičku a Zásady; `scripts/build-deploy-hostinger.sh`
+   upozorní na případné placeholdery v hranatých závorkách `[…]`. `og:url` a `og:image`
+   míří na www.technickabezpecnost.cz – při jiné doméně upravte.
 
 **Nouzový režim** – hosting neumožňuje umístit soubory nad document root:
 nahrajte složky `app/` i `data/` společně dovnitř webové složky vedle
@@ -148,7 +148,10 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## GDPR – provozní povinnosti
 
-- Doplnit skutečné jméno a e-mail správce do patičky a Zásad (index.html).
+- Správce údajů je Special Inspections s.r.o. (kontaktní osoba Martin Šturma,
+  info@special-inspections.com) – vyplněno v patičce i Zásadách. Zásady jsou
+  psané v 1. osobě autora („zpracovávám", „smažu") – před ostrým spuštěním
+  nechat text formálně zkontrolovat (správcem je firma).
 - Schránku správce reálně číst – mohou přijít žádosti o výmaz údajů.
 - Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
   logy a notifikační e-maily ve schránce.
@@ -167,8 +170,10 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 z fotografie dodané klientem) je jediná fotografie na
 webu. Na desktopu je vpravo v hero s mottem a popiskem, na mobilu jako kulatý
 avatar v „podpisovém řádku". Výměna: připravte ořez 3:4 (např. squoosh.app,
-JPEG ~80 %), přepište oba soubory a případně upravte `alt` („Portrét: Martin Šturma") a popisek
-`.hero-author-role` v `index.html` (placeholder „[doplnit reference]"). Originál
+JPEG ~80 %), přepište oba soubory a případně upravte `alt` („Portrét: Martin Šturma") a řádek
+`.hero-author-role` v `index.html` (charakteristika odvozená z medailonku).
+Totéž zmenšené foto (`portret-autor-300.jpg`) slouží jako kulatý avatar
+u medailonku v sekci Praktický výklad. Originál
 fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
 
 **Barva papíru** – hero a sekce karet mají jednobarevný podklad „starý papír"
@@ -227,3 +232,7 @@ rychlý, auditovatelný a bez právních komplikací.
   doplněk v kartě Členský archiv a v calloutu „Není to podcast".
 - **Zvýraznění cílových skupin** v úvodní větě (`<strong>`) je typografické,
   text klienta je doslovný; lze jedním tahem odebrat.
+- **Medailonek autora** je doslovný text klienta (opravena jen pádová chyba
+  „revizních techniků" → „revizním technikům"); umístěn jako citace na konci
+  sekce Praktický výklad. Řádek pod portrétem v hero („Konzultant technické
+  bezpečnosti, třetí dekádu v praxi") je odvozený z medailonku – ke schválení.

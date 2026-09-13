@@ -518,6 +518,56 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 
 .callout p { margin: 0; }
 
+/* --- Medailonek autora (v sekci Praktický výklad) ----------- */
+
+.autor {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  background: var(--c-paper-light);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  margin-top: 40px;
+}
+
+.autor-foto {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  border: 3px solid #fff;
+  box-shadow: var(--shadow);
+}
+
+.autor-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-bronze);
+  margin: 0 0 8px;
+}
+
+.autor-quote { margin: 0; }
+
+.autor-quote p {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--c-ink);
+  text-wrap: pretty;
+}
+
+.autor-podpis {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  color: var(--c-muted-warm);
+}
+
+.autor-podpis strong { color: var(--c-ink); }
+
 /* --- Karty ------------------------------------------------- */
 
 /* Dvě karty na řádek (+ široká závěrečná): žádný sirotek v žádné šířce
@@ -912,6 +962,8 @@ a[data-vyber][aria-expanded="true"].btn-primary {
   .hero-actions { margin: 24px 0 16px; gap: 14px; }
   .header-cta { white-space: nowrap; }
   .reg-card { padding: 20px 16px; }
+  .autor { grid-template-columns: 1fr; gap: 14px; padding: 20px; margin-top: 28px; }
+  .autor-foto { width: 72px; height: 72px; }
   .field-grid { grid-template-columns: 1fr; gap: 0; }
   .btn { width: 100%; text-align: center; }
   .header-cta { padding: 10px 16px; font-size: 0.9rem; }
