@@ -12,7 +12,8 @@ interpretační rozhodnutí").
 
 Vizuál: jednobarevný podklad „starý papír" (`--c-paper` ve `style.css`,
 odstín převzatý z klientem dodané textury), portrét autora s mottem
-„Ptejte se a já budu odpovídat." v hero, tmavě modré karty přínosů.
+„Ptejte se. Odpovídám z praxe, ne z paragrafů." v hero, medailonek autora
+v sekci Praktický výklad, tmavě modré karty přínosů.
 
 ## Technologie
 
@@ -32,7 +33,7 @@ odstín převzatý z klientem dodané textury), portrét autora s mottem
 ```
 ├── public/                  ← document root webu
 │   ├── index.html           ← celá stránka
-│   ├── assets/              ← style.css, app.js, portret-autor(@2x).jpg, og-image.jpg, fonts/
+│   ├── assets/              ← style.css, app.js, portret-autor(-300|@2x).jpg, og-image.jpg, fonts/
 │   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
 │   ├── admin/export.php     ← chráněný přehled + export CSV
 │   ├── favicon.svg, robots.txt, .htaccess
@@ -80,7 +81,9 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
 6. Jméno autora, medailonek („Kdo za projektem stojí", `#autor`), provozovatel
    (Special Inspections s.r.o.) i kontaktní e-mail (info@special-inspections.com)
    jsou vyplněné podle podkladů klienta. Při změně upravte hero (`.hero-author`,
-   `.hero-author-role`), `#autor`, patičku a Zásady; `scripts/build-deploy-hostinger.sh`
+   `.hero-author-role`), `#autor`, patičku (`.footer-owner`, `.footer-meta`), Zásady
+   a OG šablonu (`scripts/og-template.html` + `node scripts/make-og-image.cjs`);
+   `scripts/build-deploy-hostinger.sh`
    upozorní na případné placeholdery v hranatých závorkách `[…]`. `og:url` a `og:image`
    míří na www.technickabezpecnost.cz – při jiné doméně upravte.
 
@@ -149,9 +152,12 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 ## GDPR – provozní povinnosti
 
 - Správce údajů je Special Inspections s.r.o. (kontaktní osoba Martin Šturma,
-  info@special-inspections.com) – vyplněno v patičce i Zásadách. Zásady jsou
-  psané v 1. osobě autora („zpracovávám", „smažu") – před ostrým spuštěním
-  nechat text formálně zkontrolovat (správcem je firma).
+  info@special-inspections.com) – vyplněno v patičce i Zásadách; v odstavci
+  Správce je věta, že Zásady píše v 1. osobě Martin Šturma za správce.
+- **Před ostrým spuštěním doplnit IČO a sídlo správce** (od klienta) do
+  Zásady (`#zasady-text`) i patičky (`.footer-owner`) – § 435 odst. 1 OZ
+  vyžaduje u podnikatele na webu jméno, sídlo a IČO; čl. 13 GDPR totožnost
+  správce.
 - Schránku správce reálně číst – mohou přijít žádosti o výmaz údajů.
 - Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
   logy a notifikační e-maily ve schránce.
@@ -170,7 +176,7 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 z fotografie dodané klientem) je jediná fotografie na
 webu. Na desktopu je vpravo v hero s mottem a popiskem, na mobilu jako kulatý
 avatar v „podpisovém řádku". Výměna: připravte ořez 3:4 (např. squoosh.app,
-JPEG ~80 %), přepište oba soubory a případně upravte `alt` („Portrét: Martin Šturma") a řádek
+JPEG ~80 %), přepište všechny tři soubory (300, 600 a @2x) a případně upravte `alt` („Portrét: Martin Šturma") a řádek
 `.hero-author-role` v `index.html` (charakteristika odvozená z medailonku).
 Totéž zmenšené foto (`portret-autor-300.jpg`) slouží jako kulatý avatar
 u medailonku v sekci Praktický výklad. Originál
@@ -232,7 +238,8 @@ rychlý, auditovatelný a bez právních komplikací.
   doplněk v kartě Členský archiv a v calloutu „Není to podcast".
 - **Zvýraznění cílových skupin** v úvodní větě (`<strong>`) je typografické,
   text klienta je doslovný; lze jedním tahem odebrat.
-- **Medailonek autora** je doslovný text klienta (opravena jen pádová chyba
-  „revizních techniků" → „revizním technikům"); umístěn jako citace na konci
-  sekce Praktický výklad. Řádek pod portrétem v hero („Konzultant technické
+- **Medailonek autora** je doslovný text klienta; oproti podkladu opraven pád
+  „revizních techniků" → „revizním technikům" a doplněna koncová tečka za
+  poslední větu (podklad ji neměl). Umístěn jako citace na konci sekce
+  Praktický výklad. Řádek pod portrétem v hero („Konzultant technické
   bezpečnosti, třetí dekádu v praxi") je odvozený z medailonku – ke schválení.

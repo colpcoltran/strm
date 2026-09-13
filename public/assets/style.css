@@ -493,7 +493,7 @@ a[data-vyber][aria-expanded="true"].btn-primary {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
   gap: 40px;
-  align-items: center;
+  align-items: start;
 }
 
 .split-text p:last-child { margin-bottom: 0; }
@@ -525,7 +525,8 @@ a[data-vyber][aria-expanded="true"].btn-primary {
   grid-template-columns: 96px minmax(0, 1fr);
   gap: 24px;
   align-items: start;
-  background: var(--c-paper-light);
+  max-width: 860px;               /* citace max. ~80 znaků na řádek */
+  background: var(--c-paper);     /* tmavší než calloty – blok se od nich odliší */
   border-radius: var(--radius);
   padding: 24px 28px;
   margin-top: 40px;
@@ -542,8 +543,10 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 }
 
 .autor-label {
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 700;
+  line-height: 1.4;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--c-bronze);
@@ -554,7 +557,7 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 
 .autor-quote p {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   line-height: 1.6;
   color: var(--c-ink);
   text-wrap: pretty;
@@ -646,7 +649,8 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 /* --- Registrace zájemců -------------------------------------- */
 
 .reg-section,
-#detaily {
+#detaily,
+#autor {
   scroll-margin-top: 20px;
 }
 
@@ -792,6 +796,9 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 }
 
 .site-footer a { color: #9fc3e4; }
+
+/* E-mailová adresa se nesmí dělit na spojovníku */
+a[href^="mailto:"] { white-space: nowrap; }
 .site-footer a:hover { color: #c9dff2; }
 
 .footer-owner { margin-bottom: 16px; }
@@ -945,8 +952,6 @@ a[data-vyber][aria-expanded="true"].btn-primary {
   .hero-portrait figcaption { padding: 0; }
 
   .hero-motto { font-size: 1.25rem; margin-bottom: 2px; }
-
-  .hero-author-role { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -1006,7 +1011,7 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 
   /* Prohlížeče pozadí netisknou – tmavé karty a patička musí mít
      tmavý text a obrys */
-  .card, .site-footer, .callout {
+  .card, .site-footer, .callout, .autor {
     background: none;
     border: 1px solid #000;
   }
