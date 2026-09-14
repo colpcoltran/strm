@@ -78,7 +78,7 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public
 5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
    práva; jinak `chmod 770`). Databáze vznikne automaticky při první odpovědi.
 6. Jméno autora, medailonek („Kdo za projektem stojí", `#autor`), provozovatel
-   (Special Inspections s. r. o., IČO, sídlo) i kontaktní e-mail (info@special-inspections.com)
+   (Martin Šturma) i kontaktní e-mail (info@special-inspections.com)
    jsou vyplněné podle podkladů klienta. Při změně upravte hero (`.hero-author`,
    `.hero-author-role`), `#autor`, patičku (`.footer-owner`, `.footer-meta`), Zásady
    a OG šablonu (`scripts/og-template.html` + `node scripts/make-og-image.cjs`);
@@ -150,11 +150,14 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## GDPR – provozní povinnosti
 
-- Správce údajů je Special Inspections s.r.o. (kontaktní osoba Martin Šturma,
-  info@special-inspections.com) – vyplněno v patičce i Zásadách; v odstavci
-  Správce je věta, že Zásady píše v 1. osobě Martin Šturma za správce.
-- Identifikace provozovatele/správce (§ 435 odst. 1 OZ, čl. 13 GDPR) je
-  v patičce i Zásadách: Special Inspections s. r. o., IČO 06447058, Otěvěky
+- Správcem údajů i provozovatelem webu je na přání klienta Martin Šturma jako
+  fyzická osoba (kontakt info@special-inspections.com) – vyplněno v patičce
+  i Zásadách; Zásady jsou psané v 1. osobě, „já" = správce.
+- Identifikace jménem a e-mailem stačí (čl. 13 GDPR): web nic neprodává, jen
+  ověřuje zájem. Povinnost uvádět název, IČO a sídlo (§ 435 odst. 1 OZ) váže
+  podnikatele – pokud web později poběží komerčně pod firmou (placené
+  členství), doplňte do patičky (`.footer-owner`, `.footer-meta`) i do odstavce
+  Správce v Zásadách: Special Inspections s. r. o., IČO 06447058, Otěvěky
   č. ev. 16, 270 33 Žďár (zápis názvu podle podkladu klienta – ověřte proti
   obchodnímu rejstříku).
 - Schránku správce reálně číst – mohou přijít žádosti o výmaz údajů.
@@ -177,9 +180,8 @@ webu. Na desktopu je vpravo v hero s mottem a popiskem, na mobilu jako kulatý
 avatar v „podpisovém řádku". Výměna: připravte ořez 3:4 (např. squoosh.app,
 JPEG ~80 %), přepište všechny tři soubory (300, 600 a @2x) a případně upravte `alt` („Portrét: Martin Šturma") a řádek
 `.hero-author-role` v `index.html` (charakteristika odvozená z medailonku).
-Totéž zmenšené foto (`portret-autor-300.jpg`) slouží jako kulatý avatar
-u medailonku v sekci Praktický výklad. Originál
-fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
+Medailonek v sekci Praktický výklad je na přání klienta bez fotografie.
+Originál fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
 
 **Barva papíru** – hero a sekce karet mají jednobarevný podklad „starý papír"
 (přání klienta). Odstín `#e0ddcb` je světlý tón z dodané textury – medián
@@ -242,3 +244,6 @@ rychlý, auditovatelný a bez právních komplikací.
   poslední větu (podklad ji neměl). Umístěn jako citace na konci sekce
   Praktický výklad. Řádek pod portrétem v hero („Konzultant technické
   bezpečnosti, třetí dekádu v praxi") je odvozený z medailonku – ke schválení.
+  Na přání klienta (3. kolo připomínek) je medailonek bez fotografie a podpis
+  zní jen „Martin Šturma" bez firmy; provozovatelem webu i správcem údajů je
+  Martin Šturma jako fyzická osoba, nikoli Special Inspections s. r. o.
