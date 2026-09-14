@@ -35,8 +35,9 @@ Header always set X-Content-Type-Options "nosniff"
 Header always set X-Frame-Options "DENY"
 Header always set Referrer-Policy "no-referrer"
 Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
-# HSTS zapněte odkomentováním až po ověření, že HTTPS spolehlivě funguje:
-# Header always set Strict-Transport-Security "max-age=31536000"
+# HSTS – zapnuto při ostrém spuštění (HTTPS přes Let's Encrypt u Hostingeru
+# funguje a obnovuje se automaticky; bez includeSubDomains, jen tento host)
+Header always set Strict-Transport-Security "max-age=31536000"
 </IfModule>
 
 # Žádné výpisy adresářů

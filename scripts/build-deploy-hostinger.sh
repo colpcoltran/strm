@@ -29,19 +29,6 @@ cp data/.htaccess "$STAGE/data/.htaccess"
 sed -i "s|dirname(__DIR__) . '/data/responses.sqlite'|dirname(__DIR__) . '/data/responses-$DB_SUFFIX.sqlite'|" \
   "$STAGE/app/config.php"
 
-python3 - "$STAGE/.htaccess" <<'EOF'
-import io, sys
-p = sys.argv[1]
-s = io.open(p, encoding='utf-8').read()
-old = "# Bezpečnostní hlavičky\n<IfModule mod_headers.c>"
-new = ("# Bezpečnostní hlavičky\n<IfModule mod_headers.c>\n"
-       "# !!! TESTOVACÍ FÁZE: web se nesmí indexovat. PŘED OSTRÝM SPUŠTĚNÍM\n"
-       "# !!! TENTO ŘÁDEK SMAZAT (a smazat i tento komentář).\n"
-       "Header always set X-Robots-Tag \"noindex, nofollow\"")
-assert old in s
-io.open(p, 'w', encoding='utf-8').write(s.replace(new, old).replace(old, new))
-EOF
-
 cat > "$STAGE/.gitignore" <<'EOF'
 data/*.sqlite
 data/*.sqlite-shm
@@ -68,10 +55,8 @@ cat > "$STAGE/NASAZENI.md" <<EOF
 Automaticky generovaná nasazovací větev pro Hostinger (obsah = document
 root public_html). Zdrojová pravda je větev \`$SRC_BRANCH\` – TUTO větev
 needitujte ručně, přegenerovává se skriptem
-\`scripts/build-deploy-hostinger.sh\`.
-
-PŘED OSTRÝM SPUŠTĚNÍM: v .htaccess smazat hlavičku X-Robots-Tag
-(noindex) označenou vykřičníky.
+\`scripts/build-deploy-hostinger.sh\`. Web je v ostrém provozu (indexace
+povolena, HSTS zapnuto).
 EOF
 
 git branch -D _deploy_tmp 2>/dev/null || true

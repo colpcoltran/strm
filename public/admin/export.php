@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 /**
- * Chráněná administrace: přehled zájemců a export do CSV (otevře se přímo
- * v českém Excelu). Přístup hlídá HTTP Basic Auth řešená v PHP – funguje na
+ * Chráněná administrace: přehled zájemců, export do CSV (otevře se přímo
+ * v českém Excelu) a mazání záznamů (žádosti o výmaz, testovací řádky). Přístup hlídá HTTP Basic Auth řešená v PHP – funguje na
  * Apache, nginx i vestavěném PHP serveru a bez nastaveného hesla je zamčená.
  * Správce je jediný, proto se ověřuje pouze heslo (jméno v dialogu prohlížeče
  * může zůstat prázdné). Proti hádání hesla je globální brzda: po
@@ -107,6 +107,104 @@ if (!password_verify((string) $authPass, $passHash)) {
         . '<p>Zadejte prosím heslo k administraci (jméno může zůstat prázdné). Viz README.</p>');
 }
 
+/**
+ * Podpis pro mazání – administrace nemá sezení ani cookies, ochranou proti
+ * CSRF je HMAC z hashe hesla (ten útočník nezná) přes identifikátor mazaného.
+ */
+function deleteToken(string $subject): string
+{
+    return hash_hmac('sha256', 'delete:' . $subject, EXPORT_PASS_HASH);
+}
+
+/** Požadavek přišel z tohoto webu (druhá vrstva ochrany proti CSRF). */
+function sameOriginRequest(): bool
+{
+    $fetchSite = strtolower((string) ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? ''));
+    if ($fetchSite !== '' && $fetchSite !== 'same-origin' && $fetchSite !== 'none') {
+        return false;
+    }
+    $origin = (string) ($_SERVER['HTTP_ORIGIN'] ?? '');
+    if ($origin !== '' && $origin !== 'null') {
+        $originHost = strtolower((string) parse_url($origin, PHP_URL_HOST));
+        $ownHost = strtolower((string) explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
+        return $originHost !== '' && $originHost === $ownHost;
+    }
+    return $origin !== 'null';
+}
+
+/** Potvrzovací stránka před smazáním (bez JavaScriptu – CSP zakazuje inline skripty). */
+function confirmDeletePage(PDO $pdo, string $subject): void
+{
+    if ($subject === 'ne') {
+        $count = (int) $pdo->query("SELECT COUNT(*) FROM responses WHERE answer <> 'ANO'")->fetchColumn();
+        $what = '<p>Smazat všechny anonymní řádky „nemá zájem (NE)“ – celkem <strong>' . $count . '</strong>?'
+            . ' Jde o zbytky z testování před odstraněním ankety; jména ani e-maily neobsahují.</p>';
+    } elseif (ctype_digit($subject)) {
+        $stmt = $pdo->prepare('SELECT id, created_at, jmeno, prijmeni, profese, email FROM responses WHERE id = :id');
+        $stmt->execute([':id' => (int) $subject]);
+        $row = $stmt->fetch();
+        if (!$row) {
+            respondHtml(404, 'Záznam nenalezen', '<h1>Záznam nenalezen</h1>'
+                . '<p>Záznam č. ' . (int) $subject . ' v databázi není (možná už byl smazán). <a href="export.php">Zpět na přehled</a>.</p>',
+                'fallback-page admin-page');
+        }
+        $what = '<p>Smazat záznam č. <strong>' . (int) $row['id'] . '</strong> z ' . e(pragueTime($row['created_at'])) . '?</p>'
+            . '<p><strong>' . e((string) $row['jmeno']) . ' ' . e((string) $row['prijmeni']) . '</strong>'
+            . ' · ' . e((string) $row['profese']) . ' · ' . e((string) $row['email']) . '</p>';
+    } else {
+        respondHtml(400, 'Neplatný požadavek', '<h1>Neplatný požadavek</h1><p><a href="export.php">Zpět na přehled</a>.</p>',
+            'fallback-page admin-page');
+    }
+    respondHtml(200, 'Smazat záznam – Technická bezpečnost', '<h1>Smazat záznam</h1>' . $what
+        . '<p class="note">Smazání je nevratné. Pokud údaje ještě potřebujete, stáhněte si nejdřív CSV.</p>'
+        . '<form method="post" action="export.php" class="admin-actions">'
+        . '<input type="hidden" name="smazat" value="' . e($subject) . '">'
+        . '<input type="hidden" name="token" value="' . e(deleteToken($subject)) . '">'
+        . '<button type="submit" class="btn btn-danger">Ano, smazat</button>'
+        . '<a class="btn btn-ghost" href="export.php">Zpět bez mazání</a>'
+        . '</form>', 'fallback-page admin-page');
+}
+
+/** Vlastní smazání (POST z potvrzovací stránky); končí přesměrováním na přehled. */
+function handleDelete(PDO $pdo): void
+{
+    $subject = (string) ($_POST['smazat'] ?? '');
+    $token = (string) ($_POST['token'] ?? '');
+    if ($subject === '' || !sameOriginRequest() || !hash_equals(deleteToken($subject), $token)) {
+        respondHtml(400, 'Neplatný požadavek', '<h1>Neplatný požadavek</h1>'
+            . '<p>Mazání se nepodařilo ověřit – použijte prosím odkaz Smazat přímo v přehledu. <a href="export.php">Zpět na přehled</a>.</p>',
+            'fallback-page admin-page');
+    }
+    if ($subject === 'ne') {
+        $count = (int) $pdo->exec("DELETE FROM responses WHERE answer <> 'ANO'");
+        $result = 'ne:' . $count;
+    } elseif (ctype_digit($subject)) {
+        $stmt = $pdo->prepare('DELETE FROM responses WHERE id = :id');
+        $stmt->execute([':id' => (int) $subject]);
+        $result = $stmt->rowCount() > 0 ? 'id:' . (int) $subject : 'nic';
+    } else {
+        respondHtml(400, 'Neplatný požadavek', '<h1>Neplatný požadavek</h1><p><a href="export.php">Zpět na přehled</a>.</p>',
+            'fallback-page admin-page');
+    }
+    header('Location: export.php?smazano=' . rawurlencode($result), true, 303);
+    exit;
+}
+
+/** Hláška po smazání (z parametru přesměrování). */
+function deleteNotice(string $result): string
+{
+    if ($result === 'nic') {
+        $text = 'Záznam už v databázi nebyl.';
+    } elseif (preg_match('/^id:(\d+)$/', $result, $m)) {
+        $text = 'Záznam č. ' . $m[1] . ' byl smazán.';
+    } elseif (preg_match('/^ne:(\d+)$/', $result, $m)) {
+        $text = 'Smazáno anonymních řádků NE: ' . $m[1] . '.';
+    } else {
+        return '';
+    }
+    return '<p class="notice" role="status">' . e($text) . '</p>';
+}
+
 function csvCell(?string $value): string
 {
     $value = (string) $value;
@@ -152,8 +250,14 @@ function downloadCsv(PDO $pdo): void
 try {
     $pdo = $authPdo ?? getPdo();
 
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+        handleDelete($pdo);
+    }
     if (($_GET['download'] ?? '') === '1') {
         downloadCsv($pdo);
+    }
+    if (isset($_GET['smazat'])) {
+        confirmDeletePage($pdo, (string) $_GET['smazat']);
     }
 
     $countAno = 0;
@@ -180,26 +284,29 @@ try {
             . '<td>' . e((string) $row['prijmeni']) . '</td>'
             . '<td>' . e((string) $row['profese']) . '</td>'
             . '<td>' . e((string) $row['email']) . '</td>'
+            . '<td><a href="export.php?smazat=' . (int) $row['id'] . '">Smazat</a></td>'
             . '</tr>';
     }
     if ($tableRows === '') {
-        $tableRows = '<tr><td colspan="6">Zatím žádní zájemci.</td></tr>';
+        $tableRows = '<tr><td colspan="7">Zatím žádní zájemci.</td></tr>';
     }
 
     respondHtml(200, 'Registrace zájemců – Technická bezpečnost', '<h1>Registrace zájemců</h1>'
+        . deleteNotice((string) ($_GET['smazano'] ?? ''))
         . '<div class="stat-row">'
         . '<div class="stat"><strong>' . $countAno . '</strong><span>má zájem (ANO)</span></div>'
-        . ($countNe > 0 ? '<div class="stat"><strong>' . $countNe . '</strong><span>nemá zájem (NE)</span></div>' : '')
+        . ($countNe > 0 ? '<div class="stat"><strong>' . $countNe . '</strong><span>nemá zájem (NE) · <a href="export.php?smazat=ne">smazat</a></span></div>' : '')
         . '<div class="stat"><strong>' . ($countAno + $countNe) . '</strong><span>záznamů celkem</span></div>'
         . '</div>'
         . '<p>Poslední odpověď: ' . e(is_string($lastAt) ? pragueTime($lastAt) : 'zatím žádná') . '</p>'
         . '<p><a class="btn btn-primary" href="export.php?download=1">Stáhnout CSV pro Excel</a></p>'
         . '<h2>Zájemci</h2>'
         . '<div class="table-wrap"><table>'
-        . '<thead><tr><th scope="col">Č.</th><th scope="col">Datum</th><th scope="col">Jméno</th><th scope="col">Příjmení</th><th scope="col">Profese / oblast zájmu</th><th scope="col">E-mail</th></tr></thead>'
+        . '<thead><tr><th scope="col">Č.</th><th scope="col">Datum</th><th scope="col">Jméno</th><th scope="col">Příjmení</th><th scope="col">Profese / oblast zájmu</th><th scope="col">E-mail</th><th scope="col">Akce</th></tr></thead>'
         . '<tbody>' . $tableRows . '</tbody>'
         . '</table></div>'
-        . '<p class="note">Web sbírá jen registrace zájemců; volba „nemám zájem“ byla na přání klienta odstraněna a endpoint ji už nepřijímá (případné starší anonymní řádky NE zůstávají jen v souhrnném počtu).'
+        . '<p class="note">Odkaz „Smazat“ slouží i k vyřízení žádosti o výmaz údajů (smazání se potvrzuje na další stránce).'
+        . ' Web sbírá jen registrace zájemců; volba „nemám zájem“ byla na přání klienta odstraněna a endpoint ji už nepřijímá.'
         . ' Nezapomeňte: všechna data je potřeba smazat nejpozději 31.&nbsp;3.&nbsp;2027 (viz Zásady).</p>',
         'fallback-page admin-page');
 } catch (Throwable $exception) {

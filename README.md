@@ -147,6 +147,17 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 8. `https://…/data/responses.sqlite` a `https://…/app/config.php` vrací
    403/404 (v nouzovém režimu).
 9. `/admin/export.php` bez hesla nepustí dál; CSV se správně otevře v Excelu.
+10. Odkaz **Smazat** u záznamu v administraci vede na potvrzovací stránku,
+    po potvrzení záznam zmizí (a přehled to ohlásí). Mazání je vázané na
+    podpis z hashe hesla + kontrolu původu požadavku, funguje bez JavaScriptu.
+
+## Ostrý provoz
+
+Web je od 14. 9. 2026 v ostrém provozu: nasazovací větev už nevkládá hlavičku
+`X-Robots-Tag: noindex` (indexace povolena, `robots.txt` nic nezakazuje),
+v `public/.htaccess` je zapnuté HSTS (`max-age` 1 rok, jen pro tento host)
+a testovací záznamy byly z živé databáze smazány přes administraci.
+Administrace (`/admin/export.php`) sama zůstává `noindex`.
 
 ## GDPR – provozní povinnosti
 
@@ -161,7 +172,8 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
   č. ev. 16, 270 33 Žďár (zápis názvu podle podkladu klienta – ověřte proti
   obchodnímu rejstříku).
 - Kontaktní schránku uvedenou na webu (info@special-inspections.com) reálně číst –
-  mohou přijít žádosti o výmaz údajů. Upozornění na zájemce tam nechodí, ta
+  mohou přijít žádosti o výmaz údajů. Výmaz provedete v administraci odkazem
+  **Smazat** u příslušného záznamu (potvrzení na další stránce). Upozornění na zájemce tam nechodí, ta
   jdou na `NOTIFY_EMAIL` (info@technickabezpecnost.cz).
 - Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
   logy a notifikační e-maily ve schránce.
@@ -231,7 +243,8 @@ rychlý, auditovatelný a bez právních komplikací.
   zájem/nezájem – jako jmenovatel poslouží statistika návštěv z administrace
   hostingu. Endpoint `api/submit.php` přijímá jen `answer=ANO` (NE vrací 422),
   aby se do statistiky nedostaly řádky, které z webu nikdo nemohl odeslat;
-  export ukazuje počet NE jen tehdy, je-li nenulový (starší testovací řádky).
+  export ukazuje počet NE jen tehdy, je-li nenulový (starší testovací řádky),
+  a nabízí jejich hromadné smazání.
   Návrat ankety = obnovit větev NE z historie gitu (commit před 2. kolem).
 - **Pole „Vaše profese či oblast zájmu"** je přejmenované původní pole
   Profese (klient chtěl kolonku přidat, formulář ji už měl). Interně zůstává
