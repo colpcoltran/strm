@@ -15,9 +15,6 @@ const NOTIFY_EMAIL = 'info@technickabezpecnost.cz';
 // Prázdná hodnota = doplní se automaticky jako web@<doména webu>.
 const MAIL_FROM = '';
 
-// Přístup k přehledu odpovědí a CSV exportu (/admin/export.php).
-// Uživatelské jméno pro přihlášení:
-const EXPORT_USER = 'spravce';
 
 // Bcrypt hash hesla. Dokud je prázdný, je export ZAMČENÝ (bezpečné výchozí
 // chování). Hash vygenerujete příkazem:

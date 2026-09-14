@@ -51,8 +51,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 | --- | --- |
 | `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce (testovací fáze: `info@technickabezpecnost.cz`). |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
-| `EXPORT_USER` | Přihlašovací jméno k exportu (výchozí `spravce`). |
-| `EXPORT_PASS_HASH` | Bcrypt hash hesla k exportu. **Dokud je prázdný, je export zamčený.** Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
+| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/export.php`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se jen heslem (jediný správce, jméno v dialogu prohlížeče zůstává prázdné). Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
 
 ## Lokální vývoj
@@ -123,7 +122,7 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## Export dat
 
-- `https://vase-domena.cz/admin/export.php` – po přihlášení počet zájemců,
+- `https://vase-domena.cz/admin/export.php` – po přihlášení heslem (jméno prázdné) počet zájemců,
   tabulka zájemců a tlačítko **Stáhnout CSV pro Excel** (sloupec `profese`
   obsahuje „profesi či oblast zájmu" z formuláře).
 - CSV má UTF-8 BOM, středníky a CRLF – český Excel jej otevře na dvojklik.

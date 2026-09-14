@@ -2,9 +2,13 @@
 declare(strict_types=1);
 
 /**
- * Chráněný přehled odpovědí a export do CSV (otevře se přímo v českém Excelu).
- * Přístup hlídá HTTP Basic Auth řešená v PHP – funguje na Apache, nginx
- * i vestavěném PHP serveru a bez nastaveného hesla je export zamčený.
+ * Chráněná administrace: přehled zájemců a export do CSV (otevře se přímo
+ * v českém Excelu). Přístup hlídá HTTP Basic Auth řešená v PHP – funguje na
+ * Apache, nginx i vestavěném PHP serveru a bez nastaveného hesla je zamčená.
+ * Správce je jediný, proto se ověřuje pouze heslo (jméno v dialogu prohlížeče
+ * může zůstat prázdné). Proti hádání hesla je globální brzda: po
+ * AUTH_MAX_FAILS neúspěšných pokusech za AUTH_WINDOW_MIN minut se přihlášení
+ * na tu dobu odmítá – bez ukládání IP adres.
  */
 
 foreach ([dirname(__DIR__, 2) . '/app/bootstrap.php', dirname(__DIR__) . '/app/bootstrap.php'] as $bootstrapPath) {
@@ -52,18 +56,55 @@ if ($passHash === '') {
         . ' podle návodu v README. Do té doby je export z bezpečnostních důvodů nedostupný.</p>');
 }
 
+const AUTH_MAX_FAILS = 10;
+const AUTH_WINDOW_MIN = 15;
+
+/** Počet neúspěšných přihlášení v posledním okně; při chybě DB brzda nebrzdí. */
+function recentAuthFails(?PDO $pdo): int
+{
+    if ($pdo === null) {
+        return 0;
+    }
+    try {
+        $pdo->exec('CREATE TABLE IF NOT EXISTS auth_fail (at TEXT NOT NULL DEFAULT (datetime(\'now\')))');
+        $pdo->exec("DELETE FROM auth_fail WHERE at < datetime('now', '-1 day')");
+        return (int) $pdo->query(
+            "SELECT COUNT(*) FROM auth_fail WHERE at > datetime('now', '-" . AUTH_WINDOW_MIN . " minutes')"
+        )->fetchColumn();
+    } catch (Throwable $exception) {
+        error_log('export.php auth_fail: ' . $exception->getMessage());
+        return 0;
+    }
+}
+
+try {
+    $authPdo = getPdo();
+} catch (Throwable $exception) {
+    $authPdo = null;
+}
+
+if (recentAuthFails($authPdo) >= AUTH_MAX_FAILS) {
+    header('Retry-After: ' . (AUTH_WINDOW_MIN * 60));
+    respondHtml(429, 'Příliš mnoho pokusů', '<h1>Příliš mnoho neúspěšných pokusů</h1>'
+        . '<p>Přihlášení do administrace je na ' . AUTH_WINDOW_MIN . ' minut pozastaveno. Zkuste to prosím později.</p>');
+}
+
 [$authUser, $authPass] = basicAuthCredentials();
-// Heslo se ověřuje vždy proti skutečnému hashi (ten v této chvíli vždy
-// existuje – jinak by výše padla 503) a s výsledkem kontroly jména se
-// skládá bez zkratu. Doba odezvy je tak u špatného jména i špatného
-// hesla z konstrukce stejná a neprozradí, zda zadané jméno existuje.
-$userOk = $authUser !== null && hash_equals(EXPORT_USER, $authUser);
-$passOk = password_verify((string) $authPass, $passHash);
-if (!($userOk & $passOk)) {
-    usleep(300000); // zdražení online hádání hesla, bez ukládání IP
-    header('WWW-Authenticate: Basic realm="Technicka bezpecnost - export dat"');
+// Jediný správce – ověřuje se pouze heslo, jméno v dialogu je libovolné.
+// password_verify má z konstrukce stejnou dobu odezvy pro každý vstup.
+if (!password_verify((string) $authPass, $passHash)) {
+    if ($authPass !== null && $authPass !== '' && $authPdo !== null) {
+        // Skutečný (ne prázdný) pokus o heslo se počítá do brzdy; bez IP adresy.
+        try {
+            $authPdo->exec('INSERT INTO auth_fail DEFAULT VALUES');
+        } catch (Throwable $exception) {
+            error_log('export.php auth_fail insert: ' . $exception->getMessage());
+        }
+    }
+    usleep(300000); // zdražení online hádání hesla
+    header('WWW-Authenticate: Basic realm="Technicka bezpecnost - administrace (staci heslo)"');
     respondHtml(401, 'Vyžadováno přihlášení', '<h1>Vyžadováno přihlášení</h1>'
-        . '<p>Zadejte prosím přístupové údaje k exportu (viz README).</p>');
+        . '<p>Zadejte prosím heslo k administraci (jméno může zůstat prázdné). Viz README.</p>');
 }
 
 function csvCell(?string $value): string
@@ -109,7 +150,7 @@ function downloadCsv(PDO $pdo): void
 }
 
 try {
-    $pdo = getPdo();
+    $pdo = $authPdo ?? getPdo();
 
     if (($_GET['download'] ?? '') === '1') {
         downloadCsv($pdo);
