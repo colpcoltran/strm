@@ -49,7 +49,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 
 | Konstanta | Význam |
 | --- | --- |
-| `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce (testovací fáze: `info@technickabezpecnost.cz`). |
+| `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce: `info@technickabezpecnost.cz` (schránka projektu). Kontaktní adresa uvedená na webu (info@special-inspections.com) žádné automatické e-maily nedostává. |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
 | `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/export.php`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se jen heslem (jediný správce, jméno v dialogu prohlížeče zůstává prázdné). Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
@@ -160,7 +160,9 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
   Správce v Zásadách: Special Inspections s. r. o., IČO 06447058, Otěvěky
   č. ev. 16, 270 33 Žďár (zápis názvu podle podkladu klienta – ověřte proti
   obchodnímu rejstříku).
-- Schránku správce reálně číst – mohou přijít žádosti o výmaz údajů.
+- Kontaktní schránku uvedenou na webu (info@special-inspections.com) reálně číst –
+  mohou přijít žádosti o výmaz údajů. Upozornění na zájemce tam nechodí, ta
+  jdou na `NOTIFY_EMAIL` (info@technickabezpecnost.cz).
 - Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
   logy a notifikační e-maily ve schránce.
 - Formulář nemá (záměrně) souhlasový checkbox – právním základem je čl. 6

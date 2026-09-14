@@ -6,8 +6,9 @@ declare(strict_types=1);
  * Toto je jediný soubor, který je potřeba před nasazením upravit.
  */
 
-// E-mail, na který chodí upozornění na nové zájemce.
-// Testovací fáze: schránka projektu na vlastní doméně.
+// E-mail, na který chodí upozornění na nové zájemce (schránka projektu).
+// Kontaktní adresa uvedená na webu (info@special-inspections.com) upozornění
+// záměrně nedostává – slouží jen pro dotazy a žádosti návštěvníků.
 const NOTIFY_EMAIL = 'info@technickabezpecnost.cz';
 
 // Adresa odesílatele notifikací. Měla by být na doméně hostingu,
