@@ -53,7 +53,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 | --- | --- |
 | `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce: `info@technickabezpecnost.cz` (schránka projektu). Kontaktní adresa uvedená na webu (info@special-inspections.com) žádné automatické e-maily nedostává. |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
-| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/` a `/admin/export.csv`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se jen heslem (jediný správce, jméno v dialogu prohlížeče zůstává prázdné). Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
+| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/` a `/admin/export.csv`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se vlastním formulářem jen heslem (bez uživatelského jména – správce je jediný; heslo je na přání klienta při psaní viditelné), přihlášení drží podepsaná cookie 30 dní (jen pro `/admin/`, HttpOnly, SameSite=Strict; změna hesla všechna přihlášení zneplatní). Skripty a curl mohou použít HTTP Basic Auth s prázdným jménem. Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
 
 ## Lokální vývoj
@@ -124,11 +124,13 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 ## Administrace a export dat
 
-- `https://vase-domena.cz/admin/` – přehled registrací (po přihlášení heslem,
-  jméno prázdné): dlaždice celkem / dnes / 7 dní / 30 dní, registrace po
-  týdnech, vyhledávání a tabulka zájemců s odkazem **Smazat**. Tlačítko
-  **Stáhnout CSV pro Excel** vede na `https://vase-domena.cz/admin/export.csv`
-  (sloupec `profese` obsahuje „profesi či oblast zájmu" z formuláře).
+- `https://vase-domena.cz/admin/` – přehled registrací (po přihlášení heslem
+  ve formuláři, bez jména): dlaždice celkem / dnes / 7 dní / 30 dní, registrace po
+  týdnech, vyhledávání a tabulka zájemců. Tlačítko **Stáhnout CSV pro
+  Excel** vede na `https://vase-domena.cz/admin/export.csv` (sloupec
+  `profese` obsahuje „profesi či oblast zájmu" z formuláře). Přehled je
+  záměrně jen ke čtení – je určený klientovi, bez mazání a provozních
+  poznámek (výmaz a lhůty řeší tento README).
 - Hezké adresy zajišťuje `DirectoryIndex` a přepis v `public/.htaccess`;
   lokálně je napodobuje `scripts/dev-router.php` (viz Lokální vývoj).
 - CSV má UTF-8 BOM, středníky a CRLF – český Excel jej otevře na dvojklik.
@@ -152,19 +154,16 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
    požadavky na cizí domény.
 8. `https://…/data/responses.sqlite` a `https://…/app/config.php` vrací
    403/404 (v nouzovém režimu).
-9. `/admin/` ani `/admin/export.csv` bez hesla nepustí dál; přehled ukazuje
-   statistiky, registrace po týdnech a tabulku s vyhledáváním; CSV se
-   správně otevře v Excelu.
-10. Odkaz **Smazat** u záznamu v administraci vede na potvrzovací stránku,
-    po potvrzení záznam zmizí (a přehled to ohlásí). Mazání je vázané na
-    podpis z hashe hesla + kontrolu původu požadavku, funguje bez JavaScriptu.
+9. `/admin/` ani `/admin/export.csv` bez přihlášení nepustí dál (formulář
+   jen s heslem); přehled ukazuje statistiky, registrace po týdnech a tabulku
+   s vyhledáváním; tlačítko Odhlásit funguje; CSV se správně otevře v Excelu.
 
 ## Ostrý provoz
 
 Web je od 14. 9. 2026 v ostrém provozu: nasazovací větev už nevkládá hlavičku
 `X-Robots-Tag: noindex` (indexace povolena, `robots.txt` nic nezakazuje),
 v `public/.htaccess` je zapnuté HSTS (`max-age` 1 rok, jen pro tento host)
-a testovací záznamy byly z živé databáze smazány přes administraci.
+a testovací záznamy byly z živé databáze smazány.
 Administrace (`/admin/`) sama zůstává `noindex` a `robots.txt` ji zakazuje.
 
 ## GDPR – provozní povinnosti
@@ -180,13 +179,17 @@ Administrace (`/admin/`) sama zůstává `noindex` a `robots.txt` ji zakazuje.
   č. ev. 16, 270 33 Žďár (zápis názvu podle podkladu klienta – ověřte proti
   obchodnímu rejstříku).
 - Kontaktní schránku uvedenou na webu (info@special-inspections.com) reálně číst –
-  mohou přijít žádosti o výmaz údajů. Výmaz provedete v administraci odkazem
-  **Smazat** u příslušného záznamu (potvrzení na další stránce). Upozornění na zájemce tam nechodí, ta
+  mohou přijít žádosti o výmaz údajů. Administrace mazání záměrně nenabízí
+  (je pro klienta jen ke čtení); výmaz řádku provede správce webu přímo
+  v SQLite (`DELETE FROM responses WHERE id = …` – soubor stáhnout přes
+  správce souborů hostingu a nahrát zpět, nebo dočasným skriptem). Upozornění na zájemce tam nechodí, ta
   jdou na `NOTIFY_EMAIL` (info@technickabezpecnost.cz).
 - Nejpozději **31. 3. 2027** smazat databázi (`data/responses.sqlite`),
   logy a notifikační e-maily ve schránce.
 - Formulář nemá (záměrně) souhlasový checkbox – právním základem je čl. 6
-  odst. 1 písm. b) GDPR; web nemá cookies, proto není cookie lišta.
+  odst. 1 písm. b) GDPR; veřejný web nemá cookies, proto není cookie lišta.
+  Jedinou cookie (`tb_admin`, technicky nezbytná) dostane až administrátor
+  po přihlášení do `/admin/` – návštěvníků se netýká.
 - Tato obhajoba stojí na formulaci u formuláře, že odesláním **žádáte
   o zaslání informace o spuštění** – při případných úpravách textů se tato
   věta nesmí ztratit ani oslabit. Budoucí e-mail zájemcům smí být jen
@@ -251,8 +254,7 @@ rychlý, auditovatelný a bez právních komplikací.
   zájem/nezájem – jako jmenovatel poslouží statistika návštěv z administrace
   hostingu. Endpoint `api/submit.php` přijímá jen `answer=ANO` (NE vrací 422),
   aby se do statistiky nedostaly řádky, které z webu nikdo nemohl odeslat;
-  export ukazuje počet NE jen tehdy, je-li nenulový (starší testovací řádky),
-  a nabízí jejich hromadné smazání.
+  přehled ukazuje počet NE jen tehdy, je-li nenulový (starší testovací řádky).
   Návrat ankety = obnovit větev NE z historie gitu (commit před 2. kolem).
 - **Pole „Vaše profese či oblast zájmu"** je přejmenované původní pole
   Profese (klient chtěl kolonku přidat, formulář ji už měl). Interně zůstává

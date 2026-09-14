@@ -933,6 +933,34 @@ a[href^="mailto:"] { white-space: nowrap; }
 
 .admin-search .btn { padding: 9px 14px; }
 
+.login-page .fallback-card { max-width: 440px; }
+
+.login-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.login-form label { font-weight: 600; }
+
+.login-form input {
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 1.1rem;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 6px;
+}
+
+.login-form .btn { justify-self: start; }
+
+.login-error {
+  color: #8b1e1e;
+  font-weight: 600;
+  margin: 0;
+}
+
+.logout-form { display: inline; }
+
 .admin-page table.weeks { width: auto; }
 
 .weeks th {
@@ -989,35 +1017,6 @@ a[href^="mailto:"] { white-space: nowrap; }
   border-bottom: 1px solid var(--c-line);
   padding: 8px 10px;
   white-space: nowrap;
-}
-
-.admin-page .notice {
-  margin: 0 0 20px;
-  padding: 12px 16px;
-  background: var(--c-paper-light);
-  border-left: 4px solid var(--c-bronze);
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.admin-page td.akce a { color: #8b1e1e; }
-
-.admin-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.btn-danger {
-  background: #8b1e1e;
-  color: #fff;
-}
-
-.btn-danger:hover,
-.btn-danger:focus-visible {
-  background: #6e1515;
-  color: #fff;
 }
 
 .admin-page .note {

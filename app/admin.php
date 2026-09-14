@@ -3,13 +3,15 @@ declare(strict_types=1);
 
 /**
  * Společný základ administrace: /admin/ (přehled registrací, index.php)
- * a /admin/export.csv (CSV, export.php). Přístup hlídá HTTP Basic Auth
- * řešená v PHP – funguje na Apache, LiteSpeed, nginx i vestavěném PHP
- * serveru a bez nastaveného hesla je zamčená. Správce je jediný, proto se
- * ověřuje pouze heslo (jméno v dialogu prohlížeče může zůstat prázdné).
- * Proti hádání hesla je globální brzda: po AUTH_MAX_FAILS neúspěšných
- * pokusech za AUTH_WINDOW_MIN minut se přihlášení na tu dobu odmítá – bez
- * ukládání IP adres. Mazání záznamů chrání HMAC podpis z hashe hesla.
+ * a /admin/export.csv (CSV, export.php). Přihlašuje se vlastním formulářem
+ * jen heslem (bez uživatelského jména – správce je jediný); heslo je na
+ * přání klienta při psaní viditelné. Přihlášení drží podepsaná cookie
+ * (HMAC z hashe hesla, HttpOnly, SameSite=Strict, jen pro /admin/); změna
+ * hesla i odhlášení všechna vydaná přihlášení zneplatní. Pro skripty
+ * a curl funguje i HTTP Basic Auth s prázdným jménem. Bez nastaveného hesla
+ * je administrace zamčená. Proti hádání hesla je globální brzda: po
+ * AUTH_MAX_FAILS neúspěšných pokusech za AUTH_WINDOW_MIN minut se přihlášení
+ * na tu dobu odmítá – bez ukládání IP adres.
  */
 
 require __DIR__ . '/bootstrap.php';
@@ -68,9 +70,88 @@ function recentAuthFails(?PDO $pdo): int
     }
 }
 
+const ADMIN_COOKIE = 'tb_admin';
+const ADMIN_COOKIE_DAYS = 30;
+
+/** Hodnota přihlašovací cookie: expirace, čas vydání a HMAC z hashe hesla. */
+function adminCookieValue(int $expires, int $issued): string
+{
+    return $expires . '.' . $issued . '.' . hash_hmac('sha256', 'admin:' . $expires . ':' . $issued, adminPassHash());
+}
+
+/** Tabulka stavu administrace (zatím jen hranice pro zneplatnění cookies odhlášením). */
+function ensureAdminState(?PDO $pdo): void
+{
+    if ($pdo === null) {
+        return;
+    }
+    try {
+        $pdo->exec('CREATE TABLE IF NOT EXISTS admin_state (key TEXT PRIMARY KEY, value TEXT NOT NULL)');
+    } catch (Throwable $exception) {
+        error_log('admin_state: ' . $exception->getMessage());
+    }
+}
+
+/** Cookie vydané před tímto časem už neplatí (nastavuje odhlášení). */
+function cookieMinIssued(?PDO $pdo): int
+{
+    if ($pdo === null) {
+        return 0;
+    }
+    try {
+        return (int) $pdo->query("SELECT value FROM admin_state WHERE key = 'cookie_min_issued'")->fetchColumn();
+    } catch (Throwable $exception) {
+        error_log('admin_state read: ' . $exception->getMessage());
+        return 0;
+    }
+}
+
+function adminCookieValid(?PDO $pdo): bool
+{
+    $value = (string) ($_COOKIE[ADMIN_COOKIE] ?? '');
+    if (!preg_match('/^(\d{1,12})\.(\d{1,12})\.([0-9a-f]{64})$/', $value, $m)) {
+        return false;
+    }
+    $expires = (int) $m[1];
+    $issued = (int) $m[2];
+    return $expires > time()
+        && $issued > cookieMinIssued($pdo)
+        && hash_equals(adminCookieValue($expires, $issued), $value);
+}
+
+/** Nastaví (expires > 0) nebo smaže (null) přihlašovací cookie. */
+function setAdminCookie(?int $expires, int $issued = 0): void
+{
+    $https = (($_SERVER['HTTPS'] ?? '') !== '' && $_SERVER['HTTPS'] !== 'off')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    setcookie(ADMIN_COOKIE, $expires === null ? '' : adminCookieValue($expires, $issued), [
+        'expires' => $expires ?? time() - 86400,
+        'path' => '/admin/',
+        'secure' => $https,
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
+}
+
+/** Přihlašovací stránka (401 bez WWW-Authenticate – prohlížeč nesmí otevřít vlastní dialog). */
+function loginPage(string $error): void
+{
+    respondHtml(401, 'Přihlášení – Technická bezpečnost',
+        '<p class="admin-eyebrow">Technická bezpečnost · administrace</p>'
+        . '<h1>Přihlášení</h1>'
+        . ($error !== '' ? '<p class="login-error" role="alert">' . e($error) . '</p>' : '')
+        . '<form method="post" action="index.php" class="login-form">'
+        . '<label for="heslo">Heslo</label>'
+        . '<input type="text" id="heslo" name="heslo" autocomplete="off" autocapitalize="off" spellcheck="false" required autofocus>'
+        . '<button type="submit" class="btn btn-primary">Přihlásit</button>'
+        . '</form>',
+        'fallback-page admin-page login-page');
+}
+
 /**
- * Vynutí přihlášení (503 bez nastaveného hesla, 429 při brzdě, 401 bez
- * platného hesla) a vrátí připojení k databázi.
+ * Vynutí přihlášení (503 bez nastaveného hesla, 429 při brzdě, jinak
+ * přihlašovací formulář) a vrátí připojení k databázi. Zpracuje i POST
+ * z přihlašovacího formuláře a odhlášení.
  */
 function requireAdmin(): PDO
 {
@@ -88,18 +169,56 @@ function requireAdmin(): PDO
         $pdo = null;
     }
 
-    if (recentAuthFails($pdo) >= AUTH_MAX_FAILS) {
+    ensureAdminState($pdo);
+
+    $isPost = ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+    if ($isPost && isset($_POST['odhlasit'])) {
+        // Odhlášení zneplatní všechny dosud vydané cookies (správce je jediný),
+        // ne jen tu v prohlížeči – ukradená hodnota tak přestane platit.
+        if ($pdo !== null) {
+            try {
+                $stmt = $pdo->prepare("INSERT OR REPLACE INTO admin_state (key, value) VALUES ('cookie_min_issued', :t)");
+                $stmt->execute([':t' => (string) time()]);
+            } catch (Throwable $exception) {
+                error_log('admin_state write: ' . $exception->getMessage());
+            }
+        }
+        setAdminCookie(null);
+        header('Location: ./', true, 303);
+        exit;
+    }
+
+    if (adminCookieValid($pdo)) {
+        return $pdo ?? getPdo();
+    }
+
+    $braked = recentAuthFails($pdo) >= AUTH_MAX_FAILS;
+
+    // HTTP Basic Auth (curl, skripty) – jméno se ignoruje, stačí heslo.
+    [$authUser, $basicPass] = basicAuthCredentials();
+    $basicTried = $basicPass !== null && $basicPass !== '';
+    // password_verify má z konstrukce stejnou dobu odezvy pro každý vstup.
+    if ($basicTried && !$braked && password_verify((string) $basicPass, $passHash)) {
+        return $pdo ?? getPdo();
+    }
+
+    if ($braked) {
         header('Retry-After: ' . (AUTH_WINDOW_MIN * 60));
         respondHtml(429, 'Příliš mnoho pokusů', '<h1>Příliš mnoho neúspěšných pokusů</h1>'
             . '<p>Přihlášení do administrace je na ' . AUTH_WINDOW_MIN . ' minut pozastaveno. Zkuste to prosím později.</p>');
     }
 
-    [$authUser, $authPass] = basicAuthCredentials();
-    // Jediný správce – ověřuje se pouze heslo, jméno v dialogu je libovolné.
-    // password_verify má z konstrukce stejnou dobu odezvy pro každý vstup.
-    if (!password_verify((string) $authPass, $passHash)) {
-        if ($authPass !== null && $authPass !== '' && $pdo !== null) {
-            // Skutečný (ne prázdný) pokus o heslo se počítá do brzdy; bez IP adresy.
+    $error = '';
+    $formPass = $isPost && isset($_POST['heslo']) ? (string) $_POST['heslo'] : null;
+    if ($formPass !== null && $formPass !== '' && password_verify($formPass, $passHash)) {
+        // Čas vydání musí být ostře za hranicí z posledního odhlášení, i v téže sekundě.
+        setAdminCookie(time() + ADMIN_COOKIE_DAYS * 86400, max(time(), cookieMinIssued($pdo) + 1));
+        header('Location: ./', true, 303);
+        exit;
+    }
+    if (($formPass !== null && $formPass !== '') || $basicTried) {
+        // Skutečný (ne prázdný) pokus o heslo se počítá do brzdy; bez IP adresy.
+        if ($pdo !== null) {
             try {
                 $pdo->exec('INSERT INTO auth_fail DEFAULT VALUES');
             } catch (Throwable $exception) {
@@ -107,35 +226,7 @@ function requireAdmin(): PDO
             }
         }
         usleep(300000); // zdražení online hádání hesla
-        header('WWW-Authenticate: Basic realm="Technicka bezpecnost - administrace (staci heslo)"');
-        respondHtml(401, 'Vyžadováno přihlášení', '<h1>Vyžadováno přihlášení</h1>'
-            . '<p>Zadejte prosím heslo k administraci (jméno může zůstat prázdné). Viz README.</p>');
+        $error = 'Nesprávné heslo. Zkuste to prosím znovu.';
     }
-
-    return $pdo ?? getPdo();
-}
-
-/**
- * Podpis pro mazání – administrace nemá sezení ani cookies, ochranou proti
- * CSRF je HMAC z hashe hesla (ten útočník nezná) přes identifikátor mazaného.
- */
-function deleteToken(string $subject): string
-{
-    return hash_hmac('sha256', 'delete:' . $subject, adminPassHash());
-}
-
-/** Požadavek přišel z tohoto webu (druhá vrstva ochrany proti CSRF). */
-function sameOriginRequest(): bool
-{
-    $fetchSite = strtolower((string) ($_SERVER['HTTP_SEC_FETCH_SITE'] ?? ''));
-    if ($fetchSite !== '' && $fetchSite !== 'same-origin' && $fetchSite !== 'none') {
-        return false;
-    }
-    $origin = (string) ($_SERVER['HTTP_ORIGIN'] ?? '');
-    if ($origin !== '' && $origin !== 'null') {
-        $originHost = strtolower((string) parse_url($origin, PHP_URL_HOST));
-        $ownHost = strtolower((string) explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
-        return $originHost !== '' && $originHost === $ownHost;
-    }
-    return $origin !== 'null';
+    loginPage($error);
 }

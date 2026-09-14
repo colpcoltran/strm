@@ -62,7 +62,8 @@ EOF
 git branch -D _deploy_tmp 2>/dev/null || true
 git checkout --orphan _deploy_tmp
 git rm -rf --cached . -q
-find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+# data/ zůstává – obsahuje lokální (gitignorovanou) vývojovou databázi
+find . -mindepth 1 -maxdepth 1 ! -name .git ! -name data -exec rm -rf {} +
 cp -r "$STAGE/." .
 git add -A
 git -c user.name="Claude" -c user.email="noreply@anthropic.com" commit -q -m "Nasazovací větev pro Hostinger public_html (generováno z $SRC_BRANCH @ $SRC_SHA)
