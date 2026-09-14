@@ -858,7 +858,97 @@ a[href^="mailto:"] { white-space: nowrap; }
   font-size: 1.5rem;
 }
 
-.admin-page .fallback-card { max-width: 960px; }
+.admin-page .fallback-card { max-width: 1100px; }
+
+.admin-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.admin-head h1 { margin: 0; }
+
+.admin-eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-bronze);
+}
+
+.admin-tools {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-meta {
+  color: var(--c-muted);
+  font-size: 0.92rem;
+  margin: 0 0 8px;
+}
+
+.admin-section { margin-top: 28px; }
+
+.admin-section h2 {
+  font-size: 1.2rem;
+  margin: 0 0 12px;
+}
+
+.admin-tablehead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.admin-tablehead h2 { margin: 0; }
+
+.admin-tablehead .count {
+  color: var(--c-muted);
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+
+.admin-search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-search input {
+  padding: 9px 12px;
+  border: 1px solid var(--c-line-strong);
+  border-radius: 6px;
+  font: inherit;
+  min-width: 250px;
+}
+
+.admin-search .btn { padding: 9px 14px; }
+
+.admin-page table.weeks { width: auto; }
+
+.weeks th {
+  font-weight: 500;
+  color: var(--c-muted-warm);
+}
+
+.weeks td.num {
+  text-align: right;
+  font-weight: 700;
+  color: var(--c-primary);
+}
+
+.weeks svg { display: block; }
+
+.weeks rect { fill: var(--c-primary); }
 
 .stat-row {
   display: flex;
@@ -910,7 +1000,7 @@ a[href^="mailto:"] { white-space: nowrap; }
   font-weight: 600;
 }
 
-.admin-page td a { color: #8b1e1e; }
+.admin-page td.akce a { color: #8b1e1e; }
 
 .admin-actions {
   display: flex;
@@ -983,6 +1073,12 @@ a[href^="mailto:"] { white-space: nowrap; }
   .header-cta { white-space: nowrap; }
   .reg-card { padding: 20px 16px; }
   .autor { padding: 20px; margin-top: 28px; }
+  .admin-page .fallback-card { padding: 24px 18px; }
+  .stat { flex-basis: calc(50% - 7px); padding: 12px 10px; }
+  .stat strong { font-size: 1.4rem; }
+  .admin-page table.weeks { width: 100%; }
+  .weeks td.bar { width: 100%; }
+  .weeks svg { width: 100%; height: 14px; }
   .field-grid { grid-template-columns: 1fr; gap: 0; }
   .btn { width: 100%; text-align: center; }
   .header-cta { padding: 10px 16px; font-size: 0.9rem; }

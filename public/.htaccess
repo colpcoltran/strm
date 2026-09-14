@@ -3,6 +3,7 @@
 # ------------------------------------------------------------
 
 AddDefaultCharset UTF-8
+DirectoryIndex index.html index.php
 
 # Přesměrování na HTTPS (výjimka pro ověření Let's Encrypt).
 # Podmínka na X-Forwarded-Proto brání smyčce přesměrování, když TLS
@@ -18,9 +19,13 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 # ověřovací adresář Let's Encrypt zůstává dostupný
 RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteRule (^|/)\. - [F]
+
+# Hezká adresa exportu administrace: /admin/export.csv → admin/export.php
+# (/admin/ obslouží DirectoryIndex → admin/index.php)
+RewriteRule ^admin/export\.csv$ admin/export.php [L]
 </IfModule>
 
-# Předání hlavičky Authorization do PHP (Basic Auth pro /admin/export.php
+# Předání hlavičky Authorization do PHP (Basic Auth pro /admin/
 # na hostinzích s PHP přes CGI/FastCGI)
 <IfModule mod_setenvif.c>
 SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1

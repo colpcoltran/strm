@@ -35,13 +35,15 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 │   ├── index.html           ← celá stránka
 │   ├── assets/              ← style.css, app.js, portret-autor(-300|@2x).jpg, og-image.jpg, fonts/
 │   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
-│   ├── admin/export.php     ← chráněný přehled + export CSV
+│   ├── admin/index.php      ← chráněný přehled registrací (/admin/)
+│   ├── admin/export.php     ← export CSV (/admin/export.csv)
 │   ├── favicon.svg, robots.txt, .htaccess
 ├── app/                     ← MIMO document root
 │   ├── config.php           ← ⚙️ jediný soubor, který upravujete
-│   └── bootstrap.php        ← společný kód endpointů
+│   ├── bootstrap.php        ← společný kód endpointů
+│   └── admin.php            ← přihlášení a ochrany administrace
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
-├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled)
+├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled, dev router)
 └── README.md
 ```
 
@@ -51,13 +53,13 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 | --- | --- |
 | `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce: `info@technickabezpecnost.cz` (schránka projektu). Kontaktní adresa uvedená na webu (info@special-inspections.com) žádné automatické e-maily nedostává. |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
-| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/export.php`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se jen heslem (jediný správce, jméno v dialogu prohlížeče zůstává prázdné). Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
+| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/` a `/admin/export.csv`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se jen heslem (jediný správce, jméno v dialogu prohlížeče zůstává prázdné). Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
 
 ## Lokální vývoj
 
 ```bash
-TB_DEV_MODE=1 php -S localhost:8000 -t public
+TB_DEV_MODE=1 php -S localhost:8000 -t public scripts/dev-router.php
 ```
 
 - `TB_DEV_MODE=1` zapne vývojový režim: e-maily se místo odeslání zapisují do
@@ -120,11 +122,15 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 4. Záznam v databázi vznikne i při selhání e-mailu – o zájemce nepřijdete,
    vidíte ho v exportu.
 
-## Export dat
+## Administrace a export dat
 
-- `https://vase-domena.cz/admin/export.php` – po přihlášení heslem (jméno prázdné) počet zájemců,
-  tabulka zájemců a tlačítko **Stáhnout CSV pro Excel** (sloupec `profese`
-  obsahuje „profesi či oblast zájmu" z formuláře).
+- `https://vase-domena.cz/admin/` – přehled registrací (po přihlášení heslem,
+  jméno prázdné): dlaždice celkem / dnes / 7 dní / 30 dní, registrace po
+  týdnech, vyhledávání a tabulka zájemců s odkazem **Smazat**. Tlačítko
+  **Stáhnout CSV pro Excel** vede na `https://vase-domena.cz/admin/export.csv`
+  (sloupec `profese` obsahuje „profesi či oblast zájmu" z formuláře).
+- Hezké adresy zajišťuje `DirectoryIndex` a přepis v `public/.htaccess`;
+  lokálně je napodobuje `scripts/dev-router.php` (viz Lokální vývoj).
 - CSV má UTF-8 BOM, středníky a CRLF – český Excel jej otevře na dvojklik.
 - Hodnoty začínající znaky `=`, `+`, `-` nebo `@` mají v CSV předřazený
   apostrof – to je záměrná ochrana, aby Excel nespouštěl podvržené vzorce
@@ -146,7 +152,9 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
    požadavky na cizí domény.
 8. `https://…/data/responses.sqlite` a `https://…/app/config.php` vrací
    403/404 (v nouzovém režimu).
-9. `/admin/export.php` bez hesla nepustí dál; CSV se správně otevře v Excelu.
+9. `/admin/` ani `/admin/export.csv` bez hesla nepustí dál; přehled ukazuje
+   statistiky, registrace po týdnech a tabulku s vyhledáváním; CSV se
+   správně otevře v Excelu.
 10. Odkaz **Smazat** u záznamu v administraci vede na potvrzovací stránku,
     po potvrzení záznam zmizí (a přehled to ohlásí). Mazání je vázané na
     podpis z hashe hesla + kontrolu původu požadavku, funguje bez JavaScriptu.
@@ -157,7 +165,7 @@ Web je od 14. 9. 2026 v ostrém provozu: nasazovací větev už nevkládá hlavi
 `X-Robots-Tag: noindex` (indexace povolena, `robots.txt` nic nezakazuje),
 v `public/.htaccess` je zapnuté HSTS (`max-age` 1 rok, jen pro tento host)
 a testovací záznamy byly z živé databáze smazány přes administraci.
-Administrace (`/admin/export.php`) sama zůstává `noindex`.
+Administrace (`/admin/`) sama zůstává `noindex` a `robots.txt` ji zakazuje.
 
 ## GDPR – provozní povinnosti
 
