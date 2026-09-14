@@ -116,10 +116,17 @@ try {
     );
     $insert->execute(['ANO', $jmeno, $prijmeni, $profese, $email]);
 
-    // Duplicitní e-mail = tichý úspěch: bez druhého řádku i druhé notifikace.
-    if ($insert->rowCount() > 0) {
-        sendInterestNotification((int) $pdo->lastInsertId(), $jmeno, $prijmeni, $profese, $email);
+    // Duplicitní e-mail (unikátní index): žádný druhý řádek ani notifikace;
+    // formulář dostane hlášku u pole e-mail (rozhodnutí klienta místo tichého úspěchu).
+    if ($insert->rowCount() === 0) {
+        $message = 'Tento e-mail už je registrovaný – ozvu se vám, jakmile bude o spuštění rozhodnuto.';
+        if (clientWantsJson()) {
+            respondJson(422, ['ok' => false, 'errors' => ['email' => $message]]);
+        }
+        respondHtml(422, 'E-mail už je registrovaný', '<h1>Tento e-mail už je registrovaný</h1><p>'
+            . e($message) . '</p>' . $backLink);
     }
+    sendInterestNotification((int) $pdo->lastInsertId(), $jmeno, $prijmeni, $profese, $email);
 
     if (clientWantsJson()) {
         respondJson(200, ['ok' => true, 'answer' => 'ANO']);

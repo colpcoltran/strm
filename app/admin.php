@@ -7,8 +7,8 @@ declare(strict_types=1);
  * jen heslem (bez uživatelského jména – správce je jediný); heslo je na
  * přání klienta při psaní viditelné. Přihlášení drží podepsaná cookie
  * (HMAC z hashe hesla, HttpOnly, SameSite=Strict, jen pro /admin/); změna
- * hesla i odhlášení všechna vydaná přihlášení zneplatní. Pro skripty
- * a curl funguje i HTTP Basic Auth s prázdným jménem. Bez nastaveného hesla
+ * hesla i odhlášení všechna vydaná přihlášení zneplatní. Skripty (curl) se
+ * přihlásí stejně: POST hesla na index.php a cookie jar. Bez nastaveného hesla
  * je administrace zamčená. Proti hádání hesla je globální brzda: po
  * AUTH_MAX_FAILS neúspěšných pokusech za AUTH_WINDOW_MIN minut se přihlášení
  * na tu dobu odmítá – bez ukládání IP adres.
@@ -29,27 +29,6 @@ function adminPassHash(): string
         $hash = getenv('TB_EXPORT_HASH') ?: '';
     }
     return $hash;
-}
-
-/** @return array{0: ?string, 1: ?string} */
-function basicAuthCredentials(): array
-{
-    $user = $_SERVER['PHP_AUTH_USER'] ?? null;
-    if ($user !== null) {
-        return [$user, (string) ($_SERVER['PHP_AUTH_PW'] ?? '')];
-    }
-    // CGI/FastCGI hostingy PHP_AUTH_* nenaplní – hlavičku předává
-    // pravidlo SetEnvIf v public/.htaccess. Schéma „Basic" je dle
-    // RFC 7617 case-insensitive.
-    $headerValue = $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '';
-    if (is_string($headerValue) && preg_match('/^Basic\s+(.+)$/i', $headerValue, $m)) {
-        $decoded = base64_decode($m[1], true);
-        if (is_string($decoded) && str_contains($decoded, ':')) {
-            [$user, $pass] = explode(':', $decoded, 2);
-            return [$user, $pass];
-        }
-    }
-    return [null, null];
 }
 
 /** Počet neúspěšných přihlášení v posledním okně; při chybě DB brzda nebrzdí. */
@@ -194,14 +173,6 @@ function requireAdmin(): PDO
 
     $braked = recentAuthFails($pdo) >= AUTH_MAX_FAILS;
 
-    // HTTP Basic Auth (curl, skripty) – jméno se ignoruje, stačí heslo.
-    [$authUser, $basicPass] = basicAuthCredentials();
-    $basicTried = $basicPass !== null && $basicPass !== '';
-    // password_verify má z konstrukce stejnou dobu odezvy pro každý vstup.
-    if ($basicTried && !$braked && password_verify((string) $basicPass, $passHash)) {
-        return $pdo ?? getPdo();
-    }
-
     if ($braked) {
         header('Retry-After: ' . (AUTH_WINDOW_MIN * 60));
         respondHtml(429, 'Příliš mnoho pokusů', '<h1>Příliš mnoho neúspěšných pokusů</h1>'
@@ -210,13 +181,14 @@ function requireAdmin(): PDO
 
     $error = '';
     $formPass = $isPost && isset($_POST['heslo']) ? (string) $_POST['heslo'] : null;
+    // password_verify má z konstrukce stejnou dobu odezvy pro každý vstup.
     if ($formPass !== null && $formPass !== '' && password_verify($formPass, $passHash)) {
         // Čas vydání musí být ostře za hranicí z posledního odhlášení, i v téže sekundě.
         setAdminCookie(time() + ADMIN_COOKIE_DAYS * 86400, max(time(), cookieMinIssued($pdo) + 1));
         header('Location: ./', true, 303);
         exit;
     }
-    if (($formPass !== null && $formPass !== '') || $basicTried) {
+    if ($formPass !== null && $formPass !== '') {
         // Skutečný (ne prázdný) pokus o heslo se počítá do brzdy; bez IP adresy.
         if ($pdo !== null) {
             try {

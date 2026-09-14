@@ -25,12 +25,6 @@ RewriteRule (^|/)\. - [F]
 RewriteRule ^admin/export\.csv$ admin/export.php [L]
 </IfModule>
 
-# Předání hlavičky Authorization do PHP (Basic Auth pro skripty/curl v /admin/
-# na hostinzích s PHP přes CGI/FastCGI)
-<IfModule mod_setenvif.c>
-SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1
-</IfModule>
-
 # Bezpečnostní hlavičky
 <IfModule mod_headers.c>
 Header unset X-Powered-By

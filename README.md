@@ -53,7 +53,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 | --- | --- |
 | `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce: `info@technickabezpecnost.cz` (schránka projektu). Kontaktní adresa uvedená na webu (info@special-inspections.com) žádné automatické e-maily nedostává. |
 | `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
-| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/` a `/admin/export.csv`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se vlastním formulářem jen heslem (bez uživatelského jména – správce je jediný; heslo je na přání klienta při psaní viditelné), přihlášení drží podepsaná cookie 30 dní (jen pro `/admin/`, HttpOnly, SameSite=Strict; změna hesla všechna přihlášení zneplatní). Skripty a curl mohou použít HTTP Basic Auth s prázdným jménem. Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
+| `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/` a `/admin/export.csv`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se vlastním formulářem jen heslem (bez uživatelského jména – správce je jediný; heslo je na přání klienta při psaní viditelné), přihlášení drží podepsaná cookie 30 dní (jen pro `/admin/`, HttpOnly, SameSite=Strict; změna hesla všechna přihlášení zneplatní). Skripty (curl) se přihlásí stejně: `curl -c c.txt --data-urlencode 'heslo=…' https://…/admin/index.php` a dál `-b c.txt`. Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
 
 ## Lokální vývoj
@@ -145,7 +145,8 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 1. CTA **Budu mít zájem** v hero rozbalí formulář (druhý klik ho sbalí); vyplněný
    formulář → success zpráva v hero i dole, řádek v DB, e-mail dorazil na
    `NOTIFY_EMAIL`.
-2. Stejný e-mail podruhé → žádný druhý řádek ani druhý e-mail (tichý úspěch).
+2. Stejný e-mail podruhé → u pole e-mail hláška „Tento e-mail už je
+   registrovaný…“, žádný druhý řádek ani druhý e-mail.
 3. Dolní formulář v sekci **#registrace** je vidět bez klikání a funguje stejně.
 4. Prázdná pole / špatný e-mail → české chybové hlášky u polí.
 5. Vypnutý JavaScript → celý průchod funguje přes klasické stránky.
@@ -244,9 +245,12 @@ rychlý, auditovatelný a bez právních komplikací.
 
 ## Vědomá interpretační rozhodnutí (ke schválení klientem)
 
-- **Duplicitní registrace:** stejný e-mail se uloží jen jednou a druhá
-  notifikace se neposílá (uživatel přesto vidí úspěch). Statistika i schránka
-  zůstávají čisté.
+- **Duplicitní registrace:** stejný e-mail se uloží jen jednou; druhé
+  odeslání na přání klienta ukáže u pole e-mail hlášku „Tento e-mail už je
+  registrovaný – ozvu se vám…“ (JS i bez JS), nic nepřepíše a druhou
+  notifikaci nepošle. Původní „tichý úspěch“ (poděkování i podruhé) byl
+  nahrazen vědomě – hláška prozradí, že daný e-mail je registrovaný, což je
+  u pracovních kontaktů zanedbatelné riziko.
 - **Export = CSV kompatibilní s Excelem**, samostatný soubor .xlsx se
   negeneruje (CSV s BOM a středníky otevře český Excel na dvojklik).
 - **Odpověď NE byla na pokyn klienta odstraněna z celého webu** (hero i dolní
