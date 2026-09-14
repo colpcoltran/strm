@@ -23,7 +23,7 @@ const EXPORT_USER = 'spravce';
 // chování). Hash vygenerujete příkazem:
 //   php -r "echo password_hash('VaseHeslo', PASSWORD_DEFAULT), PHP_EOL;"
 // a výsledek vložíte mezi apostrofy níže.
-const EXPORT_PASS_HASH = '';
+const EXPORT_PASS_HASH = '$2y$12$QDHGmym4augtk0M6r1sijuUZnajE3WcJ2uWy12OROsZnQsvwQLSuS';
 
 // Cesta k SQLite databázi (výchozí: složka data/ vedle složky app/).
 define('DB_PATH', dirname(__DIR__) . '/data/responses.sqlite');
