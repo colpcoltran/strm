@@ -11,10 +11,33 @@ declare(strict_types=1);
 // záměrně nedostává – slouží jen pro dotazy a žádosti návštěvníků.
 const NOTIFY_EMAIL = 'info@technickabezpecnost.cz';
 
-// Adresa odesílatele notifikací. Měla by být na doméně hostingu,
-// jinak hrozí, že e-mail skončí ve spamu nebo ho hosting odmítne.
-// Prázdná hodnota = doplní se automaticky jako web@<doména webu>.
-const MAIL_FROM = '';
+// Adresa odesílatele notifikací = skutečná schránka na doméně webu (při
+// odesílání přes SMTP musí být shodná se SMTP_USER). Neexistující adresa
+// nebo cizí doména = spam. Prázdná hodnota = web@<doména webu> (nouzově).
+const MAIL_FROM = 'info@technickabezpecnost.cz';
+
+// Odesílání přes SMTP ze skutečné schránky (jinak notifikace padají do spamu –
+// PHP mail() z webového serveru neprojde DMARC, viz README). Přihlašovací
+// údaje patří do app/config.local.php, který NENÍ v gitu – vzor je
+// v app/config.local.php.example. Bez něj se použije PHP mail().
+if (is_file(__DIR__ . '/config.local.php')) {
+    require __DIR__ . '/config.local.php';
+}
+if (!defined('SMTP_HOST')) {
+    define('SMTP_HOST', '');
+}
+if (!defined('SMTP_PORT')) {
+    define('SMTP_PORT', 465);
+}
+if (!defined('SMTP_SECURE')) {
+    define('SMTP_SECURE', 'ssl');
+}
+if (!defined('SMTP_USER')) {
+    define('SMTP_USER', '');
+}
+if (!defined('SMTP_PASS')) {
+    define('SMTP_PASS', '');
+}
 
 
 // Bcrypt hash hesla. Dokud je prázdný, je export ZAMČENÝ (bezpečné výchozí

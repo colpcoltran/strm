@@ -41,6 +41,8 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 ├── app/                     ← MIMO document root
 │   ├── config.php           ← ⚙️ jediný soubor, který upravujete
 │   ├── bootstrap.php        ← společný kód endpointů
+│   ├── mailer.php           ← SMTP klient pro notifikace (bez závislostí)
+│   ├── config.local.php.example ← vzor přihlášení k SMTP (config.local.php není v gitu)
 │   └── admin.php            ← přihlášení a ochrany administrace
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
 ├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled, dev router)
@@ -52,7 +54,8 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 | Konstanta | Význam |
 | --- | --- |
 | `NOTIFY_EMAIL` | Kam chodí upozornění na zájemce: `info@technickabezpecnost.cz` (schránka projektu). Kontaktní adresa uvedená na webu (info@special-inspections.com) žádné automatické e-maily nedostává. |
-| `MAIL_FROM` | Odesílatel notifikací. Nechte prázdné (doplní se `web@<doména>`), nebo nastavte adresu na doméně hostingu. |
+| `MAIL_FROM` | Odesílatel notifikací – skutečná schránka na doméně webu (`info@technickabezpecnost.cz`); při odesílání přes SMTP shodná se `SMTP_USER`. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | V souboru `app/config.local.php` (není v gitu, vzor `app/config.local.php.example`): odesílání přes SMTP Hostingeru ze schránky info@, aby zprávy nepadaly do spamu. Bez souboru se použije PHP `mail()`. |
 | `EXPORT_PASS_HASH` | Bcrypt hash hesla k administraci (`/admin/` a `/admin/export.csv`). **Dokud je prázdný, je administrace zamčená.** Přihlašuje se vlastním formulářem jen heslem (bez uživatelského jména – správce je jediný; heslo je na přání klienta při psaní viditelné), přihlášení drží podepsaná cookie 30 dní (jen pro `/admin/`, HttpOnly, SameSite=Strict; změna hesla všechna přihlášení zneplatní). Skripty (curl) se přihlásí stejně: `curl -c c.txt --data-urlencode 'heslo=…' https://…/admin/index.php` a dál `-b c.txt`. Po 10 neúspěšných pokusech za 15 minut se přihlášení na 15 minut pozastaví (bez ukládání IP adres). Jak hash vytvořit: viz „Nastavení hesla k exportu" níže. |
 | `DB_PATH` | Cesta k SQLite souboru (výchozí `data/responses.sqlite`). |
 
@@ -74,7 +77,9 @@ TB_DEV_MODE=1 php -S localhost:8000 -t public scripts/dev-router.php
    složky `app/` a `data/` zůstávají o úroveň výš, mimo web.
 2. V administraci hostingu zvolte **PHP 8.0 nebo novější** (doporučeno 8.2+).
 3. V `app/config.php` vyplňte `EXPORT_PASS_HASH` (postup níže), zkontrolujte
-   `NOTIFY_EMAIL` a případně `MAIL_FROM`.
+   `NOTIFY_EMAIL` a `MAIL_FROM`. Na server nahrajte `app/config.local.php`
+   s heslem schránky pro SMTP (vzor `app/config.local.php.example`, postup
+   v „Když e-maily padají do spamu nebo nechodí“).
 4. V administraci hostingu zapněte HTTPS (Let's Encrypt). Po ověření, že
    HTTPS funguje, můžete v `public/.htaccess` odkomentovat hlavičku HSTS.
 5. Složka `data/` musí být pro PHP zapisovatelná (obvykle stačí výchozí
@@ -110,17 +115,35 @@ heslo samotné). Jak ho získat:
 
 Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
-### Když nechodí e-maily
+### Když e-maily padají do spamu nebo nechodí
 
-1. Zkontrolujte složku spam ve schránce `NOTIFY_EMAIL`.
-2. Nastavte `MAIL_FROM` na adresu **na doméně webu** (např.
-   `web@vase-domena.cz`) a ověřte, že doména má u hostingu SPF záznam
-   (hostingy ho většinou nastavují automaticky).
-3. Podívejte se do `data/mail-fail.log` – pokud existuje, `mail()` na
-   serveru selhává a je potřeba kontaktovat podporu hostingu (některé
-   hostingy odesílání přes `mail()` omezují nebo vyžadují povolení).
-4. Záznam v databázi vznikne i při selhání e-mailu – o zájemce nepřijdete,
-   vidíte ho v exportu.
+**Příčina spamu (ověřeno z hlaviček 15. 9. 2026):** PHP `mail()` odchází
+z webového serveru Hostingeru s obálkovým odesílatelem
+`noreply@srvXXXX.main-hosting.eu` a bez DKIM podpisu → pro doménu webu
+`dmarc=fail` („SPF not aligned, No valid DKIM“) a filtr Hostingeru zprávu
+označí `X-Spam: Yes`. DNS domény (SPF, DKIM, DMARC) je u Hostingeru
+v pořádku, jen zpráva z webu jimi není kryta.
+
+**Řešení = odesílat přes SMTP ze skutečné schránky** (poštovní server zprávu
+podepíše DKIM, SPF i DMARC projdou):
+
+1. Zkopírujte `app/config.local.php.example` jako `config.local.php` a doplňte
+   heslo schránky `info@technickabezpecnost.cz` (stejné, jakým se hlásíte do
+   webmailu).
+2. Nahrajte ho na server: hPanel → Soubory → Správce souborů →
+   `public_html/app/config.local.php`. Složka `app/` je pro web zakázaná
+   (`Require all denied`), soubor není v gitu a nasazení z gitu ho nemaže.
+3. Odešlete zkušební registraci – zpráva má dorazit do Doručené pošty
+   s hlavičkami `dkim=pass`, `spf=pass`, `dmarc=pass` a
+   `Return-Path: <info@technickabezpecnost.cz>`. Zkušební řádek pak smažte
+   z databáze.
+4. Když SMTP selže (špatné heslo, port, výpadek), web se vrátí k `mail()`
+   a důvod zapíše do `data/mail-fail.log` (bez hesla i osobních údajů).
+
+Bez SMTP: `MAIL_FROM` musí být existující schránka na doméně webu; zprávy
+u Hostingeru přesto skončí ve spamu (viz výše). `data/mail-fail.log` ukáže
+případné selhání `mail()`. Záznam v databázi vznikne i při selhání e-mailu –
+o zájemce nepřijdete, vidíte ho v přehledu.
 
 ## Administrace a export dat
 
@@ -144,7 +167,8 @@ Změna hesla = vygenerovat nový hash a nahradit ho v configu.
 
 1. CTA **Budu mít zájem** v hero rozbalí formulář (druhý klik ho sbalí); vyplněný
    formulář → success zpráva v hero i dole, řádek v DB, e-mail dorazil na
-   `NOTIFY_EMAIL`.
+   `NOTIFY_EMAIL` do Doručené pošty (ne spamu; hlavičky `dkim=pass`,
+   `dmarc=pass`, `Return-Path` = schránka domény).
 2. Stejný e-mail podruhé → u pole e-mail hláška „Tento e-mail už je
    registrovaný…“, žádný druhý řádek ani druhý e-mail.
 3. Dolní formulář v sekci **#registrace** je vidět bez klikání a funguje stejně.

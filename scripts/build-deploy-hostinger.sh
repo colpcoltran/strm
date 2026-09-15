@@ -23,6 +23,7 @@ STAGE=$(mktemp -d)
 
 cp -r public/. "$STAGE/"
 cp -r app "$STAGE/app"
+rm -f "$STAGE/app/config.local.php"   # tajné SMTP údaje nikdy do gitu – na serveru se nahrávají ručně
 mkdir -p "$STAGE/data"
 cp data/.htaccess "$STAGE/data/.htaccess"
 
@@ -30,6 +31,7 @@ sed -i "s|dirname(__DIR__) . '/data/responses.sqlite'|dirname(__DIR__) . '/data/
   "$STAGE/app/config.php"
 
 cat > "$STAGE/.gitignore" <<'EOF'
+app/config.local.php
 data/*.sqlite
 data/*.sqlite-shm
 data/*.sqlite-wal

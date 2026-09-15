@@ -1,3 +1,6 @@
+# Přihlášení k SMTP – tajné, jen na serveru (vzor: app/config.local.php.example)
+app/config.local.php
+
 # Data vznikají za běhu – do repozitáře nepatří
 data/*.sqlite
 data/*.sqlite-shm

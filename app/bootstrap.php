@@ -140,10 +140,18 @@ function mailFromAddress(): string
     return 'web@' . $host;
 }
 
+/** Zapíše selhání odeslání do data/mail-fail.log (bez hesla i osobních údajů). */
+function logMailFailure(string $text): void
+{
+    @file_put_contents(dirname(DB_PATH) . '/mail-fail.log', gmdate('c') . ' ' . $text . "\n", FILE_APPEND | LOCK_EX);
+}
+
 /**
- * Upozorní klienta na nového zájemce. Selhání odeslání request neshazuje –
- * záznam v DB je důležitější než notifikace; selhání se zapíše do logu
- * (bez osobních údajů).
+ * Upozorní klienta na nového zájemce. Přednostně přes SMTP ze skutečné
+ * schránky (app/config.local.php) – jen tak zprávu poštovní server podepíše
+ * DKIM a projde DMARC; PHP mail() z webového serveru končí ve spamu a slouží
+ * jen jako záloha. Selhání odeslání request neshazuje – záznam v DB je
+ * důležitější než notifikace; důvod se zapíše do logu (bez osobních údajů).
  */
 function sendInterestNotification(int $rowId, string $jmeno, string $prijmeni, string $profese, string $email): bool
 {
@@ -156,27 +164,42 @@ function sendInterestNotification(int $rowId, string $jmeno, string $prijmeni, s
         . "Tato zpráva byla vygenerována automaticky registračním formulářem na landing page.\n";
 
     $subject = mb_encode_mimeheader('Nový zájemce – Technická bezpečnost', 'UTF-8', 'B');
+    $fromAddr = mailFromAddress();
+    $domain = substr((string) strrchr($fromAddr, '@'), 1) ?: 'localhost';
+    // Hlavičky společné pro SMTP i mail() – To a Subject doplňuje mail() samo.
     // E-mail zájemce prošel FILTER_VALIDATE_EMAIL, do hlavičky Reply-To je bezpečný.
-    $headers = 'From: ' . mailFromAddress() . "\r\n"
-        . 'Reply-To: ' . $email . "\r\n"
-        . "MIME-Version: 1.0\r\n"
-        . "Content-Type: text/plain; charset=UTF-8\r\n"
-        . 'Content-Transfer-Encoding: 8bit';
+    $headers = [
+        'Date: ' . gmdate('D, d M Y H:i:s') . ' +0000',
+        'From: ' . mb_encode_mimeheader('Technická bezpečnost – web', 'UTF-8', 'B') . ' <' . $fromAddr . '>',
+        'Reply-To: ' . $email,
+        'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . $domain . '>',
+        'MIME-Version: 1.0',
+        'Content-Type: text/plain; charset=UTF-8',
+        'Content-Transfer-Encoding: 8bit',
+    ];
 
     if (DEV_MODE) {
         $logLine = '=== ' . pragueTime() . ' ===' . "\nTo: " . NOTIFY_EMAIL . "\nSubject: " . $subject
-            . "\n" . $headers . "\n\n" . $body . "\n";
+            . "\n" . implode("\n", $headers) . "\n\n" . $body . "\n";
         file_put_contents(dirname(DB_PATH) . '/mail-dev.log', $logLine, FILE_APPEND | LOCK_EX);
         return true;
     }
 
-    $ok = @mail(NOTIFY_EMAIL, $subject, $body, $headers);
+    if (SMTP_HOST !== '') {
+        require_once __DIR__ . '/mailer.php';
+        $mailer = new SmtpMailer(SMTP_HOST, (int) SMTP_PORT, (string) SMTP_SECURE, (string) SMTP_USER, (string) SMTP_PASS);
+        $raw = implode("\r\n", array_merge($headers, ['To: ' . NOTIFY_EMAIL, 'Subject: ' . $subject]))
+            . "\r\n\r\n" . $body;
+        if ($mailer->send($fromAddr, NOTIFY_EMAIL, $raw)) {
+            return true;
+        }
+        logMailFailure('SMTP selhal pro zaznam id=' . $rowId . ' (' . $mailer->lastError() . '), zkousim mail()');
+    }
+
+    // Záloha: PHP mail(); -f nastaví obálkového odesílatele na schránku domény.
+    $ok = @mail(NOTIFY_EMAIL, $subject, $body, implode("\r\n", $headers), '-f' . $fromAddr);
     if (!$ok) {
-        file_put_contents(
-            dirname(DB_PATH) . '/mail-fail.log',
-            gmdate('c') . ' mail() selhal pro zaznam id=' . $rowId . "\n",
-            FILE_APPEND | LOCK_EX
-        );
+        logMailFailure('mail() selhal pro zaznam id=' . $rowId);
     }
     return $ok;
 }
