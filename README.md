@@ -37,7 +37,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 │   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
 │   ├── admin/index.php      ← chráněný přehled registrací (/admin/)
 │   ├── admin/export.php     ← export CSV (/admin/export.csv)
-│   ├── favicon.svg, robots.txt, .htaccess
+│   ├── favicon.svg, robots.txt, sitemap.xml, .htaccess
 ├── app/                     ← MIMO document root
 │   ├── config.php           ← ⚙️ jediný soubor, který upravujete
 │   ├── bootstrap.php        ← společný kód endpointů
@@ -182,6 +182,9 @@ o zájemce nepřijdete, vidíte ho v přehledu.
 9. `/admin/` ani `/admin/export.csv` bez přihlášení nepustí dál (formulář
    jen s heslem); přehled ukazuje statistiky, registrace po týdnech a tabulku
    s vyhledáváním; tlačítko Odhlásit funguje; CSV se správně otevře v Excelu.
+10. `/sitemap.xml` vrací 200 (XML s jedinou URL), `robots.txt` má řádek
+    `Sitemap:`, HTML má `<link rel="canonical">`, adresa bez `www` přesměruje
+    301 na `https://www.technickabezpecnost.cz/`.
 
 ## Ostrý provoz
 
@@ -190,6 +193,22 @@ Web je od 14. 9. 2026 v ostrém provozu: nasazovací větev už nevkládá hlavi
 v `public/.htaccess` je zapnuté HSTS (`max-age` 1 rok, jen pro tento host)
 a testovací záznamy byly z živé databáze smazány.
 Administrace (`/admin/`) sama zůstává `noindex` a `robots.txt` ji zakazuje.
+
+**Indexace (od 15. 10. 2026):** web má `sitemap.xml` (jediná URL, `lastmod`
+doplňuje nasazovací skript z data posledního commitu `index.html`), řádek
+`Sitemap:` v `robots.txt`, `<link rel="canonical">` a přesměrování
+`technickabezpecnost.cz` → `www` (301, jedním skokem i z http). Samo o sobě
+to Google k webu nepřivede – nová doména bez odkazů se neobjeví sama. Nutné
+kroky majitele: 1) Google Search Console → přidat vlastnost typu Doména
+(`technickabezpecnost.cz`) a ověřit TXT záznamem v DNS zóně hPanelu
+(alternativa: vlastnost URL-prefix `https://www.technickabezpecnost.cz/`
+s HTML souborem nebo meta tagem, který se nasadí z repa); 2) Indexování →
+Soubory Sitemap → odeslat `https://www.technickabezpecnost.cz/sitemap.xml`;
+3) Kontrola URL → `https://www.technickabezpecnost.cz/` → Požádat o indexaci
+(stačí jednou). Obvykle do 1–2 týdnů je stránka v indexu; stav a návštěvy
+Googlebota ukáže jen Search Console. Doplňkově Bing Webmaster Tools
+(import ze Search Console) a 1–3 skutečné odkazy (web special-inspections.com,
+LinkedIn, e-mailový podpis).
 
 ## GDPR – provozní povinnosti
 

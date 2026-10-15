@@ -10,6 +10,13 @@ DirectoryIndex index.html index.php
 # terminuje proxy před Apachem (proxy cache hostingu, Cloudflare…).
 <IfModule mod_rewrite.c>
 RewriteEngine On
+
+# Kanonický host: technickabezpecnost.cz → www (Google nevidí dvě verze webu;
+# http://apex jde na https://www jedním skokem). Výjimka pro Let's Encrypt.
+RewriteCond %{HTTP_HOST} ^technickabezpecnost\.cz$ [NC]
+RewriteCond %{REQUEST_URI} !^/\.well-known/
+RewriteRule ^ https://www.technickabezpecnost.cz%{REQUEST_URI} [L,R=301]
+
 RewriteCond %{HTTPS} !=on
 RewriteCond %{HTTP:X-Forwarded-Proto} !https
 RewriteCond %{REQUEST_URI} !^/\.well-known/

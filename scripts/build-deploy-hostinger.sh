@@ -22,6 +22,9 @@ SRC_SHA=$(git rev-parse --short HEAD)
 STAGE=$(mktemp -d)
 
 cp -r public/. "$STAGE/"
+# lastmod v sitemapě = datum posledního commitu hlavní stránky
+LASTMOD=$(git log -1 --format=%cs -- public/index.html)
+sed -i "s|<lastmod>[0-9-]*</lastmod>|<lastmod>$LASTMOD</lastmod>|" "$STAGE/sitemap.xml"
 cp -r app "$STAGE/app"
 rm -f "$STAGE/app/config.local.php"   # tajné SMTP údaje nikdy do gitu – na serveru se nahrávají ručně
 mkdir -p "$STAGE/data"
