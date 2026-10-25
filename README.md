@@ -47,6 +47,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
 ├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled, dev router)
 ├── print/letak/             ← tištěný leták A4 s QR kódem (zdroj, fonty, hotová PDF v out/)
+├── print/qr/                ← samostatný QR kód na web (SVG, PDF, PNG; navy a černý)
 └── README.md
 ```
 
@@ -214,6 +215,7 @@ LinkedIn, e-mailový podpis).
 ## Tištěný leták A4 (`print/letak/`)
 
 Leták ve vizuálu webu s QR kódem na `https://www.technickabezpecnost.cz/`.
+Samostatný QR kód ve stejném provedení (SVG, PDF, PNG) je v `print/qr/`.
 Na web se nenasazuje (nasazovací skript kopíruje jen `public/` a `app/`).
 
 | Soubor v `print/letak/out/` | Pro koho |
