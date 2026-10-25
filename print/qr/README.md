@@ -11,8 +11,8 @@ i při poškození až čtvrtiny plochy), tichá zóna 4 moduly je součástí s
 | `qr-technickabezpecnost-tisk.png` | 1 230 × 1 230 px, 600 dpi (≈ 52 mm) pro Word, PowerPoint a programy bez vektorů. |
 | `qr-technickabezpecnost-web.png` | 410 × 410 px pro e-mail, web a sociální sítě. |
 
-Každý soubor je ve dvou barvách: navy barva webu (bez přípony) a černá
-(přípona `-cerny`, nejvyšší kontrast). Podklad je vždy bílý.
+Každý soubor je ve dvou barvách: švestková barva loga (bez přípony) a černá
+(přípona `-cerny`, nejvyšší kontrast – je i na letáku). Podklad je vždy bílý.
 
 ## Zásady použití
 

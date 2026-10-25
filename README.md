@@ -48,9 +48,9 @@ a paletu odvozenou z jeho švestkové barvy – viz „Logo a barvy".
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
 ├── scripts/                 ← vývojové nástroje (nasazovací větev, logo, OG obrázek, náhled, dev router)
 ├── mats/                    ← podklady od klienta (originál loga); na web se nenasazují
-├── print/logo/              ← celé logo se sloganem, průhledné (pro tiskoviny)
+├── print/logo/              ← logo pro tiskoviny: celé se sloganem, jen nápis (plné rozlišení), bílý nápis
 ├── print/letak/             ← tištěný leták A4 s QR kódem (zdroj, fonty, hotová PDF v out/)
-├── print/qr/                ← samostatný QR kód na web (SVG, PDF, PNG; navy a černý – zatím v původní barvě)
+├── print/qr/                ← samostatný QR kód na web (SVG, PDF, PNG; švestkový a černý)
 └── README.md
 ```
 
@@ -218,8 +218,10 @@ LinkedIn, e-mailový podpis).
 ## Tištěný leták A4 (`print/letak/`)
 
 Leták ve vizuálu webu s QR kódem na `https://www.technickabezpecnost.cz/`.
-Leták i QR kód vznikly před novým logem a jsou zatím v původní modré paletě.
-Samostatný QR kód ve stejném provedení (SVG, PDF, PNG) je v `print/qr/`.
+Paleta a horní pás s logem odpovídají webu (lomená bílá hlavička, jantarová
+linka, švestkové karty a patička); logo je `print/logo/logo-technicka-bezpecnost-napis.png`
+v plném rozlišení podkladu (~940 dpi při výšce 13 mm). QR kód je černý.
+Samostatný QR kód se stejným obsahem (SVG, PDF, PNG) je v `print/qr/`.
 Na web se nenasazuje (nasazovací skript kopíruje jen `public/` a `app/`).
 
 | Soubor v `print/letak/out/` | Pro koho |

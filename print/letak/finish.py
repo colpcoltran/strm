@@ -26,6 +26,7 @@ DIR = Path(__file__).resolve().parent
 OUT = DIR / 'out'
 URL = 'https://www.technickabezpecnost.cz/'
 MM = 72 / 25.4
+TOP_BG, BOTTOM_BG = '#fbf9f3', '#2c0727'   # horní pás a patička (letak.html)
 # soubor: (spadávka mm, okraj pro značky mm)
 VARIANTS = {
     'letak-A4-spad-3mm.pdf': (3, 0),
@@ -126,12 +127,19 @@ for name, (bleed, slug) in VARIANTS.items():
         hpx, wpx = img.shape[:2]
         px = dpi / 25.4
         if slug == 0:
-            # pozadí do všech rohů: horní pás i patička jsou tmavé (žádný bílý proužek)
-            corners = {'vlevo nahoře': img[1, 1], 'vpravo nahoře': img[1, wpx - 2],
-                       'vlevo dole': img[hpx - 2, 1], 'vpravo dole': img[hpx - 2, wpx - 2]}
-            light = [k for k, c in corners.items() if int(c.mean()) > 120]
-            if light:
-                fail('světlý roh (chybí pozadí ve spadávce): ' + ', '.join(light))
+            # pozadí do všech rohů: nahoře lomená bílá horního pásu, dole patička
+            # (čistě bílý roh = papír, chybí pozadí ve spadávce; bílá se od
+            # #fbf9f3 liší o 12 v modrém kanálu, tolerance je 5)
+            corners = {'vlevo nahoře': (img[1, 1], TOP_BG), 'vpravo nahoře': (img[1, wpx - 2], TOP_BG),
+                       'vlevo dole': (img[hpx - 2, 1], BOTTOM_BG), 'vpravo dole': (img[hpx - 2, wpx - 2], BOTTOM_BG)}
+            wrong = []
+            for k, (bgr, want) in corners.items():
+                rgb = [int(x) for x in bgr[::-1]]
+                exp = [int(want[i:i + 2], 16) for i in (1, 3, 5)]
+                if max(abs(g - e) for g, e in zip(rgb, exp)) > 5:
+                    wrong.append(f'{k} #{"".join(f"{x:02x}" for x in rgb)} místo {want}')
+            if wrong:
+                fail('roh bez pozadí ve spadávce: ' + ', '.join(wrong))
             else:
                 print('  pozadí sahá do všech čtyř rohů')
         else:

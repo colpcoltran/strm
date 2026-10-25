@@ -63,20 +63,24 @@
 }
 
 :root {
-  /* barvy = tokeny webu (public/assets/style.css) */
-  --c-primary: #12365c;
-  --c-primary-dark: #0c2743;
-  --c-hero-top: #0e2c4c;
-  --c-accent: #f0a63c;
-  --c-ink: #1a2733;
-  --c-body: #33424f;
-  --c-paper: #e0ddcb;
-  --c-paper-deep: #cfcdb8;
-  --c-paper-light: #efede3;
+  /* barvy = tokeny webu (public/assets/style.css), paleta od loga */
+  --c-primary: #620d58;
+  --c-primary-dark: #3f0a39;
+  --c-accent: #dc9a35;
+  --c-ink: #291927;
+  --c-body: #41353f;
+  --c-paper: #e3dccb;
+  --c-paper-deep: #d3cab4;
+  --c-paper-light: #f1ede2;
   --c-bronze: #6e3f05;
-  --c-muted-warm: #4a4034;
-  --c-footer-bg: #0e2438;
-  --c-footer-text: #cdd9e4;
+  --c-muted-warm: #4a3f49;
+  --c-header-bg: #fbf9f3;
+  --c-footer-bg: #2c0727;
+  --c-footer-text: #ebdbe9;
+  --c-card-from: #5a1450;
+  --c-card-to: #3f0c39;
+  --c-card-text: #efdcec;
+  --c-card-icon: #f2bd6b;
 
   /* geometrie – přepisuje skript níže podle varianty */
   --bleed: 3mm;
@@ -113,34 +117,28 @@ h1, h2, h3, p, figure, ul { margin: 0; }
   background: #fff;
 }
 
-/* --- Horní pás (jako hlavička webu) --- */
+/* --- Horní pás s logem (jako hlavička webu: lomená bílá, jantarová linka) --- */
 .band-top {
-  background: var(--c-hero-top);
-  padding: calc(var(--bleed) + 6mm) var(--pad-r) 4mm var(--pad-x);
+  background: var(--c-header-bg);
+  border-bottom: 0.8mm solid var(--c-accent);
+  padding: calc(var(--bleed) + 6mm) var(--pad-r) 3.6mm var(--pad-x);
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
 }
-.brand {
-  font-family: var(--display);
-  font-weight: 600;
-  font-size: 13pt;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #fff;
-}
+.brand { display: block; height: 13mm; width: auto; }
 .band-url {
   font-family: var(--display);
   font-weight: 600;
-  font-size: 12pt;
+  font-size: 12.5pt;
   letter-spacing: 0.04em;
-  color: var(--c-accent);
+  color: var(--c-primary);
 }
 
 /* --- Hero na papíru --- */
 .hero {
   background: var(--c-paper);
-  padding: 7mm var(--pad-r) 7mm var(--pad-x);
+  padding: 6mm var(--pad-r) 5.5mm var(--pad-x);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 47mm;
   column-gap: 8mm;
@@ -195,7 +193,7 @@ h1 {
   top: 0;
   width: 55mm;
   height: 0.3mm;
-  background: rgba(18, 54, 92, 0.6);
+  background: rgba(98, 13, 88, 0.55);
 }
 .price strong { color: var(--c-bronze); font-size: 13pt; font-weight: 700; }
 .callout {
@@ -243,14 +241,14 @@ h1 {
 
 /* --- Co členství přinese --- */
 .benefits {
-  padding: 5.5mm var(--pad-r) 5mm var(--pad-x);
+  padding: 5mm var(--pad-r) 4.5mm var(--pad-x);
 }
 .benefits-head {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
   gap: 6mm;
-  margin-bottom: 3.6mm;
+  margin-bottom: 3.2mm;
 }
 h2 {
   font-family: var(--display);
@@ -271,19 +269,19 @@ h2 {
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3mm;
+  gap: 2.6mm;
 }
 .card {
   display: grid;
   grid-template-columns: 6.5mm minmax(0, 1fr);
   column-gap: 3.4mm;
   align-content: start;
-  background: linear-gradient(180deg, #163f6c, #0f2f55);
+  background: linear-gradient(180deg, var(--c-card-from), var(--c-card-to));
   border-radius: 3mm;
   padding: 3.2mm 4.2mm 3.4mm;
 }
 .card-wide { grid-column: 1 / -1; }
-.card svg { width: 6.5mm; height: 6.5mm; color: #fff; margin-top: 0.2mm; }
+.card svg { width: 6.5mm; height: 6.5mm; color: var(--c-card-icon); margin-top: 0.2mm; }
 .card h3 {
   font-family: var(--display);
   font-weight: 600;
@@ -299,14 +297,14 @@ h2 {
   font-size: 8.8pt;
   font-weight: 500;
   line-height: 1.4;
-  color: #d3dfeb;
+  color: var(--c-card-text);
 }
 
 /* --- Výzva + QR --- */
 .cta {
   flex: 1;
   background: var(--c-paper);
-  padding: 6mm var(--pad-r) 6mm var(--pad-x);
+  padding: 5.5mm var(--pad-r) 5.5mm var(--pad-x);
   display: grid;
   grid-template-columns: minmax(0, 1fr) 36mm;
   column-gap: 12mm;
@@ -377,7 +375,7 @@ h2 {
 <div class="sheet">
 
   <div class="band-top">
-    <span class="brand">Technická bezpečnost</span>
+    <img class="brand" src="../logo/logo-technicka-bezpecnost-napis.png" alt="Technická bezpečnost">
     <span class="band-url">www.technickabezpecnost.cz</span>
   </div>
 

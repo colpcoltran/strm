@@ -2,8 +2,8 @@
 """Samostatný QR kód na web www.technickabezpecnost.cz – SVG, PDF a PNG.
 
 Parametry shodné s QR kódem na letáku (print/letak/make-qr.py): kanonická
-adresa, korekce chyb Q (25 %), tichá zóna 4 moduly. Dvě barvy: navy webu
-a černá. Po vygenerování každý soubor vykreslí a dekóduje (OpenCV), takže
+adresa, korekce chyb Q (25 %), tichá zóna 4 moduly. Dvě barvy: švestka
+loga (#620d58, kontrast 12:1) a černá. Po vygenerování každý soubor vykreslí a dekóduje (OpenCV), takže
 skript skončí chybou, pokud by kterýkoli kód nešel přečíst.
 
 Použití:  python3 -m pip install segno opencv-python-headless
@@ -23,7 +23,7 @@ URL = 'https://www.technickabezpecnost.cz/'
 DIR = Path(__file__).resolve().parent
 BORDER = 4
 PDF_MM = 40                        # rozměr PDF vč. tiché zóny
-COLORS = {'': '#0c2743', '-cerny': '#000000'}
+COLORS = {'': '#620d58', '-cerny': '#000000'}
 MM_PT = 72 / 25.4
 
 qr = segno.make(URL, error='q', micro=False, boost_error=False)

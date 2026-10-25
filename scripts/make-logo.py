@@ -15,6 +15,8 @@ Výstup:
   public/assets/logo.png (210 px) a logo@2x.png (420 px) – nápis do hlavičky;
       v CSS je 52 px vysoký (≈ 199 px široký), mobil 44 / 36 px
   print/logo/logo-technicka-bezpecnost.png – celé logo se sloganem, průhledné
+  print/logo/logo-technicka-bezpecnost-napis.png – jen nápis v plném rozlišení
+      podkladu (≈ 1 800 px), pro leták a jiné tiskoviny
   print/logo/logo-technicka-bezpecnost-bile.png – nápis bíle pro tmavý podklad
 Použití: python3 -m pip install pillow numpy && python3 scripts/make-logo.py
 Při novém logu stačí vyměnit soubor v mats/ a skript spustit znovu; pokud
@@ -88,5 +90,6 @@ white[..., :3] = 255
 save(mark, WEB, 'logo.png', 210)
 save(mark, WEB, 'logo@2x.png', 420)
 save(full, PRINT, 'logo-technicka-bezpecnost.png', 1800)
+save(mark, PRINT, 'logo-technicka-bezpecnost-napis.png', mark.width)
 save(Image.fromarray(white, 'RGBA'), PRINT, 'logo-technicka-bezpecnost-bile.png', 1800)
 print(f'poměr stran nápisu {mark.width / mark.height:.3f} (width/height v index.html a bootstrap.php)')
