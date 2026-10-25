@@ -276,14 +276,18 @@ Na web se nenasazuje (nasazovací skript kopíruje jen `public/` a `app/`).
 ## Logo a barvy
 
 **Logo** dodal klient jako PNG s bílým podkladem (`mats/Logo Technická
-bezpečnost.png`). Webové varianty dělá `python3 scripts/make-logo.py`:
+bezpečnost.png`). Varianty dělá `python3 scripts/make-logo.py`:
 průhlednost se počítá z „fialovosti“ pixelu, takže šedé stíny originálu
-zmizí a hrany zůstanou hladké. Výstupy: `assets/logo.png` + `@2x` (nápis
-s bleskem, v hlavičce 52 px / mobil 44 px / pod 360 px 36 px),
-`assets/logo-white.png` + `@2x` (bílá verze pro tmavý podklad, zatím
-nepoužitá) a `print/logo/logo-technicka-bezpecnost.png` (celé logo se
-sloganem). Při novém logu stačí vyměnit soubor v `mats/` a skript spustit
-znovu; pokud se změní barva loga, upravte i `LOGO_RGB` a práh ve skriptu.
+zmizí a hrany zůstanou hladké; bloky loga (nápis, slogan, adresa) skript
+najde sám podle prázdných řádků a vypíše je. Výstupy: `assets/logo.png`
+(210 px) + `@2x` (420 px) – nápis s bleskem do hlavičky (52 px, mobil
+44 px, pod 360 px 36 px) a do stránek bez JavaScriptu/administrace;
+`print/logo/logo-technicka-bezpecnost.png` (celé logo se sloganem)
+a `…-bile.png` (nápis bíle pro tmavý podklad) pro tiskoviny. Při novém
+logu stačí vyměnit soubor v `mats/` a skript spustit znovu; pokud se změní
+barva loga, upravte i `LOGO_RGB` a prahy ve skriptu a zkontrolujte výpis
+bloků. Změní-li se poměr stran, upravte `width`/`height` loga
+v `index.html` a `app/bootstrap.php`.
 
 **Paleta** (`:root` ve `style.css`) vychází ze švestky loga `#620d58`
 (odstín 307°); celá tmavá řada drží stejný odstín, mění se jen světlost:
@@ -294,7 +298,7 @@ znovu; pokud se změní barva loga, upravte i `LOGO_RGB` a práh ve skriptu.
 | Nadpisy, hover (`--c-primary-dark`) | `#3f0a39` – téměř černá švestka, aby logo zůstalo nejsytější |
 | Karty přínosů | přechod `#5a1450` → `#3f0c39`, ikony světlý jantar `#f2bd6b` |
 | Hlavička | lomená bílá `#fbf9f3` (logo v původních barvách, kontrast 11,6 : 1) + jantarová linka 3 px |
-| Akcent (`--c-accent`) | jantar `#dc9a35` – blesk z loga, výstražné značení; jen dekorace |
+| Akcent (`--c-accent`) | jantar `#dc9a35` – doplňkový teplý akcent (komplementární ke švestce, výstražné značení); jen dekorace. Logo samo je jednobarevné. |
 | Patička | `#2c0727`, odkazy jantarové `#f2bd6b`, focus bílý |
 | Text | `#41353f` (tělo), `#291927` (zvýraznění) – neutrály s nádechem švestky |
 
@@ -302,9 +306,20 @@ Všech 25 klíčových dvojic barev splňuje WCAG AA (text ≥ 4,5 : 1, velký
 text, ovládací prvky a logo ≥ 3 : 1). Paleta vybrána ze čtyř návrhů
 (světlá hlavička s jantarem, tmavá hlavička s bílým logem, monochromatická
 švestka, papír s mosazí) – vyhrála světlá hlavička, protože logo zůstává
-v barvách, ve kterých ho klient dodal. Favicon (`favicon.svg`), ikona pro
-iOS (`assets/apple-touch-icon.png`, vykreslená z faviconu na `#fbf9f3`),
-`theme-color` a OG obrázek používají tutéž paletu.
+v barvách, ve kterých ho klient dodal. Favicon (`favicon.svg`) je odvozený
+znak, ne výřez z loga: švestkový štít s jantarovým bleskem (motiv blesku
+z loga, čitelný i v 16 px). Ikona pro iOS (`assets/apple-touch-icon.png`)
+a OG obrázek se vyrábějí příkazem `node scripts/make-og-image.cjs`;
+`theme-color` je barva hlavičky `#fbf9f3`.
+
+**Cache:** Hostinger posílá souborům v `assets/` hlavičku cache na 7 dní.
+Nasazovací skript proto do odkazů na CSS, JS, obrázky a favicon v
+`index.html` a `app/bootstrap.php` doplní otisk obsahu (`?v=…`) – změněný
+soubor se stáhne hned, nezměněný zůstane v cache. HTML se ověřuje při každé
+návštěvě (`Cache-Control: no-cache` v `.htaccess`). V repozitáři odkazy
+parametry nemají. Sociální sítě si náhled ukládají podle adresy; po změně
+OG obrázku stačí nasadit (adresa dostane nový otisk), případně náhled
+obnovit ve Facebook Sharing Debuggeru / LinkedIn Post Inspectoru.
 
 ## Obrázky a barva papíru
 

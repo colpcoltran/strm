@@ -112,10 +112,14 @@ function respondHtml(int $status, string $title, string $bodyHtml, string $bodyC
         . '<html lang="cs"><head><meta charset="utf-8">'
         . '<meta name="viewport" content="width=device-width, initial-scale=1">'
         . '<meta name="robots" content="noindex">'
+        . '<meta name="theme-color" content="#fbf9f3">'
         . '<title>' . e($title) . '</title>'
         . '<link rel="icon" href="../favicon.svg" type="image/svg+xml">'
         . '<link rel="stylesheet" href="../assets/style.css">'
-        . '</head><body class="' . e($bodyClass) . '"><main class="fallback-card">'
+        . '</head><body class="' . e($bodyClass) . '">'
+        . '<p class="fallback-brand"><img src="../assets/logo.png" srcset="../assets/logo.png 1x, ../assets/logo@2x.png 2x"'
+        . ' width="210" height="55" alt="Technická bezpečnost"></p>'
+        . '<main class="fallback-card">'
         . $bodyHtml
         . '</main></body></html>';
     exit;

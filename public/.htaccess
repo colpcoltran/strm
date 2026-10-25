@@ -44,6 +44,12 @@ Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 # HSTS – zapnuto při ostrém spuštění (HTTPS přes Let's Encrypt u Hostingeru
 # funguje a obnovuje se automaticky; bez includeSubDomains, jen tento host)
 Header always set Strict-Transport-Security "max-age=31536000"
+# Hostinger dává souborům v assets/ cache 7 dní; HTML se proto ověřuje při
+# každé návštěvě (ETag) a odkazy na CSS/JS/obrázky nesou otisk obsahu ?v=…
+# (doplňuje scripts/build-deploy-hostinger.sh) – nová verze se stáhne hned.
+<FilesMatch "\.html$">
+Header set Cache-Control "no-cache"
+</FilesMatch>
 </IfModule>
 
 # Žádné výpisy adresářů

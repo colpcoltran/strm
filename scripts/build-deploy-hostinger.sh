@@ -29,6 +29,25 @@ cp -r app "$STAGE/app"
 rm -f "$STAGE/app/config.local.php"   # tajné SMTP údaje nikdy do gitu – na serveru se nahrávají ručně
 mkdir -p "$STAGE/data"
 cp data/.htaccess "$STAGE/data/.htaccess"
+# Otisk obsahu do odkazů na vlastní soubory (?v=<sha256[:10]>): Hostinger je
+# cachuje 7 dní, takže bez toho by vracející se návštěvník dostal nové HTML
+# se starým CSS. Repozitář zůstává bez parametrů (vývoj i náhled beze změny).
+python3 - "$STAGE" <<'EOF'
+import hashlib, pathlib, re, sys
+stage = pathlib.Path(sys.argv[1])
+pat = re.compile(r'(?<![\w?])((?:\.\./)?(?:assets/[\w@./-]+\.(?:css|js|png|jpg|svg|webp)|favicon\.svg))(?=["\s,])')
+for rel in ('index.html', 'app/bootstrap.php'):
+    f = stage / rel
+    text = f.read_text(encoding='utf-8')
+    def stamp(m):
+        target = stage / m.group(1).removeprefix('../')
+        if not target.is_file():
+            raise SystemExit(f'{rel}: odkaz na neexistující soubor {m.group(1)}')
+        return m.group(1) + '?v=' + hashlib.sha256(target.read_bytes()).hexdigest()[:10]
+    new, n = pat.subn(stamp, text)
+    f.write_text(new, encoding='utf-8')
+    print(f'{rel}: {n} odkazů s otiskem obsahu')
+EOF
 
 sed -i "s|dirname(__DIR__) . '/data/responses.sqlite'|dirname(__DIR__) . '/data/responses-$DB_SUFFIX.sqlite'|" \
   "$STAGE/app/config.php"

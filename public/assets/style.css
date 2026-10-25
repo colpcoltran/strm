@@ -43,7 +43,9 @@
 
 :root {
   /* Paleta od nového loga (mats/, scripts/make-logo.py): švestka loga
-     #620d58 (307°), celá tmavá řada drží stejný odstín; jantar = blesk. */
+     #620d58 (307°), celá tmavá řada drží stejný odstín. Logo je
+     jednobarevné – jantar je doplňkový teplý akcent (komplementární ke
+     švestce, výstražné značení), ne barva z loga. */
   --c-primary: #620d58;
   --c-primary-dark: #3f0a39;
   --c-accent: #dc9a35;
@@ -88,7 +90,7 @@
   --c-card-from: #5a1450;
   --c-card-to: #3f0c39;
   --c-card-text: #efdcec;
-  --c-card-icon: #f2bd6b;         /* ikony karet – světlý jantar (blesk z loga) */
+  --c-card-icon: #f2bd6b;         /* ikony karet – světlý jantar (doplňkový akcent) */
   --c-card-divider: rgba(255, 255, 255, 0.22);
   /* Linky a rámečky v barvě značky */
   --c-rule: rgba(98, 13, 88, 0.55);
@@ -156,6 +158,13 @@ a:hover { color: var(--c-primary-dark); }
   z-index: 100;
 }
 
+.skip-link:hover,
+.skip-link:focus {
+  color: #fff;
+}
+
+.skip-link:hover { background: var(--c-primary-dark); }
+
 .skip-link:focus {
   left: 0;
   /* vyjíždí přes světlou hlavičku */
@@ -166,7 +175,7 @@ a:hover { color: var(--c-primary-dark); }
 
 .site-header {
   background: var(--c-header-bg);
-  /* jantarová linka – „hlava“ stránky na světlé hlavičce, odkaz na blesk v logu */
+  /* jantarová linka – oddělí světlou hlavičku od papíru („hlava“ stránky) */
   border-bottom: 3px solid var(--c-header-line);
 }
 
@@ -426,6 +435,11 @@ a:hover { color: var(--c-primary-dark); }
 a[data-vyber][aria-expanded="true"].btn-primary {
   background: var(--c-primary-dark);
   box-shadow: 0 0 0 3px var(--c-paper), 0 0 0 5px var(--c-primary-dark);
+}
+
+/* Fokus na rozbaleném CTA: obrys vně tmavého prstence, aby byl odlišitelný */
+a[data-vyber][aria-expanded="true"].btn-primary:focus-visible {
+  outline-offset: 7px;
 }
 
 /* Po odpovědi zmizí CTA i formulář v hero */
@@ -890,7 +904,22 @@ a[href^="mailto:"] { white-space: nowrap; }
   font-size: 1.5rem;
 }
 
+.fallback-brand {
+  max-width: 640px;
+  margin: 0 auto 20px;
+  line-height: 0;
+}
+
+.fallback-brand img {
+  display: block;
+  height: 44px;
+  width: auto;
+}
+
+.admin-page .fallback-brand,
 .admin-page .fallback-card { max-width: 1100px; }
+
+.login-page .fallback-brand { max-width: 440px; }
 
 .admin-head {
   display: flex;
@@ -1137,8 +1166,14 @@ a[href^="mailto:"] { white-space: nowrap; }
 /* --- Tisk --------------------------------------------------- */
 
 @media print {
-  .site-header, .hero-actions, .header-cta, .reg-section, .skip-link {
+  .hero-actions, .header-cta, .reg-section, .skip-link {
     display: none;
+  }
+
+  /* Logo zůstává i na výtisku (obrázky se tisknou vždy) */
+  .site-header {
+    background: none;
+    border-bottom: 1px solid #000;
   }
 
   body { color: #000; }
@@ -1164,4 +1199,6 @@ a[href^="mailto:"] { white-space: nowrap; }
   .privacy summary, .privacy-body strong, .footer-meta { color: #000; }
 
   .card-wide p { border-left-color: #000; }
+
+  .privacy summary::after { border-color: #000; }
 }
