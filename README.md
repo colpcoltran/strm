@@ -46,6 +46,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 │   └── admin.php            ← přihlášení a ochrany administrace
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
 ├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled, dev router)
+├── print/letak/             ← tištěný leták A4 s QR kódem (zdroj, fonty, hotová PDF v out/)
 └── README.md
 ```
 
@@ -209,6 +210,32 @@ Soubory Sitemap → odeslat `https://www.technickabezpecnost.cz/sitemap.xml`;
 Googlebota ukáže jen Search Console. Doplňkově Bing Webmaster Tools
 (import ze Search Console) a 1–3 skutečné odkazy (web special-inspections.com,
 LinkedIn, e-mailový podpis).
+
+## Tištěný leták A4 (`print/letak/`)
+
+Leták ve vizuálu webu s QR kódem na `https://www.technickabezpecnost.cz/`.
+Na web se nenasazuje (nasazovací skript kopíruje jen `public/` a `app/`).
+
+| Soubor v `print/letak/out/` | Pro koho |
+| --- | --- |
+| `letak-A4-spad-3mm.pdf` | **Tiskárně** (výchozí): 216 × 303 mm = A4 + spadávka 3 mm na každé straně, TrimBox/BleedBox nastavené. |
+| `letak-A4-spad-3mm-znacky.pdf` | Tiskárně, která chce ořezové značky: 226 × 313 mm, značky 0,25 pt v okraji 5 mm. |
+| `letak-A4-bez-spadu.pdf` | Kancelářská tiskárna a e-mail: čistá A4 210 × 297 mm (tiskárna sama nechá bílý okraj, text drží ≥ 6 mm od kraje). |
+| `nahled.png` | Rychlý náhled. |
+
+- Barvy jsou RGB (tokeny webu), fonty vložené jako TrueType (Barlow Condensed
+  z webu, Inter převedený do TrueType v `fonts/` – licence OFL 1.1), portrét
+  ~700 dpi, QR vektorově 33 mm s korekcí Q. Vyžaduje-li tiskárna CMYK nebo
+  PDF/X, převod udělá její RIP z PDF se spadávkou.
+- Přegenerování (po změně textů v `letak.html`): `bash print/letak/build.sh`
+  (Python: `segno`, `pypdf`, `opencv-python-headless`; Node + Playwright
+  s Chromiem; `poppler-utils`). Sestavení selže, pokud text vyjede z bezpečné
+  zóny nebo z listu, font se vloží jako Type 3, QR nejde přečíst (150 i
+  100 dpi), pozadí nesahá do rohů spadávky nebo ořezové značky nesedí na
+  TrimBox (tolerance 0,05 mm).
+- Texty jsou převzaté z webu; na letáku chybí datum „ozvu se do konce
+  listopadu 2026“, aby tiskovina nezastarala. Při změně ceny, termínu
+  spuštění nebo kontaktu upravte web i `letak.html`.
 
 ## GDPR – provozní povinnosti
 
