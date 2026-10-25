@@ -42,56 +42,58 @@
 }
 
 :root {
-  --c-primary: #12365c;
-  --c-primary-dark: #0c2743;
-  --c-hero-top: #0e2c4c;
-  --c-accent: #f0a63c;
-  --c-ink: #1a2733;
-  --c-body: #33424f;
-  --c-muted: #5b6b78;
+  /* Paleta od nového loga (mats/, scripts/make-logo.py): švestka loga
+     #620d58 (307°), celá tmavá řada drží stejný odstín; jantar = blesk. */
+  --c-primary: #620d58;
+  --c-primary-dark: #3f0a39;
+  --c-accent: #dc9a35;
+  --c-ink: #291927;
+  --c-body: #41353f;
+  --c-muted: #695d68;
   /* „Starý papír“ – jednobarevný podklad pod textem (přání klienta).
-     Odstín je světlejší tón z dodané textury (medián textury = paper-deep).
-     Toto je jediný knoflík pro budoucí ladění barvy; při ztmavení pod
-     paper-deep znovu ověřit kontrast bronzu a muted-warm (README). */
-  --c-paper: #e0ddcb;
-  --c-paper-deep: #cfcdb8;
-  --c-paper-light: #efede3;
+     Od nového loga o chlup méně olivový (#e0ddcb → #e3dccb), aby se
+     netloukl se švestkou; původní odstín lze vrátit (README). Při ztmavení
+     pod paper-deep znovu ověřit kontrast bronzu a muted-warm. */
+  --c-paper: #e3dccb;
+  --c-paper-deep: #d3cab4;
+  --c-paper-light: #f1ede2;
   --c-bronze: #6e3f05;       /* akcentní text na papíru (>= 6:1) */
-  --c-muted-warm: #4a4034;   /* tlumený text na papíru (>= 7:1) */
+  --c-muted-warm: #4a3f49;   /* tlumený text na papíru (>= 7:1) */
   --c-bg: #ffffff;
   --c-bg-soft: var(--c-paper-light);
-  --c-line: #d6d3c2;
+  --c-line: #dad1bf;
   /* Rámečky ovládacích prvků musí mít kontrast >= 3:1 (WCAG 1.4.11)
      na bílé i na papíru; světlá --c-line je jen pro dekorativní okraje. */
-  --c-line-strong: #5f5a50;
+  --c-line-strong: #60575f;
   --c-ok: #1e7d43;
   --c-ok-bg: #ecf7f0;
   --c-err: #b3261e;
   --c-err-bg: #fdecea;
-  --c-footer-bg: #0e2438;
-  --c-footer-text: #cdd9e4;
-  --c-footer-link: #9fc3e4;
-  --c-footer-link-hover: #c9dff2;
-  --c-footer-meta: #8ba1b5;
+  --c-footer-bg: #2c0727;
+  --c-footer-text: #ebdbe9;
+  --c-footer-link: #f2bd6b;
+  --c-footer-link-hover: #f8d8a4;
+  --c-footer-meta: #bea7bb;
   --c-footer-line: rgba(255, 255, 255, 0.18);
   /* Hlavička s logem */
-  --c-header-bg: var(--c-hero-top);
-  --c-header-line: rgba(255, 255, 255, 0.08);
-  --c-header-cta: #fff;
-  --c-header-cta-line: rgba(255, 255, 255, 0.45);
-  --c-header-cta-hover-bg: rgba(255, 255, 255, 0.12);
+  --c-header-bg: #fbf9f3;
+  --c-header-line: var(--c-accent);
+  --c-header-cta: var(--c-primary);
+  --c-header-cta-line: var(--c-primary);
+  --c-header-cta-hover-bg: var(--c-primary);
   --c-header-cta-hover: #fff;
-  --c-focus-header: #f2bd6b;      /* focus kroužek na hlavičce */
-  --c-focus-dark: #f2bd6b;        /* focus kroužek na tmavé patičce */
+  --c-focus-header: var(--c-primary);      /* focus kroužek na hlavičce */
+  --c-focus-dark: #ffffff;        /* focus kroužek na tmavé patičce */
   /* Karty „Co členství přinese“ */
-  --c-card-from: #163f6c;
-  --c-card-to: #0f2f55;
-  --c-card-text: #c9d8e6;
+  --c-card-from: #5a1450;
+  --c-card-to: #3f0c39;
+  --c-card-text: #efdcec;
+  --c-card-icon: #f2bd6b;         /* ikony karet – světlý jantar (blesk z loga) */
   --c-card-divider: rgba(255, 255, 255, 0.22);
   /* Linky a rámečky v barvě značky */
-  --c-rule: rgba(18, 54, 92, 0.6);
-  --c-frame: rgba(18, 54, 92, 0.18);
-  --c-shadow-rgb: 14, 44, 76;
+  --c-rule: rgba(98, 13, 88, 0.55);
+  --c-frame: rgba(98, 13, 88, 0.16);
+  --c-shadow-rgb: 63, 10, 57;
   --radius: 12px;
   --shadow: 0 10px 30px rgba(var(--c-shadow-rgb), 0.10);
   --focus: var(--c-primary);
@@ -156,14 +158,16 @@ a:hover { color: var(--c-primary-dark); }
 
 .skip-link:focus {
   left: 0;
-  outline-color: var(--c-focus-dark);
+  /* vyjíždí přes světlou hlavičku */
+  outline-color: var(--c-primary-dark);
 }
 
 /* --- Hlavička ----------------------------------------------- */
 
 .site-header {
   background: var(--c-header-bg);
-  border-bottom: 1px solid var(--c-header-line);
+  /* jantarová linka – „hlava“ stránky na světlé hlavičce, odkaz na blesk v logu */
+  border-bottom: 3px solid var(--c-header-line);
 }
 
 .header-row {
@@ -615,7 +619,7 @@ a[data-vyber][aria-expanded="true"].btn-primary {
 .card-icon {
   width: 28px;
   height: 28px;
-  color: #fff;
+  color: var(--c-card-icon);
   margin-top: 2px;
 }
 

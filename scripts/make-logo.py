@@ -11,7 +11,8 @@ zpětně z bílé.
 Výstup (public/assets/):
   logo.png / logo@2x.png        – nápis s bleskem (hlavička webu)
   logo-white.png / @2x          – totéž bíle (tmavá patička)
-  logo-full.png                 – celé logo se sloganem a adresou (OG obrázek, tisk)
+a do print/logo/:
+  logo-technicka-bezpecnost.png – celé logo se sloganem a adresou, průhledné (tiskoviny)
 Použití: python3 -m pip install pillow numpy && python3 scripts/make-logo.py
 """
 from pathlib import Path
@@ -22,6 +23,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / 'mats' / 'Logo Technická bezpečnost.png'
 OUT = ROOT / 'public' / 'assets'
+PRINT = ROOT / 'print' / 'logo'
 LOGO_RGB = np.array([98, 13, 88], dtype=float)   # medián barvy loga
 RG_SOLID = 55.0                                   # R − G od této hodnoty = plné krytí
 DARK_SOLID, DARK_ZERO = 150.0, 210.0              # tmavé pixely (max kanál) jsou vždy kryté
@@ -49,11 +51,12 @@ def crop(img, top, bottom, pad=6):
     return img.crop((max(xs.min() - pad, 0), top + ys.min() - pad, xs.max() + pad + 1, top + ys.max() + pad + 1))
 
 
-def save(img, name, width):
+def save(img, name, width, folder=OUT):
+    folder.mkdir(parents=True, exist_ok=True)
     h = round(img.height * width / img.width)
     out = img.resize((width, h), Image.LANCZOS)
-    out.save(OUT / name, optimize=True)
-    print(f'{name}: {width} × {h} px, {(OUT / name).stat().st_size // 1024} kB')
+    out.save(folder / name, optimize=True)
+    print(f'{folder.name}/{name}: {width} × {h} px, {(folder / name).stat().st_size // 1024} kB')
     return out
 
 
@@ -69,5 +72,5 @@ save(mark, 'logo.png', 440)
 save(mark, 'logo@2x.png', 880)
 save(white, 'logo-white.png', 440)
 save(white, 'logo-white@2x.png', 880)
-save(full, 'logo-full.png', 1200)
+save(full, 'logo-technicka-bezpecnost.png', 1800, PRINT)
 print(f'poměr stran nápisu {mark.width / mark.height:.3f}')

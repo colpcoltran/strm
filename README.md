@@ -13,7 +13,8 @@ interpretační rozhodnutí").
 Vizuál: jednobarevný podklad „starý papír" (`--c-paper` ve `style.css`,
 odstín převzatý z klientem dodané textury), portrét autora s mottem
 „Ptejte se. Odpovídám z praxe, ne z paragrafů." v hero, medailonek autora
-v sekci Praktický výklad, tmavě modré karty přínosů.
+v sekci Praktický výklad. Od 25. 10. 2026 nese web logo klienta (hlavička)
+a paletu odvozenou z jeho švestkové barvy – viz „Logo a barvy".
 
 ## Technologie
 
@@ -33,7 +34,7 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 ```
 ├── public/                  ← document root webu
 │   ├── index.html           ← celá stránka
-│   ├── assets/              ← style.css, app.js, portret-autor(-300|@2x).jpg, og-image.jpg, fonts/
+│   ├── assets/              ← style.css, app.js, logo(-white)(@2x).png, portret-autor(-300|@2x).jpg, og-image.jpg, fonts/
 │   ├── api/submit.php       ← příjem odpovědí (ukládání + notifikace)
 │   ├── admin/index.php      ← chráněný přehled registrací (/admin/)
 │   ├── admin/export.php     ← export CSV (/admin/export.csv)
@@ -45,9 +46,11 @@ v sekci Praktický výklad, tmavě modré karty přínosů.
 │   ├── config.local.php.example ← vzor přihlášení k SMTP (config.local.php není v gitu)
 │   └── admin.php            ← přihlášení a ochrany administrace
 ├── data/                    ← MIMO document root; SQLite vznikne automaticky
-├── scripts/                 ← vývojové nástroje (nasazovací větev, OG obrázek, náhled, dev router)
+├── scripts/                 ← vývojové nástroje (nasazovací větev, logo, OG obrázek, náhled, dev router)
+├── mats/                    ← podklady od klienta (originál loga); na web se nenasazují
+├── print/logo/              ← celé logo se sloganem, průhledné (pro tiskoviny)
 ├── print/letak/             ← tištěný leták A4 s QR kódem (zdroj, fonty, hotová PDF v out/)
-├── print/qr/                ← samostatný QR kód na web (SVG, PDF, PNG; navy a černý)
+├── print/qr/                ← samostatný QR kód na web (SVG, PDF, PNG; navy a černý – zatím v původní barvě)
 └── README.md
 ```
 
@@ -215,6 +218,7 @@ LinkedIn, e-mailový podpis).
 ## Tištěný leták A4 (`print/letak/`)
 
 Leták ve vizuálu webu s QR kódem na `https://www.technickabezpecnost.cz/`.
+Leták i QR kód vznikly před novým logem a jsou zatím v původní modré paletě.
 Samostatný QR kód ve stejném provedení (SVG, PDF, PNG) je v `print/qr/`.
 Na web se nenasazuje (nasazovací skript kopíruje jen `public/` a `app/`).
 
@@ -269,6 +273,39 @@ Na web se nenasazuje (nasazovací skript kopíruje jen `public/` a `app/`).
   o tomto projektu (jiná sdělení by už vyžadovala souhlas dle
   zák. č. 480/2004 Sb.).
 
+## Logo a barvy
+
+**Logo** dodal klient jako PNG s bílým podkladem (`mats/Logo Technická
+bezpečnost.png`). Webové varianty dělá `python3 scripts/make-logo.py`:
+průhlednost se počítá z „fialovosti“ pixelu, takže šedé stíny originálu
+zmizí a hrany zůstanou hladké. Výstupy: `assets/logo.png` + `@2x` (nápis
+s bleskem, v hlavičce 52 px / mobil 44 px / pod 360 px 36 px),
+`assets/logo-white.png` + `@2x` (bílá verze pro tmavý podklad, zatím
+nepoužitá) a `print/logo/logo-technicka-bezpecnost.png` (celé logo se
+sloganem). Při novém logu stačí vyměnit soubor v `mats/` a skript spustit
+znovu; pokud se změní barva loga, upravte i `LOGO_RGB` a práh ve skriptu.
+
+**Paleta** (`:root` ve `style.css`) vychází ze švestky loga `#620d58`
+(odstín 307°); celá tmavá řada drží stejný odstín, mění se jen světlost:
+
+| Role | Barva |
+| --- | --- |
+| Tlačítka, odkazy, motto (`--c-primary`) | `#620d58` – přímo barva loga |
+| Nadpisy, hover (`--c-primary-dark`) | `#3f0a39` – téměř černá švestka, aby logo zůstalo nejsytější |
+| Karty přínosů | přechod `#5a1450` → `#3f0c39`, ikony světlý jantar `#f2bd6b` |
+| Hlavička | lomená bílá `#fbf9f3` (logo v původních barvách, kontrast 11,6 : 1) + jantarová linka 3 px |
+| Akcent (`--c-accent`) | jantar `#dc9a35` – blesk z loga, výstražné značení; jen dekorace |
+| Patička | `#2c0727`, odkazy jantarové `#f2bd6b`, focus bílý |
+| Text | `#41353f` (tělo), `#291927` (zvýraznění) – neutrály s nádechem švestky |
+
+Všech 25 klíčových dvojic barev splňuje WCAG AA (text ≥ 4,5 : 1, velký
+text, ovládací prvky a logo ≥ 3 : 1). Paleta vybrána ze čtyř návrhů
+(světlá hlavička s jantarem, tmavá hlavička s bílým logem, monochromatická
+švestka, papír s mosazí) – vyhrála světlá hlavička, protože logo zůstává
+v barvách, ve kterých ho klient dodal. Favicon (`favicon.svg`), ikona pro
+iOS (`assets/apple-touch-icon.png`, vykreslená z faviconu na `#fbf9f3`),
+`theme-color` a OG obrázek používají tutéž paletu.
+
 ## Obrázky a barva papíru
 
 **Portrét autora** (`assets/portret-autor.jpg` 600×800 px, `portret-autor-300.jpg`
@@ -282,11 +319,14 @@ Medailonek v sekci Praktický výklad je na přání klienta bez fotografie.
 Originál fotografie zůstává u klienta / v účtu Magnific, do repozitáře se neukládá.
 
 **Barva papíru** – hero a sekce karet mají jednobarevný podklad „starý papír"
-(přání klienta). Odstín `#e0ddcb` je světlý tón z dodané textury – medián
-textury `#cfcdb8` by na obrazovce zešedl; slouží jako `--c-paper-deep`. Ladění barvy =
+(přání klienta). Původní odstín `#e0ddcb` (světlý tón z dodané textury) byl
+s novým logem posunut o chlup od olivové k teplé béžové `#e3dccb`
+(`--c-paper-deep` `#d3cab4`, `--c-paper-light` `#f1ede2`, `--c-line`
+`#dad1bf`), aby se netloukl se švestkou; vrátit jde změnou těchto čtyř
+proměnných (kontrasty projdou i s původními hodnotami). Ladění barvy =
 změna proměnné `--c-paper` v `style.css` (a případně `--c-paper-deep`,
 `--c-paper-light`). Texty na papíru jsou navrženy na kontrast WCAG AA:
-zesvětlení papíru nic nerozbije; při ztmavení pod `#cfcdb8` znovu ověřte
+zesvětlení papíru nic nerozbije; při ztmavení pod `#d3cab4` znovu ověřte
 bronzový eyebrow/cenu (`--c-bronze`) a tlumený text (`--c-muted-warm`),
 případně je ztmavte.
 
@@ -294,7 +334,7 @@ případně je ztmavte.
 `scripts/og-template.html` příkazem `node scripts/make-og-image.cjs`
 (vyžaduje Playwright s Chromiem: `npm i -D playwright && npx playwright
 install chromium`; `node_modules/` je v `.gitignore`). Spusťte znovu po
-změně barvy papíru, motta nebo portrétu.
+změně loga, barev, motta nebo portrétu (šablona má barvy zapsané přímo).
 
 **Motto** „Ptejte se. Odpovídám z praxe, ne z paragrafů." je v `index.html`
 (`.hero-motto`) a v OG šabloně – výměna je jeden řetězec na dvou místech
