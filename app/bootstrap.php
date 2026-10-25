@@ -117,8 +117,8 @@ function respondHtml(int $status, string $title, string $bodyHtml, string $bodyC
         . '<link rel="icon" href="../favicon.svg" type="image/svg+xml">'
         . '<link rel="stylesheet" href="../assets/style.css">'
         . '</head><body class="' . e($bodyClass) . '">'
-        . '<p class="fallback-brand"><img src="../assets/logo.png" srcset="../assets/logo.png 1x, ../assets/logo@2x.png 2x"'
-        . ' width="210" height="55" alt="Technická bezpečnost"></p>'
+        . '<p class="fallback-brand"><a href="../"><img src="../assets/logo.png" srcset="../assets/logo.png 1x, ../assets/logo@2x.png 2x"'
+        . ' width="210" height="55" alt="Technická bezpečnost"></a></p>'
         . '<main class="fallback-card">'
         . $bodyHtml
         . '</main></body></html>';

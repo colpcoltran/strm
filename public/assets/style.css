@@ -199,6 +199,14 @@ a:hover { color: var(--c-primary-dark); }
   width: auto;
 }
 
+/* Logo je odkaz na úvodní stránku (i z administrace a ze stránek po
+   odeslání formuláře bez JS); klikací je jen samotné logo */
+.brand a,
+.fallback-brand a {
+  display: inline-block;
+  vertical-align: top;
+}
+
 .header-cta {
   color: var(--c-header-cta);
   text-decoration: none;
