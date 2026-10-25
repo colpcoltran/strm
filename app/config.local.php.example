@@ -1,0 +1,18 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Přihlášení k SMTP pro odesílání notifikací ze skutečné schránky.
+ * Zkopírujte jako app/config.local.php (na Hostingeru v nouzovém rozložení:
+ * public_html/app/config.local.php) a doplňte heslo schránky – to, kterým se
+ * hlásíte do webmailu. Soubor NENÍ v gitu a nasazení z gitu ho nepřepíše ani
+ * nesmaže. Složka app/ má .htaccess „Require all denied“, z webu není čitelná.
+ *
+ * Bez tohoto souboru web odesílá přes PHP mail() – zprávy pak u Hostingeru
+ * padají do spamu (DMARC fail, bez DKIM).
+ */
+const SMTP_HOST = 'smtp.hostinger.com';
+const SMTP_PORT = 465;                 // 465 = SSL (SMTP_SECURE 'ssl'); alternativně 587 + 'tls'
+const SMTP_SECURE = 'ssl';             // ssl | tls | none (none jen pro lokální test)
+const SMTP_USER = 'info@technickabezpecnost.cz'; // schránka, ze které se odesílá (= MAIL_FROM)
+const SMTP_PASS = 'SEM-HESLO-SCHRANKY';
